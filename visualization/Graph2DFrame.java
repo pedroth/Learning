@@ -381,6 +381,10 @@ public class Graph2DFrame extends JFrame {
 	}
 
 	public static void main(String args[]) {
+		
+		/**
+		 * matrix function
+		 */
 		// int n = 100;
 		// Matrix v = new Matrix(n, n);
 		// //v.identity();
@@ -390,16 +394,22 @@ public class Graph2DFrame extends JFrame {
 		// v.setMatrix(i, j,(i-n/2)*(j-n/2));
 		// }
 		
-//		MyImage kakashi = new MyImage("https://92c3cb5a-a-62cb3a1a-s-sites.googlegroups.com/site/ibplanalto2010/Home/kakashi46-3459488_50_50%5B1%5D.jpg?attachauth=ANoY7cp6kFZ2u7lOyL3KJqDYkzI_jmNGeoLsCE29u25IlE23i8Bgqx-4UsNUTkE4Mh7vBQpKPe107E_-PLAOywT34dv8cW9_r9WV0uOZ8p26uBT4rusztcGEh9wkuZ2QI0f-loBiB4pmzo_3NKMrC0CPbRvHHiwa_vT2wVEjZiWh7fZ9XlUjC6vrCVvNOtnmgsnSd-WjjbZqO-q6jSPBFw1zyyaa8uzcAKExLodMjCR40cjjmDComqp1JMNpKJoE1iTDgXQDWFzU&attredirects=0");
-
-		MyImage kakashi = new MyImage(
-				"http://i106.photobucket.com/albums/m255/Farumbrosius/10_bar-refaeli_04.jpg");
+		MyImage kakashi = new MyImage("https://92c3cb5a-a-62cb3a1a-s-sites.googlegroups.com/site/ibplanalto2010/Home/kakashi46-3459488_50_50%5B1%5D.jpg?attachauth=ANoY7cp6kFZ2u7lOyL3KJqDYkzI_jmNGeoLsCE29u25IlE23i8Bgqx-4UsNUTkE4Mh7vBQpKPe107E_-PLAOywT34dv8cW9_r9WV0uOZ8p26uBT4rusztcGEh9wkuZ2QI0f-loBiB4pmzo_3NKMrC0CPbRvHHiwa_vT2wVEjZiWh7fZ9XlUjC6vrCVvNOtnmgsnSd-WjjbZqO-q6jSPBFw1zyyaa8uzcAKExLodMjCR40cjjmDComqp1JMNpKJoE1iTDgXQDWFzU&attredirects=0");
+		
+//		MyImage kakashi = new MyImage(
+//				"http://i106.photobucket.com/albums/m255/Farumbrosius/10_bar-refaeli_04.jpg");
 
 //		 MyImage kakashi = new
 //		 MyImage("http://static2.wikia.nocookie.net/__cb20130215214233/naruto/images/3/3b/KakashiMangeky%C5%8DSharinganAnime.jpg");
-//
+//		
+		/**
+		 * gray scale matrix
+		 */
 		Matrix v = new Matrix(kakashi.getGrayScale());
 		
+		/**
+		 * hsv matrix
+		 */
 //		TriVector[][] k = kakashi.getHSVImageMatrix();
 //		Matrix v = new Matrix(k.length,k[0].length);
 //		for(int i = 1; i <= k.length; i++) {
@@ -409,8 +419,8 @@ public class Graph2DFrame extends JFrame {
 //		}
 		
 		Graph2DFrame frame = new Graph2DFrame("figure 1");
-		frame.setGrayScale(true);
-		frame.setSmooth(false);
+		frame.setGrayScale(false);
+		frame.setSmooth(true);
 		frame.setRepainting(false);
 		frame.addMatrix(v.getMatrix(), -1, 1, -1, 1);
 		frame.plot();

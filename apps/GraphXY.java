@@ -189,6 +189,10 @@ public class GraphXY extends JFrame implements MouseListener,
 		ZBufferPrespective painter = new ZBufferPrespective();
 		graphics.setMethod(painter);
 		wd.setBackGroundColor(Color.black);
+		/**
+		 * end engine setup
+		 */
+		
 		isZBuffer = true;
 		colorState = 0;
 		drawAxis = false;
