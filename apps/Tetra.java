@@ -14,6 +14,7 @@ import java.util.TimerTask;
 import javax.management.timer.TimerMBean;
 import javax.swing.JFrame;
 
+import visualization.TextFrame;
 import window.ImageWindow;
 import windowThreeDim.Element;
 import windowThreeDim.PaintMethod;
@@ -49,6 +50,13 @@ public class Tetra extends JFrame implements MouseListener,
 	private boolean zBufferOn;
 	private PaintMethod paint;
 	private FrameCounter fps;
+	
+	private static final String helpText = "< w > : Camera move foward / zoom in \n\n" +
+			"< s > : Camera move backward /zoom out \n\n" +
+			"< z > : Toggle wireframe / zbuffer \n\n" +
+			"< [1-3] > : various geometries \n\n" +
+			"< mouse > : rotate camera\n\n" +
+			"Made by Pedroth";
 
 	public Tetra() {
 		// Set JFrame title
@@ -346,6 +354,9 @@ public class Tetra extends JFrame implements MouseListener,
 	@Override
 	public void keyReleased(KeyEvent arg0) {
 		thrust = 0;
+		if (arg0.getKeyCode() == KeyEvent.VK_H) {
+			new TextFrame("help", helpText);
+		}
 	}
 
 	@Override

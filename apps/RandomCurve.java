@@ -15,6 +15,7 @@ import java.util.TimerTask;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
+import visualization.TextFrame;
 import window.ImageWindow;
 
 public class RandomCurve extends JFrame implements MouseListener, KeyListener {
@@ -42,6 +43,11 @@ public class RandomCurve extends JFrame implements MouseListener, KeyListener {
 	private double speed;
 	private boolean speedDisplay;
 	private double maxSpeed;
+	
+	private static String helpText = "< mouse > : initial position of curve \n\n" +
+			"< [+, -] > : increase/decrease speed of curve\n\n" +
+			"< s > : save png image(does not work in applet)\n\n" +
+			"Made by Pedroth";
 
 	/**
 	 * lineVector[i][0] = x-coordinate of point/vector i; lineVector[i][1] =
@@ -99,8 +105,8 @@ public class RandomCurve extends JFrame implements MouseListener, KeyListener {
 			lineVector[1][0] = initX + speed * dt * dxdt;
 			lineVector[1][1] = initY + speed * dt * dydt;
 
-			System.out.println("theta :  " + theta + "  omega :  " + omega
-					+ "  alfa :  " + alfa + " speed : " + speed);
+//			System.out.println("theta :  " + theta + "  omega :  " + omega
+//					+ "  alfa :  " + alfa + " speed : " + speed);
 
 			// wd.setDrawColor(Color.red);
 			// wd.drawLine(lineVector[0][0], lineVector[0][1], lineVector[0][0]
@@ -248,6 +254,9 @@ public class RandomCurve extends JFrame implements MouseListener, KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_H) {
+			new TextFrame("help", helpText);
+		}
 	}
 
 	@Override

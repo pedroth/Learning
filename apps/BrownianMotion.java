@@ -9,6 +9,8 @@ import java.util.Random;
 
 import javax.swing.JFrame;
 
+import visualization.TextFrame;
+
 /**
  * 
  * @author pedro
@@ -58,6 +60,12 @@ public class BrownianMotion extends JFrame implements KeyListener {
 
 	private double[] historyX, historyY;
 	private int historyIndex, numHistory = 1000;
+	
+	
+	private static String helpText = "< arrows > : add force to all particles \n\n" +
+			"< + > : increase radius of particles \n\n" +
+			"< - > : decrease radius of particles\n\n" +
+			"Made by Pedroth";
 
 	public BrownianMotion() {
 		// Set JFrame title
@@ -328,6 +336,9 @@ public class BrownianMotion extends JFrame implements KeyListener {
 		if (e.getKeyCode() == KeyEvent.VK_UP
 				|| e.getKeyCode() == KeyEvent.VK_DOWN) {
 			thrusty = 0;
+		}
+		if (e.getKeyCode() == KeyEvent.VK_H) {
+			new TextFrame("help", helpText);
 		}
 	}
 

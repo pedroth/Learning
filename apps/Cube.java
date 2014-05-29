@@ -12,6 +12,7 @@ import java.util.TimerTask;
 
 import javax.swing.JFrame;
 
+import visualization.TextFrame;
 import window.ImageWindow;
 import windowThreeDim.Element;
 import windowThreeDim.Point;
@@ -70,6 +71,16 @@ public class Cube extends JFrame implements MouseListener, MouseMotionListener,
 	private double time;
 	private double dt;
 	private static int numParticles = 10000;
+	
+	private double loopSize = 3;
+	
+	private static String helpText = "< [1-6] > : various vector fields \n\n" +
+			"< w > : Camera move foward / zoom in \n\n" +
+			"< s > : Camera move backward /zoom out \n\n" +
+			"< l > : loop mode toggle \n\n" +
+			"< [+,-] > : increase / decrease loop box size \n\n" +
+			"< v > : toggle between velocity field and acceleration field\n\n" +
+			"Made by Pedroth";
 
 	public Cube() {
 		// Set JFrame title
@@ -362,8 +373,8 @@ public class Cube extends JFrame implements MouseListener, MouseMotionListener,
 		}
 
 		private void loopCheck(TriVector x) {
-			double min = -3;
-			double max = 3;
+			double min = -loopSize;
+			double max = loopSize;
 			x.setX(barrierCheck(x.getX(), min, max));
 			x.setY(barrierCheck(x.getY(), min, max));
 			x.setZ(barrierCheck(x.getZ(), min, max));
@@ -509,12 +520,19 @@ public class Cube extends JFrame implements MouseListener, MouseMotionListener,
 			stateField = 5;
 		}else if (arg0.getKeyCode() == KeyEvent.VK_6) {
 			stateField = 6;
+		}else if (arg0.getKeyCode() == KeyEvent.VK_PLUS) {
+			loopSize ++;
+		}else if (arg0.getKeyCode() == KeyEvent.VK_MINUS) {
+			loopSize--;
 		}
 	}
 
 	@Override
 	public void keyReleased(KeyEvent arg0) {
 		thrust = 0;
+		if (arg0.getKeyCode() == KeyEvent.VK_H) {
+			new TextFrame("help", helpText);
+		}
 	}
 
 	@Override

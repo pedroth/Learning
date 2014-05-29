@@ -18,6 +18,7 @@ import java.util.Stack;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import visualization.TextFrame;
 import window.ImageWindow;
 import windowThreeDim.Composite;
 import windowThreeDim.Element;
@@ -93,6 +94,12 @@ public class Robot extends JFrame implements MouseListener,
 	private Composite ball;
 	Transformation ballTransform;
 	private boolean showStateSpace;
+	
+	private static String helpText = "< left mouse button > : change orientation of camera \n\n" +
+			"< right mouse button > : zoom in / zoom out \n\n" +
+			"< [w, s] ans arrows > : move ball \n\n" +
+			"< t > : toggle space state \n\n" +
+			"Made by Pedroth";
 
 	public Robot() {
 		// Set JFrame title
@@ -587,6 +594,9 @@ public class Robot extends JFrame implements MouseListener,
 	@Override
 	public void keyReleased(KeyEvent arg0) {
 		thrust = new TriVector();
+		if (arg0.getKeyCode() == KeyEvent.VK_H) {
+			new TextFrame("help", helpText);
+		}
 
 	}
 

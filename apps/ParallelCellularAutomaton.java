@@ -20,6 +20,8 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
+import visualization.TextFrame;
+
 /**
  * Parallel Asynchronous cellular automaton
  * 
@@ -43,6 +45,10 @@ public class ParallelCellularAutomaton extends Applet implements
 	private JButton button;
 	private boolean timerStarted;
 	private ThreadManager threadManager;
+	
+	private static String helpText = "< mouse > : draw initial state \n\n" +
+			"<any button > : starts animation \n\n" +
+			"Made by Pedroth";
 
 	class CellularAutomaton implements Runnable {
 		private int discreteTime;
@@ -252,6 +258,9 @@ public class ParallelCellularAutomaton extends Applet implements
 	public void keyReleased(KeyEvent e) {
 		timer.schedule(threadManager, 0, 10);
 		timerStarted = true;
+		if (e.getKeyCode() == KeyEvent.VK_H) {
+			new TextFrame("help", helpText);
+		}
 	}
 
 	@Override

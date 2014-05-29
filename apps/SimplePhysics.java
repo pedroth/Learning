@@ -14,6 +14,7 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import visualization.TextFrame;
 import window.ImageWindow;
 import window.Window2D;
 
@@ -57,6 +58,11 @@ public class SimplePhysics extends Applet implements MouseListener,
 	private double ranAmp2;
 
 	private boolean camera;
+	
+	private static String helpText = "< arrows > : move square \n\n" +
+			"< c > : follow square \n\n" +
+			"< [1-9] > : change map \n\n" +
+			"Made By Pedroth";
 
 	public void init() {
 		wd = new ImageWindow(-5, 5, -5, 5);
@@ -687,6 +693,9 @@ public class SimplePhysics extends Applet implements MouseListener,
 				|| e.getKeyCode() == KeyEvent.VK_RIGHT) {
 			xThrust = 0;
 			yThrust = 0;
+		}
+		if (e.getKeyCode() == KeyEvent.VK_H) {
+			new TextFrame("help", helpText);
 		}
 	}
 

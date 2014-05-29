@@ -20,6 +20,7 @@ import java.util.Random;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import visualization.TextFrame;
 import window.ImageWindow;
 import windowThreeDim.Element;
 import windowThreeDim.InterpolativeShader;
@@ -174,6 +175,21 @@ public class GraphXY extends JFrame implements MouseListener,
 	 * is shading
 	 */
 	private boolean isShading;
+		
+	private static String helpText = "< w > : Camera move foward / zoom in \n\n" +
+			"< s > : Camera move backward /zoom out \n\n" +
+			"< z > : Toggle wireframe / zbuffer \n\n" +
+			"< n > : Toggle flat shading \n\n" +
+			"< [1-3] > : change color of surface \n\n" +
+			"< e > : random examples of functions\n\n" +
+			"< 8 > : interpolative colors \n\n" +
+			"< 9 > : level set shader\n\n" +
+			"< Available functions > : sin ,cos, exp, ln, tan, acos, asin, atan, min, adding more \n\n" +
+			"< operators > : +, - , *, ^ \n\n" +
+			"< Available constants > : pi\n\n" +
+			"< a > : draw Axis \n\n" +
+			"< mouse > : rotate camera\n\n" +
+			"Made by Pedroth";
 
 	public GraphXY() {
 		// Set JFrame title
@@ -965,6 +981,9 @@ public class GraphXY extends JFrame implements MouseListener,
 	@Override
 	public void keyReleased(KeyEvent arg0) {
 		thrust = 0;
+		if (arg0.getKeyCode() == KeyEvent.VK_H) {
+			new TextFrame("help", helpText);
+		}
 	}
 
 	@Override
@@ -1031,8 +1050,7 @@ public class GraphXY extends JFrame implements MouseListener,
 
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
+		
 	}
 
 	@Override
