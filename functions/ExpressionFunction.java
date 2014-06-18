@@ -9,6 +9,7 @@ import functionNode.ACosNode;
 import functionNode.ASinNode;
 import functionNode.ATanNode;
 import functionNode.AddNode;
+import functionNode.CombinationNode;
 import functionNode.ConstantNode;
 import functionNode.CosNode;
 import functionNode.DivNode;
@@ -324,7 +325,8 @@ public class ExpressionFunction extends DoubleFunction {
 
 	public static void main(String[] args) {
 		String[] varTokens = { "u", "x", "y" };
-		ExpressionFunction foo = new ExpressionFunction("pedro(cos(t)*cos(2*t),sin(t)*cos(2*t),0,2*pi,x,y)", varTokens);
+		//ExpressionFunction foo = new ExpressionFunction("pedro(cos(t)*cos(2*t),sin(t)*cos(2*t),0,2*pi,x,y)", varTokens);
+		ExpressionFunction foo = new ExpressionFunction("C(x,y)", varTokens);
 		String[] dummyVar ={"i"};
 		foo.addFunction("sigma", new Sigma(dummyVar,foo));
 		/**
@@ -332,8 +334,9 @@ public class ExpressionFunction extends DoubleFunction {
 		 */
 		String[] dummyVar2 ={"t"};
 		foo.addFunction("pedro", new PedroNode(dummyVar2,foo));
+		foo.addFunction("C", new CombinationNode());
 		foo.init();
-		Double[] vars = { 3.141592, 0.0, -0.98 };
+		Double[] vars = { 3.141592, 0.0, 3.0 };
 		System.out.print(foo.compute(vars));
 	}
 }

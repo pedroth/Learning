@@ -57,7 +57,7 @@ public class ParallelCellularAutomaton extends Applet implements
 		 * change rules where according with
 		 * http://psoup.math.wisc.edu/mcell/rullex_life.html
 		 */
-		private int[] survive = { 2, 3 };
+		private int[] survive = { 1,2,3,4, 5 };
 		private int[] born = { 3 };
 
 		public CellularAutomaton(int begin, int end) {

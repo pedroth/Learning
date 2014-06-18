@@ -39,6 +39,8 @@ import windowThreeDim.YShader;
 import windowThreeDim.ZBufferPrespective;
 import algebra.Matrix;
 import algebra.TriVector;
+import functionNode.CombinationNode;
+import functionNode.LinearSystemError;
 import functionNode.PedroNode;
 import functionNode.Sigma;
 import functions.ExpressionFunction;
@@ -175,21 +177,20 @@ public class GraphXY extends JFrame implements MouseListener,
 	 * is shading
 	 */
 	private boolean isShading;
-		
-	private static String helpText = "< w > : Camera move foward / zoom in \n\n" +
-			"< s > : Camera move backward /zoom out \n\n" +
-			"< z > : Toggle wireframe / zbuffer \n\n" +
-			"< n > : Toggle flat shading \n\n" +
-			"< [1-3] > : change color of surface \n\n" +
-			"< e > : random examples of functions\n\n" +
-			"< 8 > : interpolative colors \n\n" +
-			"< 9 > : level set shader\n\n" +
-			"< Available functions > : sin ,cos, exp, ln, tan, acos, asin, atan, min, adding more \n\n" +
-			"< operators > : +, - , *, ^ \n\n" +
-			"< Available constants > : pi\n\n" +
-			"< a > : draw Axis \n\n" +
-			"< mouse > : rotate camera\n\n" +
-			"Made by Pedroth";
+
+	private static String helpText = "< w > : Camera move foward / zoom in \n\n"
+			+ "< s > : Camera move backward /zoom out \n\n"
+			+ "< z > : Toggle wireframe / zbuffer \n\n"
+			+ "< n > : Toggle flat shading \n\n"
+			+ "< [1-3] > : change color of surface \n\n"
+			+ "< e > : random examples of functions\n\n"
+			+ "< 8 > : interpolative colors \n\n"
+			+ "< 9 > : level set shader\n\n"
+			+ "< Available functions > : sin ,cos, exp, ln, tan, acos, asin, atan, min, adding more \n\n"
+			+ "< operators > : +, - , *, ^ \n\n"
+			+ "< Available constants > : pi\n\n"
+			+ "< a > : draw Axis \n\n"
+			+ "< mouse > : rotate camera\n\n" + "Made by Pedroth";
 
 	public GraphXY() {
 		// Set JFrame title
@@ -208,7 +209,7 @@ public class GraphXY extends JFrame implements MouseListener,
 		/**
 		 * end engine setup
 		 */
-		
+
 		isZBuffer = true;
 		colorState = 0;
 		drawAxis = false;
@@ -516,6 +517,9 @@ public class GraphXY extends JFrame implements MouseListener,
 		String[] dummyVar = { "t" };
 		exprFunction
 				.addFunction("pedro", new PedroNode(dummyVar, exprFunction));
+		exprFunction.addFunction("linearSystemError", new LinearSystemError(1,
+				-2, 5, -7, 7, -5));
+		exprFunction.addFunction("C", new CombinationNode());
 		maxHeightColor = Double.NEGATIVE_INFINITY;
 		minHeightColor = Double.POSITIVE_INFINITY;
 		try {
@@ -618,8 +622,9 @@ public class GraphXY extends JFrame implements MouseListener,
 				e.setColorPoint(Color.getHSBColor((float) colorHSB, 1f, 1f), i);
 			} else if (colorState == 1) {
 				Random r = new Random();
-				e.setColorPoint(Color.getHSBColor((float) colorHSB, r.nextFloat(),
-						1f),i);
+				e.setColorPoint(
+						Color.getHSBColor((float) colorHSB, r.nextFloat(), 1f),
+						i);
 			} else if (colorState == 2) {
 				/**
 				 * see discrete/finite calculus or Newton series to understand
@@ -630,7 +635,7 @@ public class GraphXY extends JFrame implements MouseListener,
 				double d2s = ((red - green) - (green - blue));
 				double ds = (green - blue);
 				colorHSB = blue + ds * (x + 1) + 0.5 * d2s * (x + 1) * x;
-				e.setColorPoint(Color.getHSBColor((float) colorHSB, 1f, 1f),i);
+				e.setColorPoint(Color.getHSBColor((float) colorHSB, 1f, 1f), i);
 			}
 		}
 	}
@@ -970,9 +975,9 @@ public class GraphXY extends JFrame implements MouseListener,
 			functionString.setText(str);
 			graphics.removeAllElements();
 			drawFunction = true;
-		}  else if(arg0.getKeyCode() == KeyEvent.VK_8) {
+		} else if (arg0.getKeyCode() == KeyEvent.VK_8) {
 			graphics.setMethod(new InterpolativeShader());
-		} else if(arg0.getKeyCode() == KeyEvent.VK_9) {
+		} else if (arg0.getKeyCode() == KeyEvent.VK_9) {
 			graphics.setMethod(new LevelSetShader());
 		}
 
@@ -1050,7 +1055,7 @@ public class GraphXY extends JFrame implements MouseListener,
 
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
-		
+
 	}
 
 	@Override

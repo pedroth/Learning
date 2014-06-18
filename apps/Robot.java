@@ -120,7 +120,7 @@ public class Robot extends JFrame implements MouseListener,
 		focalPoint = new TriVector();
 
 		// Set default close operation for JFrame
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// Set JFrame size
 		setSize(800, 600);

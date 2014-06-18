@@ -17,7 +17,7 @@ public class TextFrame extends JFrame {
 		// Set JFrame size
 		setSize(800, 550);
 		// Set default close operation for JFrame
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		//setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		TextArea txtArea = new TextArea(text);
 		this.add(txtArea);
 		setVisible(true);

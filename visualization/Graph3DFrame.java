@@ -264,9 +264,9 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 				
 				double colorHSB;
 				for (int k = 0; k < e.getNumOfPoints(); k++) {
-					double z = e.getNPoint(i).getZ();
+					double z = e.getNPoint(k).getZ();
 					colorHSB = heatColor(z, minZ, maxZ);
-					e.setColorPoint(Color.getHSBColor((float) colorHSB, 1f, 1f), i);
+					e.setColorPoint(Color.getHSBColor((float) colorHSB, 1f, 1f), k);
 				}
 				graphics.addtoList(e);
 			}
@@ -443,6 +443,8 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 			isDrawAxis = !isDrawAxis;
 		if(arg0.getKeyCode() == KeyEvent.VK_S)
 			graphics.setMethod(new InterpolativeShader());
+		if(arg0.getKeyCode() == KeyEvent.VK_F)
+			graphics.setMethod(shader);
 	}
 
 	@Override

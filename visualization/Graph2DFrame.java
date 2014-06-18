@@ -419,7 +419,7 @@ public class Graph2DFrame extends JFrame {
 //		}
 		
 		Graph2DFrame frame = new Graph2DFrame("figure 1");
-		frame.setGrayScale(false);
+		frame.setGrayScale(true);
 		frame.setSmooth(true);
 		frame.setRepainting(false);
 		frame.addMatrix(v.getMatrix(), -1, 1, -1, 1);

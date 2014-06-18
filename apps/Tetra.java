@@ -77,7 +77,7 @@ public class Tetra extends JFrame implements MouseListener,
 		 * there is no need for the instruction below
 		 */
 		// // Set default close operation for JFrame
-		 setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//		 setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// Set JFrame size
 		setSize(800, 550);

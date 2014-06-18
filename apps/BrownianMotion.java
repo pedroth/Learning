@@ -72,7 +72,7 @@ public class BrownianMotion extends JFrame implements KeyListener {
 		super("Pseudo - Brownian Motion");
 
 		// Set default close operation for JFrame
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// Set JFrame size
 		setSize(400, 400);
