@@ -28,7 +28,7 @@ public class MyImage {
 	 */
 	public MyImage(String file) {
 		String[] aux = file.split("http");
-		if (aux[0] != null)
+		if (aux.length > 1)
 			loadImageFromWeb(file);
 		else
 			loadImageFromFileName(file);

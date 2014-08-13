@@ -253,7 +253,9 @@ public class ExpressionFunction extends DoubleFunction {
 					changeToUna = true;
 				else if (lex[i-1] == "(")
 					changeToUna = true;
-				
+				else if (lex[i-1] == ",")
+					changeToUna = true;
+					
 				if(changeToUna)
 					lex[i] = "u-";
 				
@@ -326,7 +328,7 @@ public class ExpressionFunction extends DoubleFunction {
 	public static void main(String[] args) {
 		String[] varTokens = { "u", "x", "y" };
 		//ExpressionFunction foo = new ExpressionFunction("pedro(cos(t)*cos(2*t),sin(t)*cos(2*t),0,2*pi,x,y)", varTokens);
-		ExpressionFunction foo = new ExpressionFunction("C(x,y)", varTokens);
+		ExpressionFunction foo = new ExpressionFunction("sigma(i,0,10)", varTokens);
 		String[] dummyVar ={"i"};
 		foo.addFunction("sigma", new Sigma(dummyVar,foo));
 		/**

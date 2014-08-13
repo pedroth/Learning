@@ -44,5 +44,4 @@ public class LevelSetShader extends ZBufferPrespective {
 		
 		return new Color(ans * 1.0f,ans * 1.0f,ans * 1.0f);
 	}
-	
 }

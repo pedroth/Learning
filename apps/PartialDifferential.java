@@ -342,7 +342,7 @@ public class PartialDifferential extends JFrame implements MouseListener,
 			this.add(functionVel);
 			functionString.setText("sin( x ^ 2 + y ^ 2)");
 			functionAcc.setText("d2x(x,y) + d2y(x,y) - 0.5 * dt(x,y)");
-			functionVel.setText("(1 / ((1 + dx(x,y)^2 + dy(x,y)^2)^(3/2))) * (d2x(x,y)*(1 + dy(x,y)^2) + d2y(x,y)*(1 + dx(x,y)^2))");
+			functionVel.setText("(1 / ((1 + dx(x,y)^2 + dy(x,y)^2)^(3/2))) * (d2x(x,y)*(1 + dy(x,y)^2) +2*dx(x,y)*dy(x,y)*d2xy(x,y) +  d2y(x,y)*(1 + dx(x,y)^2))");
 			xMinTxt.setText("-1");
 			xMaxTxt.setText("1");
 			yMinTxt.setText("-1");
@@ -788,6 +788,7 @@ public class PartialDifferential extends JFrame implements MouseListener,
 		accEquation.addFunction("d2xy", new D2fdxdy());
 		accEquation.addFunction("f", new Fxy());
 		accEquation.addFunction("dt", new Dfdt());
+		accEquation.addFunction("C", new CombinationNode());
 		maxHeightColor = Double.NEGATIVE_INFINITY;
 		minHeightColor = Double.POSITIVE_INFINITY;
 		try {
@@ -854,6 +855,7 @@ public class PartialDifferential extends JFrame implements MouseListener,
 		velEquation.addFunction("d2y", new D2fdy());
 		velEquation.addFunction("f", new Fxy());
 		velEquation.addFunction("d2xy", new D2fdxdy());
+		velEquation.addFunction("C", new CombinationNode());
 		maxHeightColor = Double.NEGATIVE_INFINITY;
 		minHeightColor = Double.POSITIVE_INFINITY;
 		try {
@@ -1103,8 +1105,8 @@ public class PartialDifferential extends JFrame implements MouseListener,
 			wChanged = this.getWidth();
 			hChanged = this.getHeight();
 
+			processLayout();
 		}
-		processLayout();
 		update(g);
 		// System.out.println(System.currentTimeMillis() * 1E-3 - timeElapse);
 	}

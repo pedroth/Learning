@@ -14,6 +14,8 @@ import functions.ExpressionFunction;
  * @author pedro
  * 
  * works fine until 4th derivative
+ * 
+ * the best method yet
  *
  */
 public class DerivativeTest2 {

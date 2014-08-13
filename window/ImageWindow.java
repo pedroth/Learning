@@ -127,19 +127,9 @@ public class ImageWindow extends Window2D {
 		g.drawString(s, lambda1, lambda2);
 
 	}
-
-	public void paint(Graphics g1, ImageObserver imgObs) {
-		g1.drawImage(img, 0, 0, imgObs);
-	}
-
-	/**
-	 * 
-	 * @param g1
-	 *            : graphics of the object in which you will draw the
-	 *            ImageBuffer img
-	 */
+	
 	public void paint(Graphics g1) {
-		paint(g1, null);
+		g1.drawImage(img,0,0,null);
 	}
 	
 	public void paintTranslate(Graphics g1, int x, int y) {

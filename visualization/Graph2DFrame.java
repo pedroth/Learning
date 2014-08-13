@@ -233,7 +233,7 @@ public class Graph2DFrame extends JFrame {
 			}
 		}
 		drawAxis();
-		if(isRepainting) {
+		if (isRepainting) {
 			repaint();
 		}
 	}
@@ -242,7 +242,7 @@ public class Graph2DFrame extends JFrame {
 			double ymax) {
 		double red = 0;
 		double blue = 240.0 / 360.0;
-		if(isGrayScale()) {
+		if (isGrayScale()) {
 			red = 1.0;
 			blue = 0.0;
 		}
@@ -281,9 +281,9 @@ public class Graph2DFrame extends JFrame {
 				.getRaster().getDataBuffer()).getData();
 
 		int windowWidth = wd.getWindowWidth();
-		
+
 		Color color;
-		
+
 		if (isSmooth) {
 			for (int l = j; l > (j + h); l--) {
 				for (int k = i; k < (i + w); k++) {
@@ -291,7 +291,8 @@ public class Graph2DFrame extends JFrame {
 					double g2 = colorDy + df2 * (k - i);
 					double hue = g1 + ((g2 - g1) / h) * (l - j);
 					if (isGrayScale()) {
-						color = (new Color((float)hue,(float)hue,(float)hue));
+						color = (new Color((float) hue, (float) hue,
+								(float) hue));
 					} else {
 						color = (Color.getHSBColor((float) hue, 1, 1));
 					}
@@ -300,11 +301,12 @@ public class Graph2DFrame extends JFrame {
 			}
 		} else {
 			if (isGrayScale()) {
-				g.setColor(new Color((float)colorDy,(float)colorDy,(float)colorDy));
+				g.setColor(new Color((float) colorDy, (float) colorDy,
+						(float) colorDy));
 			} else {
 				g.setColor(Color.getHSBColor((float) colorDy, 1, 1));
 			}
-			g.fillRect(i, j + h, w+1, Math.abs(h)+1);
+			g.fillRect(i, j + h, w + 1, Math.abs(h) + 1);
 		}
 
 	}
@@ -321,11 +323,12 @@ public class Graph2DFrame extends JFrame {
 			for (int j = 0; j < hueMatrix[0].length; j++) {
 				double x = xmin + dx * j;
 				double y = ymax - dy * (i + 1);
-				drawRectangle(x, y, dx + wd.pxlXStep(), dy + wd.pxlYStep(), hueMatrix[Math.min(i + 1,
-						hueMatrix.length - 1)][j], hueMatrix[Math.min(i + 1,
-						hueMatrix.length - 1)][Math.min(j + 1,
-						hueMatrix[0].length - 1)], hueMatrix[i][j],
-						hueMatrix[i][Math.min(j + 1, hueMatrix[0].length - 1)]);
+				drawRectangle(x, y, dx + wd.pxlXStep(), dy + wd.pxlYStep(),
+						hueMatrix[Math.min(i + 1, hueMatrix.length - 1)][j],
+						hueMatrix[Math.min(i + 1, hueMatrix.length - 1)][Math
+								.min(j + 1, hueMatrix[0].length - 1)],
+						hueMatrix[i][j], hueMatrix[i][Math.min(j + 1,
+								hueMatrix[0].length - 1)]);
 				// wd.setDrawColor(Color.black);
 				// wd.drawLine(x, y, x + dx, y);
 				// wd.drawLine(x+dx, y, x + dx, y + dy);
@@ -381,46 +384,47 @@ public class Graph2DFrame extends JFrame {
 	}
 
 	public static void main(String args[]) {
-		
+
 		/**
 		 * matrix function
 		 */
-		// int n = 100;
-		// Matrix v = new Matrix(n, n);
-		// //v.identity();
-		// //v.fillRandomInt(0, 10);
-		// for(int i = 1; i <= n; i++) {
-		// for(int j = 1; j <= n;j++)
-		// v.setMatrix(i, j,(i-n/2)*(j-n/2));
-		// }
-		
-//		MyImage kakashi = new MyImage("https://92c3cb5a-a-62cb3a1a-s-sites.googlegroups.com/site/ibplanalto2010/Home/kakashi46-3459488_50_50%5B1%5D.jpg?attachauth=ANoY7cp6kFZ2u7lOyL3KJqDYkzI_jmNGeoLsCE29u25IlE23i8Bgqx-4UsNUTkE4Mh7vBQpKPe107E_-PLAOywT34dv8cW9_r9WV0uOZ8p26uBT4rusztcGEh9wkuZ2QI0f-loBiB4pmzo_3NKMrC0CPbRvHHiwa_vT2wVEjZiWh7fZ9XlUjC6vrCVvNOtnmgsnSd-WjjbZqO-q6jSPBFw1zyyaa8uzcAKExLodMjCR40cjjmDComqp1JMNpKJoE1iTDgXQDWFzU&attredirects=0");
-		
-		MyImage kakashi = new MyImage(
-				"http://i106.photobucket.com/albums/m255/Farumbrosius/10_bar-refaeli_04.jpg");
+		int n = 100;
+		Matrix v = new Matrix(n, n);
+		// v.identity();
+		// v.fillRandomInt(0, 10);
+		for (int i = 1; i <= n; i++) {
+			for (int j = 1; j <= n; j++)
+				v.setMatrix(i, j, (i - n / 2) * (j - n / 2));
+		}
 
-//		 MyImage kakashi = new
-//		 MyImage("http://static2.wikia.nocookie.net/__cb20130215214233/naruto/images/3/3b/KakashiMangeky%C5%8DSharinganAnime.jpg");
-//		
+		// MyImage kakashi = new
+		// MyImage("https://92c3cb5a-a-62cb3a1a-s-sites.googlegroups.com/site/ibplanalto2010/Home/kakashi46-3459488_50_50%5B1%5D.jpg?attachauth=ANoY7cp6kFZ2u7lOyL3KJqDYkzI_jmNGeoLsCE29u25IlE23i8Bgqx-4UsNUTkE4Mh7vBQpKPe107E_-PLAOywT34dv8cW9_r9WV0uOZ8p26uBT4rusztcGEh9wkuZ2QI0f-loBiB4pmzo_3NKMrC0CPbRvHHiwa_vT2wVEjZiWh7fZ9XlUjC6vrCVvNOtnmgsnSd-WjjbZqO-q6jSPBFw1zyyaa8uzcAKExLodMjCR40cjjmDComqp1JMNpKJoE1iTDgXQDWFzU&attredirects=0");
+
+		// MyImage kakashi = new MyImage(
+		// "http://i106.photobucket.com/albums/m255/Farumbrosius/10_bar-refaeli_04.jpg");
+
+		// MyImage kakashi = new
+		// MyImage("http://static2.wikia.nocookie.net/__cb20130215214233/naruto/images/3/3b/KakashiMangeky%C5%8DSharinganAnime.jpg");
+		//
 		/**
 		 * gray scale matrix
 		 */
-		Matrix v = new Matrix(kakashi.getGrayScale());
-		
+		// Matrix v = new Matrix(kakashi.getGrayScale());
+
 		/**
 		 * hsv matrix
 		 */
-//		TriVector[][] k = kakashi.getHSVImageMatrix();
-//		Matrix v = new Matrix(k.length,k[0].length);
-//		for(int i = 1; i <= k.length; i++) {
-//			for(int j = 1; j <= k[0].length; j++) {
-//				v.setMatrix(i, j, k[i-1][j-1].getY());
-//			}
-//		}
-		
+		// TriVector[][] k = kakashi.getHSVImageMatrix();
+		// Matrix v = new Matrix(k.length,k[0].length);
+		// for(int i = 1; i <= k.length; i++) {
+		// for(int j = 1; j <= k[0].length; j++) {
+		// v.setMatrix(i, j, k[i-1][j-1].getY());
+		// }
+		// }
+
 		Graph2DFrame frame = new Graph2DFrame("figure 1");
-		frame.setGrayScale(true);
-		frame.setSmooth(true);
+		frame.setGrayScale(false);
+		frame.setSmooth(false);
 		frame.setRepainting(false);
 		frame.addMatrix(v.getMatrix(), -1, 1, -1, 1);
 		frame.plot();

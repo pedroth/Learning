@@ -23,26 +23,21 @@ import javax.swing.JOptionPane;
 import visualization.TextFrame;
 import window.ImageWindow;
 import windowThreeDim.Element;
+import windowThreeDim.FlatShader;
 import windowThreeDim.InterpolativeShader;
 import windowThreeDim.LevelSetShader;
 import windowThreeDim.Line;
-import windowThreeDim.PaintMethod;
 import windowThreeDim.Point;
 import windowThreeDim.Quad;
-import windowThreeDim.SamplingZbuffer;
-import windowThreeDim.FlatShader;
-import windowThreeDim.SquareZBuffer;
 import windowThreeDim.StringElement;
 import windowThreeDim.TriWin;
 import windowThreeDim.WiredPrespective;
-import windowThreeDim.YShader;
 import windowThreeDim.ZBufferPrespective;
 import algebra.Matrix;
 import algebra.TriVector;
 import functionNode.CombinationNode;
 import functionNode.LinearSystemError;
 import functionNode.PedroNode;
-import functionNode.Sigma;
 import functions.ExpressionFunction;
 import functions.SyntaxErrorException;
 
@@ -865,8 +860,8 @@ public class GraphXY extends JFrame implements MouseListener,
 				|| Math.abs(hChanged - this.getHeight()) > 0) {
 			wChanged = this.getWidth();
 			hChanged = this.getHeight();
+			processLayout();
 		}
-		processLayout();
 		update(g);
 	}
 

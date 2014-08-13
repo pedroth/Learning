@@ -15,7 +15,7 @@ import functions.ExpressionFunction;
  * 
  *         ex: pedro(cos(<dummyVariable>),sin(<dummyVariable>),0,2*pi,x,y);
  * 
- *         works better on regular curves, for the rest doesn't really works
+ *         works better on closed curves, for the rest doesn't really works
  * 
  * 
  */

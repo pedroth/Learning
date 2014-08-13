@@ -1,3 +1,4 @@
+
 package windowThreeDim;
 
 import java.util.ArrayList;
@@ -8,18 +9,9 @@ import window.ImageWindow;
 import algebra.Matrix;
 import algebra.TriVector;
 
-/**
- * to perform animation with this engine you must not use timers because timer
- * will generate a thread that will call methods of TriWin, when the other
- * thread hasn't finished.
- * 
- * method that will cause damage to your program when using a timer in animation
- * will be deleting element when other tread is still using them
- */
 public class TriWin {
 
 	private List<Element> l;
-//	private double zMin, zMax, xMin, xMax, yMin, yMax;
 	private ImageWindow buffer;
 	private PaintMethod method;
 
@@ -28,7 +20,7 @@ public class TriWin {
 		buffer = new ImageWindow(-1, 1, -1, 1);
 		l = new ArrayList<Element>();
 	}
-
+ 
 	public TriWin() {
 		buffer = new ImageWindow(-1, 1, -1, 1);
 		l = new LinkedList<Element>();
