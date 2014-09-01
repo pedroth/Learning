@@ -25,6 +25,7 @@ import windowThreeDim.Quad;
 import windowThreeDim.FlatShader;
 import windowThreeDim.StringElement;
 import windowThreeDim.TriWin;
+import windowThreeDim.Triangle;
 import windowThreeDim.WiredPrespective;
 import algebra.Matrix;
 import algebra.TriVector;
@@ -101,6 +102,7 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 	 * drawAxis
 	 */
 	private boolean isDrawAxis;
+	private boolean axisAlreadyBuild;
 
 	Graph3DFrame(String title) {
 		super(title);
@@ -148,6 +150,7 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 		Timer timer = new Timer();
 		fps = new FrameCounter();
 		timer.schedule(fps, 0, 1000);
+		axisAlreadyBuild = false;
 	}
 
 	public boolean isScatterAsPxl() {
@@ -369,24 +372,27 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 	}
 
 	public void buildAxis() {
-		Element e = new Line(new TriVector(0, 0, 0), new TriVector(1, 0, 0));
-		e.setColor(Color.white);
-		graphics.addtoList(e);
-		e = new StringElement(new TriVector(1.1, 0, 0), "X");
-		e.setColor(Color.white);
-		graphics.addtoList(e);
-		e = new Line(new TriVector(0, 0, 0), new TriVector(0, 1, 0));
-		e.setColor(Color.white);
-		graphics.addtoList(e);
-		e = new StringElement(new TriVector(0, 1.1, 0), "Y");
-		e.setColor(Color.white);
-		graphics.addtoList(e);
-		e = new Line(new TriVector(0, 0, 0), new TriVector(0, 0, 1));
-		e.setColor(Color.white);
-		graphics.addtoList(e);
-		e = new StringElement(new TriVector(0, 0, 1.1), "Z");
-		e.setColor(Color.white);
-		graphics.addtoList(e);
+		if (!axisAlreadyBuild) {
+			Element e = new Line(new TriVector(0, 0, 0), new TriVector(1, 0, 0));
+			e.setColor(Color.white);
+			graphics.addtoList(e);
+			e = new StringElement(new TriVector(1.1, 0, 0), "X");
+			e.setColor(Color.white);
+			graphics.addtoList(e);
+			e = new Line(new TriVector(0, 0, 0), new TriVector(0, 1, 0));
+			e.setColor(Color.white);
+			graphics.addtoList(e);
+			e = new StringElement(new TriVector(0, 1.1, 0), "Y");
+			e.setColor(Color.white);
+			graphics.addtoList(e);
+			e = new Line(new TriVector(0, 0, 0), new TriVector(0, 0, 1));
+			e.setColor(Color.white);
+			graphics.addtoList(e);
+			e = new StringElement(new TriVector(0, 0, 1.1), "Z");
+			e.setColor(Color.white);
+			graphics.addtoList(e);
+			axisAlreadyBuild = true;
+		}
 	}
 
 	private void euler(double dt) {
@@ -439,8 +445,10 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 	public void keyPressed(KeyEvent arg0) {
 		if (arg0.getKeyCode() == KeyEvent.VK_Z)
 			graphics.setMethod(wiredShader);
-		if (arg0.getKeyCode() == KeyEvent.VK_A)
+		if (arg0.getKeyCode() == KeyEvent.VK_A){
 			isDrawAxis = !isDrawAxis;
+			axisAlreadyBuild = false;
+		}
 		if(arg0.getKeyCode() == KeyEvent.VK_S)
 			graphics.setMethod(new InterpolativeShader());
 		if(arg0.getKeyCode() == KeyEvent.VK_F)
@@ -517,23 +525,25 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 		thrust.setY(0);
 		thrust.setZ(0);
 	}
+	
+	public void addElement(Element e) {
+		graphics.addtoList(e);
+	}
 
 	public static void main(String[] args) {
 		Graph3DFrame frame = new Graph3DFrame("figure 1");
 
-//		MyImage kakashi = new MyImage(
-//				"https://92c3cb5a-a-62cb3a1a-s-sites.googlegroups.com/site/ibplanalto2010/Home/kakashi46-3459488_50_50%5B1%5D.jpg?attachauth=ANoY7cp6kFZ2u7lOyL3KJqDYkzI_jmNGeoLsCE29u25IlE23i8Bgqx-4UsNUTkE4Mh7vBQpKPe107E_-PLAOywT34dv8cW9_r9WV0uOZ8p26uBT4rusztcGEh9wkuZ2QI0f-loBiB4pmzo_3NKMrC0CPbRvHHiwa_vT2wVEjZiWh7fZ9XlUjC6vrCVvNOtnmgsnSd-WjjbZqO-q6jSPBFw1zyyaa8uzcAKExLodMjCR40cjjmDComqp1JMNpKJoE1iTDgXQDWFzU&attredirects=0");
-		
-		MyImage kakashi = new MyImage("C:/pedro/video/series/naruto/kakashirasengantm9.jpg");
+		MyImage kakashi = new MyImage(
+				"https://92c3cb5a-a-62cb3a1a-s-sites.googlegroups.com/site/ibplanalto2010/Home/kakashi46-3459488_50_50%5B1%5D.jpg?attachauth=ANoY7cp6kFZ2u7lOyL3KJqDYkzI_jmNGeoLsCE29u25IlE23i8Bgqx-4UsNUTkE4Mh7vBQpKPe107E_-PLAOywT34dv8cW9_r9WV0uOZ8p26uBT4rusztcGEh9wkuZ2QI0f-loBiB4pmzo_3NKMrC0CPbRvHHiwa_vT2wVEjZiWh7fZ9XlUjC6vrCVvNOtnmgsnSd-WjjbZqO-q6jSPBFw1zyyaa8uzcAKExLodMjCR40cjjmDComqp1JMNpKJoE1iTDgXQDWFzU&attredirects=0");
 		
 		
 		/**
 		 * kakashi as scatter point
 		 */
-		 TriVector[] s = kakashi.getRGBImageVector();
-		
-		 frame.setScatterAsPxl(true);
-		 frame.addScatterData(s, Color.blue, 0.01);
+//		 TriVector[] s = kakashi.getRGBImageVector();
+//		
+//		 frame.setScatterAsPxl(true);
+//		 frame.addScatterData(s, Color.blue, 0.01);
 		
 		/**
 		 * kakashi as rgb surface
@@ -543,10 +553,10 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 		
 		/**
 		 * kakashi gray scale matrix
-		 */
+//		 */
 //		 Matrix v = new Matrix(kakashi.getGrayScale());
 //		 frame.addMatrix(v.getMatrix(), -1, 1, -1, 1);
-		 
+//		 
 		 /**
 		  * random points
 		  */
@@ -559,6 +569,16 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 //		frame.addScatterData(v, Color.blue, 0.01);
 //		frame.addCurve(v, Color.red);
 		 
+		/**
+		 * tests
+		 */
+		Triangle tri = new Triangle(new TriVector(1, 0, 0), new TriVector(0, 1, 0), new TriVector(0, 0, 1));
+		tri.setColorPoint(Color.red, 0);
+		tri.setColorPoint(Color.green, 1);
+		tri.setColorPoint(Color.blue, 2);
+		 
+		frame.addElement(tri);
+		
 		frame.plot();
 	}
 

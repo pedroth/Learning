@@ -186,6 +186,8 @@ public class GraphXY extends JFrame implements MouseListener,
 			+ "< Available constants > : pi\n\n"
 			+ "< a > : draw Axis \n\n"
 			+ "< mouse > : rotate camera\n\n" + "Made by Pedroth";
+	
+	private boolean axisAlreadyBuild;
 
 	public GraphXY() {
 		// Set JFrame title
@@ -317,6 +319,8 @@ public class GraphXY extends JFrame implements MouseListener,
 		shader.setAmbientLightParameter(0.5);
 		shader.setShininess(25);
 		shader.addLightPoint(new TriVector(raw, raw, raw));
+		
+		axisAlreadyBuild = false;
 	}
 
 	/**
@@ -636,24 +640,27 @@ public class GraphXY extends JFrame implements MouseListener,
 	}
 
 	public void buildAxis() {
-		Element e = new Line(new TriVector(0, 0, 0), new TriVector(1, 0, 0));
-		e.setColor(Color.white);
-		graphics.addtoList(e);
-		e = new StringElement(new TriVector(1.1, 0, 0), "X");
-		e.setColor(Color.white);
-		graphics.addtoList(e);
-		e = new Line(new TriVector(0, 0, 0), new TriVector(0, 1, 0));
-		e.setColor(Color.white);
-		graphics.addtoList(e);
-		e = new StringElement(new TriVector(0, 1.1, 0), "Y");
-		e.setColor(Color.white);
-		graphics.addtoList(e);
-		e = new Line(new TriVector(0, 0, 0), new TriVector(0, 0, 1));
-		e.setColor(Color.white);
-		graphics.addtoList(e);
-		e = new StringElement(new TriVector(0, 0, 1.1), "Z");
-		e.setColor(Color.white);
-		graphics.addtoList(e);
+		if (!axisAlreadyBuild) {
+			Element e = new Line(new TriVector(0, 0, 0), new TriVector(1, 0, 0));
+			e.setColor(Color.white);
+			graphics.addtoList(e);
+			e = new StringElement(new TriVector(1.1, 0, 0), "X");
+			e.setColor(Color.white);
+			graphics.addtoList(e);
+			e = new Line(new TriVector(0, 0, 0), new TriVector(0, 1, 0));
+			e.setColor(Color.white);
+			graphics.addtoList(e);
+			e = new StringElement(new TriVector(0, 1.1, 0), "Y");
+			e.setColor(Color.white);
+			graphics.addtoList(e);
+			e = new Line(new TriVector(0, 0, 0), new TriVector(0, 0, 1));
+			e.setColor(Color.white);
+			graphics.addtoList(e);
+			e = new StringElement(new TriVector(0, 0, 1.1), "Z");
+			e.setColor(Color.white);
+			graphics.addtoList(e);
+			axisAlreadyBuild = true;
+		}
 	}
 
 	public void infoColor() {
@@ -932,6 +939,7 @@ public class GraphXY extends JFrame implements MouseListener,
 			drawFunction = true;
 		} else if (arg0.getKeyCode() == KeyEvent.VK_A) {
 			drawAxis = !drawAxis;
+			axisAlreadyBuild = false;
 			graphics.removeAllElements();
 			drawFunction = true;
 		} else if (arg0.getKeyCode() == KeyEvent.VK_N) {

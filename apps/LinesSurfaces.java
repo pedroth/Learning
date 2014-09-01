@@ -186,6 +186,8 @@ public class LinesSurfaces extends JFrame implements MouseListener,
 			"< a > : draw Axis \n\n" +
 			"< mouse > : rotate camera\n\n" +
 			"Made by Pedroth";
+	
+	private boolean axisAlreadyBuild;
 
 	public LinesSurfaces() {
 		// Set JFrame title
@@ -297,7 +299,7 @@ public class LinesSurfaces extends JFrame implements MouseListener,
 		isMotionLight = false;
 		motionLight = new TriVector(raw, raw, raw);
 		isShading = true;
-		//graphics.setMethod(new InterpolativeShader());
+		axisAlreadyBuild = false;
 	}
 
 	/**
@@ -849,24 +851,27 @@ public class LinesSurfaces extends JFrame implements MouseListener,
 	}
 
 	public void buildAxis() {
-		Element e = new Line(new TriVector(0, 0, 0), new TriVector(1, 0, 0));
-		e.setColor(Color.white);
-		graphics.addtoList(e);
-		e = new StringElement(new TriVector(1.1, 0, 0), "X");
-		e.setColor(Color.white);
-		graphics.addtoList(e);
-		e = new Line(new TriVector(0, 0, 0), new TriVector(0, 1, 0));
-		e.setColor(Color.white);
-		graphics.addtoList(e);
-		e = new StringElement(new TriVector(0, 1.1, 0), "Y");
-		e.setColor(Color.white);
-		graphics.addtoList(e);
-		e = new Line(new TriVector(0, 0, 0), new TriVector(0, 0, 1));
-		e.setColor(Color.white);
-		graphics.addtoList(e);
-		e = new StringElement(new TriVector(0, 0, 1.1), "Z");
-		e.setColor(Color.white);
-		graphics.addtoList(e);
+		if (!axisAlreadyBuild) {
+			Element e = new Line(new TriVector(0, 0, 0), new TriVector(1, 0, 0));
+			e.setColor(Color.white);
+			graphics.addtoList(e);
+			e = new StringElement(new TriVector(1.1, 0, 0), "X");
+			e.setColor(Color.white);
+			graphics.addtoList(e);
+			e = new Line(new TriVector(0, 0, 0), new TriVector(0, 1, 0));
+			e.setColor(Color.white);
+			graphics.addtoList(e);
+			e = new StringElement(new TriVector(0, 1.1, 0), "Y");
+			e.setColor(Color.white);
+			graphics.addtoList(e);
+			e = new Line(new TriVector(0, 0, 0), new TriVector(0, 0, 1));
+			e.setColor(Color.white);
+			graphics.addtoList(e);
+			e = new StringElement(new TriVector(0, 0, 1.1), "Z");
+			e.setColor(Color.white);
+			graphics.addtoList(e);
+			axisAlreadyBuild = true;
+		}
 	}
 
 	public void maxPolyConstraint(double delta) {
@@ -1014,6 +1019,7 @@ public class LinesSurfaces extends JFrame implements MouseListener,
 				graphics.setMethod(new SquareZBuffer());
 		} else if (arg0.getKeyCode() == KeyEvent.VK_A) {
 			drawAxis = !drawAxis;
+			axisAlreadyBuild = false;
 			graphics.removeAllElements();
 			drawFunction = true;
 		} else if (arg0.getKeyCode() == KeyEvent.VK_L) {

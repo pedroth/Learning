@@ -178,24 +178,26 @@ public class PartialDifferential extends JFrame implements MouseListener,
 	 * is kakashi image
 	 */
 	private boolean isKakashi;
-	
-	private static String helpText = "< w > : Camera move foward / zoom in \n\n" +
-			"< s > : Camera move backward /zoom out \n\n" +
-			"< z > : Toggle wireframe / zbuffer \n\n" +
-			"< n > : Toggle flat shading \n\n" +
-			"< [1-3] > : change color of surface \n\n" +
-			"< e > : random examples of functions\n\n" +
-			"< 8 > : interpolative colors \n\n" +
-			"< 9 > : level set shader\n\n" +
-			"< Available functions > : sin ,cos, exp, ln, tan, acos, asin, atan, min, adding more \n\n" +
-			"< operators > : +, - , *, ^ \n\n" +
-			"< Available constants > : pi\n\n" +
-			"< a > : draw Axis \n\n" +
-			"< mouse > : rotate camera \n\n" +
-			"< k > : toogle kakashi mode\n\n" +
-			"< Available function on animation part > :  dfx(x,y) (df / dx), dfy(x,y) (df / dy) , dt(x,y) (df / dt), d2fx(x,y)(d2f / dx2)\n\n" +
-			"d2fy(x,y) (d2f / dy2), f(x,y), d2fxy(x,y)\n\n" +
-			"Made by Pedroth";
+
+	private static String helpText = "< w > : Camera move foward / zoom in \n\n"
+			+ "< s > : Camera move backward /zoom out \n\n"
+			+ "< z > : Toggle wireframe / zbuffer \n\n"
+			+ "< n > : Toggle flat shading \n\n"
+			+ "< [1-3] > : change color of surface \n\n"
+			+ "< e > : random examples of functions\n\n"
+			+ "< 8 > : interpolative colors \n\n"
+			+ "< 9 > : level set shader\n\n"
+			+ "< Available functions > : sin ,cos, exp, ln, tan, acos, asin, atan, min, adding more \n\n"
+			+ "< operators > : +, - , *, ^ \n\n"
+			+ "< Available constants > : pi\n\n"
+			+ "< a > : draw Axis \n\n"
+			+ "< mouse > : rotate camera \n\n"
+			+ "< k > : toogle kakashi mode\n\n"
+			+ "< Available function on animation part > :  dfx(x,y) (df / dx), dfy(x,y) (df / dy) , dt(x,y) (df / dt), d2fx(x,y)(d2f / dx2)\n\n"
+			+ "d2fy(x,y) (d2f / dy2), f(x,y), d2fxy(x,y)\n\n"
+			+ "Made by Pedroth";
+
+	private boolean axisAlreadyBuild;
 
 	public PartialDifferential() {
 		// Set JFrame title
@@ -316,6 +318,7 @@ public class PartialDifferential extends JFrame implements MouseListener,
 		time = 0;
 		isfastShading = false;
 		isKakashi = false;
+		axisAlreadyBuild = false;
 	}
 
 	/**
@@ -342,7 +345,8 @@ public class PartialDifferential extends JFrame implements MouseListener,
 			this.add(functionVel);
 			functionString.setText("sin( x ^ 2 + y ^ 2)");
 			functionAcc.setText("d2x(x,y) + d2y(x,y) - 0.5 * dt(x,y)");
-			functionVel.setText("(1 / ((1 + dx(x,y)^2 + dy(x,y)^2)^(3/2))) * (d2x(x,y)*(1 + dy(x,y)^2) +2*dx(x,y)*dy(x,y)*d2xy(x,y) +  d2y(x,y)*(1 + dx(x,y)^2))");
+			functionVel
+					.setText("(1 / ((1 + dx(x,y)^2 + dy(x,y)^2)^(3/2))) * (d2x(x,y)*(1 + dy(x,y)^2) +2*dx(x,y)*dy(x,y)*d2xy(x,y) +  d2y(x,y)*(1 + dx(x,y)^2))");
 			xMinTxt.setText("-1");
 			xMaxTxt.setText("1");
 			yMinTxt.setText("-1");
@@ -529,6 +533,8 @@ public class PartialDifferential extends JFrame implements MouseListener,
 	}
 
 	private void gaussianFilterToSurface(TriVector[][] s, int window) {
+		maxHeightColor = Double.MIN_VALUE;
+		minHeightColor = Double.MAX_VALUE;
 		double aux = 0;
 		for (int j = 0; j < s[0].length + 1; j++) {
 			for (int i = 0; i < s.length + 1; i++) {
@@ -696,7 +702,7 @@ public class PartialDifferential extends JFrame implements MouseListener,
 				 * linear interpolation between blue color and red
 				 */
 				double colorHSB = blue + (red - blue) * 0.5 * (x + 1);
-				e.setColorPoint(Color.getHSBColor((float) colorHSB, 1f, 1f),i);
+				e.setColorPoint(Color.getHSBColor((float) colorHSB, 1f, 1f), i);
 			} else if (colorState == 1) {
 
 			} else if (colorState == 2) {
@@ -706,24 +712,27 @@ public class PartialDifferential extends JFrame implements MouseListener,
 	}
 
 	public void buildAxis() {
-		Element e = new Line(new TriVector(0, 0, 0), new TriVector(1, 0, 0));
-		e.setColor(Color.white);
-		graphics.addtoList(e);
-		e = new StringElement(new TriVector(1.1, 0, 0), "X");
-		e.setColor(Color.white);
-		graphics.addtoList(e);
-		e = new Line(new TriVector(0, 0, 0), new TriVector(0, 1, 0));
-		e.setColor(Color.white);
-		graphics.addtoList(e);
-		e = new StringElement(new TriVector(0, 1.1, 0), "Y");
-		e.setColor(Color.white);
-		graphics.addtoList(e);
-		e = new Line(new TriVector(0, 0, 0), new TriVector(0, 0, 1));
-		e.setColor(Color.white);
-		graphics.addtoList(e);
-		e = new StringElement(new TriVector(0, 0, 1.1), "Z");
-		e.setColor(Color.white);
-		graphics.addtoList(e);
+		if (!axisAlreadyBuild) {
+			Element e = new Line(new TriVector(0, 0, 0), new TriVector(1, 0, 0));
+			e.setColor(Color.white);
+			graphics.addtoList(e);
+			e = new StringElement(new TriVector(1.1, 0, 0), "X");
+			e.setColor(Color.white);
+			graphics.addtoList(e);
+			e = new Line(new TriVector(0, 0, 0), new TriVector(0, 1, 0));
+			e.setColor(Color.white);
+			graphics.addtoList(e);
+			e = new StringElement(new TriVector(0, 1.1, 0), "Y");
+			e.setColor(Color.white);
+			graphics.addtoList(e);
+			e = new Line(new TriVector(0, 0, 0), new TriVector(0, 0, 1));
+			e.setColor(Color.white);
+			graphics.addtoList(e);
+			e = new StringElement(new TriVector(0, 0, 1.1), "Z");
+			e.setColor(Color.white);
+			graphics.addtoList(e);
+			axisAlreadyBuild = true;
+		}
 	}
 
 	public void infoColor() {
@@ -1040,7 +1049,7 @@ public class PartialDifferential extends JFrame implements MouseListener,
 		}
 
 	}
-	
+
 	public class D2fdxdy extends FunctionNode {
 
 		public D2fdxdy() {
@@ -1065,12 +1074,12 @@ public class PartialDifferential extends JFrame implements MouseListener,
 			int l = Math.max(j - 1, 0);
 			int m = Math.min(i + 1, surface.length - 1);
 			int n = Math.max(i - 1, 0);
-			return (surface[m][k].getZ() - surface[m][l].getZ() - surface[n][k].getZ() + surface[n][l]
-					.getZ()) / (4 * step * step);
+			return (surface[m][k].getZ() - surface[m][l].getZ()
+					- surface[n][k].getZ() + surface[n][l].getZ())
+					/ (4 * step * step);
 		}
 
 	}
-	
 
 	public class Dfdt extends FunctionNode {
 
@@ -1181,6 +1190,7 @@ public class PartialDifferential extends JFrame implements MouseListener,
 			drawFunction = true;
 		} else if (arg0.getKeyCode() == KeyEvent.VK_A) {
 			drawAxis = !drawAxis;
+			axisAlreadyBuild = false;
 			graphics.removeAllElements();
 			drawFunction = true;
 		} else if (arg0.getKeyCode() == KeyEvent.VK_N) {
@@ -1225,12 +1235,11 @@ public class PartialDifferential extends JFrame implements MouseListener,
 			isKakashi = !isKakashi;
 			graphics.removeAllElements();
 			drawFunction = true;
-		} else if(arg0.getKeyCode() == KeyEvent.VK_8) {
+		} else if (arg0.getKeyCode() == KeyEvent.VK_8) {
 			graphics.setMethod(new InterpolativeShader());
-		} else if(arg0.getKeyCode() == KeyEvent.VK_9) {
+		} else if (arg0.getKeyCode() == KeyEvent.VK_9) {
 			graphics.setMethod(new LevelSetShader());
 		}
-		
 
 	}
 
