@@ -825,9 +825,12 @@ public class PartialDifferential extends JFrame implements MouseListener,
 				x[0] = xmin + i * step;
 				x[1] = ymin + j * step;
 				x[2] = time;
-				dudt[i][j] = dudt[i][j] + accEquation.compute(x) * dt;
+				
+				double acceleration = accEquation.compute(x);
+
+				dudt[i][j] = dudt[i][j] + acceleration * dt;
 				auxZ = surface[i][j].getZ() + dudt[i][j] * dt + 0.5
-						* accEquation.compute(x) * dt * dt;
+						* acceleration * dt * dt;
 				aux[i][j] = (auxZ);
 				if (!Double.isInfinite(auxZ) && !Double.isNaN(auxZ)) {
 					maxHeightColor = Math.max(auxZ, maxHeightColor);

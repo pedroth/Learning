@@ -328,7 +328,7 @@ public class ExpressionFunction extends DoubleFunction {
 	public static void main(String[] args) {
 		String[] varTokens = { "u", "x", "y" };
 		//ExpressionFunction foo = new ExpressionFunction("pedro(cos(t)*cos(2*t),sin(t)*cos(2*t),0,2*pi,x,y)", varTokens);
-		ExpressionFunction foo = new ExpressionFunction("sigma(i,0,10)", varTokens);
+		ExpressionFunction foo = new ExpressionFunction("sigma(i,0,100)", varTokens);
 		String[] dummyVar ={"i"};
 		foo.addFunction("sigma", new Sigma(dummyVar,foo));
 		/**
@@ -339,6 +339,8 @@ public class ExpressionFunction extends DoubleFunction {
 		foo.addFunction("C", new CombinationNode());
 		foo.init();
 		Double[] vars = { 3.141592, 0.0, 3.0 };
-		System.out.print(foo.compute(vars));
+		double oldTime = System.nanoTime()*1E-9;
+		System.out.println(foo.compute(vars));
+		System.out.println(System.nanoTime()* 1E-9 - oldTime);
 	}
 }

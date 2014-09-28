@@ -36,6 +36,7 @@ import windowThreeDim.SquareZBuffer;
 import windowThreeDim.StringElement;
 import windowThreeDim.TriWin;
 import windowThreeDim.WiredPrespective;
+import windowThreeDim.YShader;
 import windowThreeDim.ZBufferPrespective;
 import algebra.Matrix;
 import algebra.TriVector;
@@ -1025,7 +1026,7 @@ public class LinesSurfaces extends JFrame implements MouseListener,
 		} else if (arg0.getKeyCode() == KeyEvent.VK_L) {
 			isMotionLight = !isMotionLight;
 		} else if(arg0.getKeyCode() == KeyEvent.VK_8) {
-			graphics.setMethod(new InterpolativeShader());
+			graphics.setMethod(new YShader());
 		} else if(arg0.getKeyCode() == KeyEvent.VK_9) {
 			graphics.setMethod(new LevelSetShader());
 		}

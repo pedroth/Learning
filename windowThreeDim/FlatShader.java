@@ -62,12 +62,13 @@ public class FlatShader extends ZBufferPrespective {
 		point = TriVector.multConst(1 / 3, point);
 
 		TriVector normal = Triangle.calcNormal(element.getPointsArray());
-
+		/**
+		 * vector from surface to eye
+		 */
+		TriVector v = TriVector.sub(this.getEyePos(), point);
+		
 		for (int i = 0; i < size; i++) {
-			/**
-			 * vector from surface to eye
-			 */
-			TriVector v = TriVector.sub(this.getEyePos(), point);
+			
 			/**
 			 * vector from surface to lightPoint
 			 */
