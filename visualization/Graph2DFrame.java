@@ -382,26 +382,33 @@ public class Graph2DFrame extends JFrame {
 		plot();
 		wd.paint(g);
 	}
-
-	public static void main(String args[]) {
-
-		/**
-		 * matrix function
-		 */
-		int n = 100;
-		Matrix v = new Matrix(n, n);
-		// v.identity();
-		// v.fillRandomInt(0, 10);
-		for (int i = 1; i <= n; i++) {
-			for (int j = 1; j <= n; j++)
-				v.setMatrix(i, j, (i - n / 2) * (j - n / 2));
+	
+	public static void test0(Graph2DFrame frame) {
+		String str = "sinsinsin";
+		double[] x = new double[str.length()];
+		double[] y = new double[str.length()];
+		for (int i = 0; i < y.length; i++) {
+			x[i] = (1.0 * i) / y.length;
+			y[i] = str.charAt(i) / (1.0 * Character.MAX_VALUE) ;
 		}
+		frame.addCurve(x, y, Color.blue);
+		str = "sinsinsinsinsinsin";
+		x = new double[str.length()];
+		y = new double[str.length()];
+		for (int i = 0; i < y.length; i++) {
+			x[i] = (1.0 * i) / y.length;
+			y[i] = str.charAt(i) / (1.0 * Character.MAX_VALUE) ;
+		}
+		frame.addCurve(x, y, Color.red);
+		frame.plot();
+	}
+	
+	public static void test1(Graph2DFrame frame) {
+		 MyImage kakashi = new
+		 MyImage("https://92c3cb5a-a-62cb3a1a-s-sites.googlegroups.com/site/ibplanalto2010/Home/kakashi46-3459488_50_50%5B1%5D.jpg?attachauth=ANoY7cp6kFZ2u7lOyL3KJqDYkzI_jmNGeoLsCE29u25IlE23i8Bgqx-4UsNUTkE4Mh7vBQpKPe107E_-PLAOywT34dv8cW9_r9WV0uOZ8p26uBT4rusztcGEh9wkuZ2QI0f-loBiB4pmzo_3NKMrC0CPbRvHHiwa_vT2wVEjZiWh7fZ9XlUjC6vrCVvNOtnmgsnSd-WjjbZqO-q6jSPBFw1zyyaa8uzcAKExLodMjCR40cjjmDComqp1JMNpKJoE1iTDgXQDWFzU&attredirects=0");
 
-		// MyImage kakashi = new
-		// MyImage("https://92c3cb5a-a-62cb3a1a-s-sites.googlegroups.com/site/ibplanalto2010/Home/kakashi46-3459488_50_50%5B1%5D.jpg?attachauth=ANoY7cp6kFZ2u7lOyL3KJqDYkzI_jmNGeoLsCE29u25IlE23i8Bgqx-4UsNUTkE4Mh7vBQpKPe107E_-PLAOywT34dv8cW9_r9WV0uOZ8p26uBT4rusztcGEh9wkuZ2QI0f-loBiB4pmzo_3NKMrC0CPbRvHHiwa_vT2wVEjZiWh7fZ9XlUjC6vrCVvNOtnmgsnSd-WjjbZqO-q6jSPBFw1zyyaa8uzcAKExLodMjCR40cjjmDComqp1JMNpKJoE1iTDgXQDWFzU&attredirects=0");
-
-		 MyImage kakashi = new MyImage(
-		 "http://i106.photobucket.com/albums/m255/Farumbrosius/10_bar-refaeli_04.jpg");
+//		 MyImage kakashi = new MyImage(
+//		 "http://i106.photobucket.com/albums/m255/Farumbrosius/10_bar-refaeli_04.jpg");
 
 		// MyImage kakashi = new
 		// MyImage("http://static2.wikia.nocookie.net/__cb20130215214233/naruto/images/3/3b/KakashiMangeky%C5%8DSharinganAnime.jpg");
@@ -409,7 +416,7 @@ public class Graph2DFrame extends JFrame {
 		/**
 		 * gray scale matrix
 		 */
-		// Matrix v = new Matrix(kakashi.getGrayScale());
+		 Matrix v = new Matrix(kakashi.getGrayScale());
 
 		/**
 		 * hsv matrix
@@ -421,12 +428,64 @@ public class Graph2DFrame extends JFrame {
 		// v.setMatrix(i, j, k[i-1][j-1].getY());
 		// }
 		// }
-
-		Graph2DFrame frame = new Graph2DFrame("figure 1");
-		frame.setGrayScale(false);
-		frame.setSmooth(false);
-		frame.setRepainting(false);
+		
+		/**
+		 * add matrix
+		 */
 		frame.addMatrix(v.getMatrix(), -1, 1, -1, 1);
+		frame.setGrayScale(false);
+		frame.setSmooth(true);
+		frame.setRepainting(false);
 		frame.plot();
+	}
+	
+	
+	public static void test2(Graph2DFrame frame) {
+		/**
+		 * matrix function
+		 */
+		int n = 100;
+		Matrix v = new Matrix(n, n);
+		// v.identity();
+		// v.fillRandomInt(0, 10);
+		for (int i = 1; i <= n; i++) {
+			for (int j = 1; j <= n; j++)
+				v.setMatrix(i, j, (i - n / 2) * (j - n / 2));
+		}
+		
+		frame.addMatrix(v.getMatrix(), -1, 1, -1, 1);
+		frame.setGrayScale(false);
+		frame.setSmooth(true);
+		frame.setRepainting(false);
+		frame.plot();
+	}
+	
+	public static void test3(Graph2DFrame frame) {
+		/**
+		 * matrix function
+		 */
+		int n = 100;
+		Matrix v = new Matrix(n, n);
+		// v.identity();
+		// v.fillRandomInt(0, 10);
+		for (int i = 1; i <= n; i++) {
+			for (int j = 1; j <= n; j++)
+				v.setMatrix(i, j, (i - n / 2) * (j - n / 2));
+		}
+		
+		frame.addMatrix(v.getMatrix(), -1, 1, -1, 1);
+		frame.setGrayScale(false);
+		frame.setSmooth(true);
+		frame.setRepainting(false);
+		frame.plot();
+	}
+	
+
+	public static void main(String args[]) {
+		Graph2DFrame frame = new Graph2DFrame("figure 1");
+		test0(frame);
+//		test1(frame);
+//		test2(frame);
+//		test3(frame);
 	}
 }

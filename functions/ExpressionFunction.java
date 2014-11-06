@@ -328,7 +328,7 @@ public class ExpressionFunction extends DoubleFunction {
 	public static void main(String[] args) {
 		String[] varTokens = { "u", "x", "y" };
 		//ExpressionFunction foo = new ExpressionFunction("pedro(cos(t)*cos(2*t),sin(t)*cos(2*t),0,2*pi,x,y)", varTokens);
-		ExpressionFunction foo = new ExpressionFunction("sigma(i,0,100)", varTokens);
+		ExpressionFunction foo = new ExpressionFunction("C(1,3)", varTokens);
 		String[] dummyVar ={"i"};
 		foo.addFunction("sigma", new Sigma(dummyVar,foo));
 		/**

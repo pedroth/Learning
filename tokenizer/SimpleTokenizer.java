@@ -8,18 +8,19 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
 
-
 /**
  * 
  * @author pedro
- *
- *it does not work very well with some words, for instance if you have x,sin,gauss,exp
- *
- *and the string "expsinh" it will be recognized "exps" instead of "exp", "sin".
- *
- *
- *this probabilistic method is not very good it was an experiment
- *
+ * 
+ *         it does not work very well with some words, for instance if you have
+ *         x,sin,gauss,exp
+ * 
+ *         and the string "expsinh" it will be recognized "exps" instead of
+ *         "exp", "sin".
+ * 
+ * 
+ *         this probabilistic method is not very good it was an experiment
+ * 
  */
 public class SimpleTokenizer extends TokenRecognizer {
 	int[][] freqTable;
@@ -81,8 +82,7 @@ public class SimpleTokenizer extends TokenRecognizer {
 			likewood *= ((double) freqTable[aux - 'a'][size - 1] / wordCount[size - 1]);
 			strGivenWrong *= ((double) 1 * stringProb);
 		}
-		return (likewood * correctProb)
-				/ ((likewood * correctProb) + (1 - correctProb) * strGivenWrong);
+		return (likewood * correctProb) / ((likewood * correctProb) + (1 - correctProb) * strGivenWrong);
 		// Math.pow(Math.ceil(avgStrSize * 0.75) * stringProb,
 		// size));
 	}
@@ -123,25 +123,24 @@ public class SimpleTokenizer extends TokenRecognizer {
 			for (int k = 0; k < newProb * 20; k++) {
 				help += "*";
 			}
-			System.out.println(addString(stack) + " : "
-					+ String.format("%.5f", newProb) + " : " + help);
+			System.out.println(addString(stack) + " : " + String.format("%.5f", newProb) + " : " + help);
 
 			if (dp < 0) {
 				stack.remove(stack.size() - 1);
 				String key = addString(stack);
 				if (oldProb - 0.70 > 0) {
 					/**
-					 * if not commented  complexity raise.
+					 * if not commented complexity raise.
 					 */
 					try {
-					// if (tokenMap.get(key)) {
-						 answer.add(key);
-					 //} else {
+						// if (tokenMap.get(key)) {
+						answer.add(key);
+						// } else {
 
-					 //}
-					 } catch (NullPointerException e) {
-					// do nothing
-					 }
+						// }
+					} catch (NullPointerException e) {
+						// do nothing
+					}
 				}
 				likewood = 1;
 				strGivenWrong = 1;
@@ -155,8 +154,7 @@ public class SimpleTokenizer extends TokenRecognizer {
 
 	public static void main(String args[]) {
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-		String[] s = { "x", "exp", "gauss", "euler", "pedro", "sin", "cos",
-				"ln", "sinh", "cosh", "tanh", "acos", "asin", "acosh", "asinh", "she", "hers" };
+		String[] s = { "x", "exp", "gauss", "euler", "pedro", "sin", "cos", "ln", "sinh", "cosh", "tanh", "acos", "asin", "acosh", "asinh", "she", "hers" };
 		SimpleTokenizer st = new SimpleTokenizer(s);
 		st.init();
 		String line = null;
