@@ -29,7 +29,7 @@ public class ZBufferPrespective implements PaintMethod {
 
 	public ZBufferPrespective() {
 		d = 1;
-		zd = d / 2;
+		zd = d / 256;
 		isCullBack = false;
 	}
 
@@ -188,7 +188,7 @@ public class ZBufferPrespective implements PaintMethod {
 	 */
 	public boolean checkIfPointsAreWellProjected(TriVector[] p) {
 		boolean logic = true;
-		double border = 3;
+		double border = 100;
 		for (int i = 0; i < p.length; i++) {
 			logic = logic
 					&& (p[i].getX() > -border && p[i].getX() < border

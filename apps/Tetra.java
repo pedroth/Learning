@@ -26,6 +26,7 @@ import windowThreeDim.TriWin;
 import windowThreeDim.Triangle;
 import windowThreeDim.WiredPrespective;
 import windowThreeDim.ZBufferPrespective;
+import windowThreeDim.ZbufferShader;
 import algebra.Matrix;
 import algebra.TriVector;
 
@@ -58,7 +59,7 @@ public class Tetra extends JFrame implements MouseListener,
 			"< mouse > : rotate camera\n\n" +
 			"Made by Pedroth";
 
-	public Tetra() {
+	public Tetra(boolean isApplet) {
 		// Set JFrame title
 		super("Draw Tetra");
 
@@ -77,8 +78,9 @@ public class Tetra extends JFrame implements MouseListener,
 		 * there is no need for the instruction below
 		 */
 		// // Set default close operation for JFrame
-//		 setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+		if(!isApplet) {
+			 setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		 }
 		// Set JFrame size
 		setSize(800, 550);
 
@@ -250,7 +252,7 @@ public class Tetra extends JFrame implements MouseListener,
 	}
 
 	public static void main(String[] args) {
-		new Tetra();
+		new Tetra(false);
 	}
 
 	public void orbit(double t, double p) {
@@ -341,6 +343,8 @@ public class Tetra extends JFrame implements MouseListener,
 		} else if (arg0.getKeyCode() == KeyEvent.VK_3) {
 			graphics.removeAllElements();
 			buildCube();
+		} else if (arg0.getKeyCode() == KeyEvent.VK_8) {
+			graphics.setMethod(new ZbufferShader());
 		} else if (arg0.getKeyCode() == KeyEvent.VK_Z) {
 			zBufferOn = !zBufferOn;
 			if(zBufferOn){

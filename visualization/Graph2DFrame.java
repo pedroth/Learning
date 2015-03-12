@@ -145,6 +145,10 @@ public class Graph2DFrame extends JFrame {
 		return isSmooth;
 	}
 
+	public ImageWindow getWd() {
+		return wd;
+	}
+
 	public void setSmooth(boolean isSmooth) {
 		this.isSmooth = isSmooth;
 	}
@@ -216,9 +220,7 @@ public class Graph2DFrame extends JFrame {
 		Iterator<Integer> sIte = states.iterator();
 		double deltaX = 0.1 * (regions.getXmax() - regions.getXmin());
 		double deltaY = 0.1 * (regions.getYmax() - regions.getYmin());
-		wd.setViewWindow(regions.getXmin() - deltaX,
-				regions.getXmax() + deltaX, regions.getYmin() - deltaY,
-				regions.getYmax() + deltaY);
+		wd.setViewWindow(regions.getXmin() - deltaX, regions.getXmax() + deltaX, regions.getYmin() - deltaY, regions.getYmax() + deltaY);
 		if (hueMatrix != null)
 			drawMatrix();
 		while (xIte.hasNext()) {
@@ -238,8 +240,7 @@ public class Graph2DFrame extends JFrame {
 		}
 	}
 
-	public void addMatrix(double[][] m, double xmin, double xmax, double ymin,
-			double ymax) {
+	public void addMatrix(double[][] m, double xmin, double xmax, double ymin, double ymax) {
 		double red = 0;
 		double blue = 240.0 / 360.0;
 		if (isGrayScale()) {
@@ -260,16 +261,15 @@ public class Graph2DFrame extends JFrame {
 			}
 		}
 		double z;
-		for (int i = 0; i < m.length; i++) {
-			for (int j = 0; j < m[0].length; j++) {
+		for (int i = 0; i < hueMatrix.length; i++) {
+			for (int j = 0; j < hueMatrix[0].length; j++) {
 				z = -1 + 2 * (m[i][j] - min) / (max - min);
 				hueMatrix[i][j] = blue + (red - blue) * 0.5 * (z + 1);
 			}
 		}
 	}
 
-	private void drawRectangle(double x, double y, double dx, double dy,
-			double colorI, double colorDx, double colorDy, double colorDxDy) {
+	private void drawRectangle(double x, double y, double dx, double dy, double colorI, double colorDx, double colorDy, double colorDxDy) {
 		int i = wd.changeCoordX(x);
 		int j = wd.changeCoordY(y);
 		int w = wd.changeCoordX(x + dx) - wd.changeCoordX(x);
@@ -277,8 +277,7 @@ public class Graph2DFrame extends JFrame {
 		double df1 = (colorDx - colorI) / w;
 		double df2 = (colorDxDy - colorDy) / w;
 		Graphics g = wd.getGraphics();
-		int[] pixels = ((java.awt.image.DataBufferInt) wd.getImage()
-				.getRaster().getDataBuffer()).getData();
+		int[] pixels = ((java.awt.image.DataBufferInt) wd.getImage().getRaster().getDataBuffer()).getData();
 
 		int windowWidth = wd.getWindowWidth();
 
@@ -291,8 +290,7 @@ public class Graph2DFrame extends JFrame {
 					double g2 = colorDy + df2 * (k - i);
 					double hue = g1 + ((g2 - g1) / h) * (l - j);
 					if (isGrayScale()) {
-						color = (new Color((float) hue, (float) hue,
-								(float) hue));
+						color = (new Color((float) hue, (float) hue, (float) hue));
 					} else {
 						color = (Color.getHSBColor((float) hue, 1, 1));
 					}
@@ -301,8 +299,7 @@ public class Graph2DFrame extends JFrame {
 			}
 		} else {
 			if (isGrayScale()) {
-				g.setColor(new Color((float) colorDy, (float) colorDy,
-						(float) colorDy));
+				g.setColor(new Color((float) colorDy, (float) colorDy, (float) colorDy));
 			} else {
 				g.setColor(Color.getHSBColor((float) colorDy, 1, 1));
 			}
@@ -323,12 +320,7 @@ public class Graph2DFrame extends JFrame {
 			for (int j = 0; j < hueMatrix[0].length; j++) {
 				double x = xmin + dx * j;
 				double y = ymax - dy * (i + 1);
-				drawRectangle(x, y, dx + wd.pxlXStep(), dy + wd.pxlYStep(),
-						hueMatrix[Math.min(i + 1, hueMatrix.length - 1)][j],
-						hueMatrix[Math.min(i + 1, hueMatrix.length - 1)][Math
-								.min(j + 1, hueMatrix[0].length - 1)],
-						hueMatrix[i][j], hueMatrix[i][Math.min(j + 1,
-								hueMatrix[0].length - 1)]);
+				drawRectangle(x, y, dx + wd.pxlXStep(), dy + wd.pxlYStep(), hueMatrix[Math.min(i + 1, hueMatrix.length - 1)][j], hueMatrix[Math.min(i + 1, hueMatrix.length - 1)][Math.min(j + 1, hueMatrix[0].length - 1)], hueMatrix[i][j], hueMatrix[i][Math.min(j + 1, hueMatrix[0].length - 1)]);
 				// wd.setDrawColor(Color.black);
 				// wd.drawLine(x, y, x + dx, y);
 				// wd.drawLine(x+dx, y, x + dx, y + dy);
@@ -342,19 +334,13 @@ public class Graph2DFrame extends JFrame {
 		wd.setDrawColor(Color.black);
 		double deltaX = 0.1 * (regions.getXmax() - regions.getXmin());
 		double deltaY = 0.1 * (regions.getYmax() - regions.getYmin());
-		wd.drawLine(regions.getXmin(), regions.getYmin() - 0.5 * deltaY,
-				regions.getXmax(), regions.getYmin() - 0.5 * deltaY);
-		wd.drawLine(regions.getXmin() - 0.5 * deltaX, regions.getYmin(),
-				regions.getXmin() - 0.5 * deltaX, regions.getYmax());
-		for (double x = regions.getXmin(); x < regions.getXmax(); x += (regions
-				.getXmax() - regions.getXmin()) / 10) {
-			wd.drawString(String.format("%.2f", x), x, regions.getYmin() - 0.5
-					* deltaY);
+		wd.drawLine(regions.getXmin(), regions.getYmin() - 0.5 * deltaY, regions.getXmax(), regions.getYmin() - 0.5 * deltaY);
+		wd.drawLine(regions.getXmin() - 0.5 * deltaX, regions.getYmin(), regions.getXmin() - 0.5 * deltaX, regions.getYmax());
+		for (double x = regions.getXmin(); x < regions.getXmax(); x += (regions.getXmax() - regions.getXmin()) / 10) {
+			wd.drawString(String.format("%.2f", x), x, regions.getYmin() - 0.5 * deltaY);
 		}
-		for (double x = regions.getYmin(); x < regions.getYmax(); x += (regions
-				.getYmax() - regions.getYmin()) / 10) {
-			wd.drawString(String.format("%.2f", x), regions.getXmin() - 0.5
-					* deltaX, x);
+		for (double x = regions.getYmin(); x < regions.getYmax(); x += (regions.getYmax() - regions.getYmin()) / 10) {
+			wd.drawString(String.format("%.2f", x), regions.getXmin() - 0.5 * deltaX, x);
 		}
 	}
 
@@ -368,8 +354,7 @@ public class Graph2DFrame extends JFrame {
 	}
 
 	public void paint(Graphics g) {
-		if (Math.abs(wChanged - this.getWidth()) > 0
-				|| Math.abs(hChanged - this.getHeight()) > 0) {
+		if (Math.abs(wChanged - this.getWidth()) > 0 || Math.abs(hChanged - this.getHeight()) > 0) {
 			wd.setWindowSize(this.getWidth(), this.getHeight());
 			wChanged = this.getWidth();
 			hChanged = this.getHeight();
@@ -382,14 +367,14 @@ public class Graph2DFrame extends JFrame {
 		plot();
 		wd.paint(g);
 	}
-	
+
 	public static void test0(Graph2DFrame frame) {
 		String str = "sinsinsin";
 		double[] x = new double[str.length()];
 		double[] y = new double[str.length()];
 		for (int i = 0; i < y.length; i++) {
 			x[i] = (1.0 * i) / y.length;
-			y[i] = str.charAt(i) / (1.0 * Character.MAX_VALUE) ;
+			y[i] = str.charAt(i) / (1.0 * Character.MAX_VALUE);
 		}
 		frame.addCurve(x, y, Color.blue);
 		str = "sinsinsinsinsinsin";
@@ -397,18 +382,17 @@ public class Graph2DFrame extends JFrame {
 		y = new double[str.length()];
 		for (int i = 0; i < y.length; i++) {
 			x[i] = (1.0 * i) / y.length;
-			y[i] = str.charAt(i) / (1.0 * Character.MAX_VALUE) ;
+			y[i] = str.charAt(i) / (1.0 * Character.MAX_VALUE);
 		}
 		frame.addCurve(x, y, Color.red);
 		frame.plot();
 	}
-	
-	public static void test1(Graph2DFrame frame) {
-		 MyImage kakashi = new
-		 MyImage("https://92c3cb5a-a-62cb3a1a-s-sites.googlegroups.com/site/ibplanalto2010/Home/kakashi46-3459488_50_50%5B1%5D.jpg?attachauth=ANoY7cp6kFZ2u7lOyL3KJqDYkzI_jmNGeoLsCE29u25IlE23i8Bgqx-4UsNUTkE4Mh7vBQpKPe107E_-PLAOywT34dv8cW9_r9WV0uOZ8p26uBT4rusztcGEh9wkuZ2QI0f-loBiB4pmzo_3NKMrC0CPbRvHHiwa_vT2wVEjZiWh7fZ9XlUjC6vrCVvNOtnmgsnSd-WjjbZqO-q6jSPBFw1zyyaa8uzcAKExLodMjCR40cjjmDComqp1JMNpKJoE1iTDgXQDWFzU&attredirects=0");
 
-//		 MyImage kakashi = new MyImage(
-//		 "http://i106.photobucket.com/albums/m255/Farumbrosius/10_bar-refaeli_04.jpg");
+	public static void test1(Graph2DFrame frame) {
+		// MyImage kakashi = new
+		// MyImage("https://92c3cb5a-a-62cb3a1a-s-sites.googlegroups.com/site/ibplanalto2010/Home/kakashi46-3459488_50_50%5B1%5D.jpg?attachauth=ANoY7cp6kFZ2u7lOyL3KJqDYkzI_jmNGeoLsCE29u25IlE23i8Bgqx-4UsNUTkE4Mh7vBQpKPe107E_-PLAOywT34dv8cW9_r9WV0uOZ8p26uBT4rusztcGEh9wkuZ2QI0f-loBiB4pmzo_3NKMrC0CPbRvHHiwa_vT2wVEjZiWh7fZ9XlUjC6vrCVvNOtnmgsnSd-WjjbZqO-q6jSPBFw1zyyaa8uzcAKExLodMjCR40cjjmDComqp1JMNpKJoE1iTDgXQDWFzU&attredirects=0");
+
+		MyImage kakashi = new MyImage("http://i106.photobucket.com/albums/m255/Farumbrosius/10_bar-refaeli_04.jpg");
 
 		// MyImage kakashi = new
 		// MyImage("http://static2.wikia.nocookie.net/__cb20130215214233/naruto/images/3/3b/KakashiMangeky%C5%8DSharinganAnime.jpg");
@@ -416,7 +400,7 @@ public class Graph2DFrame extends JFrame {
 		/**
 		 * gray scale matrix
 		 */
-		 Matrix v = new Matrix(kakashi.getGrayScale());
+		Matrix v = new Matrix(kakashi.getGrayScale());
 
 		/**
 		 * hsv matrix
@@ -428,18 +412,17 @@ public class Graph2DFrame extends JFrame {
 		// v.setMatrix(i, j, k[i-1][j-1].getY());
 		// }
 		// }
-		
+
 		/**
 		 * add matrix
 		 */
-		frame.addMatrix(v.getMatrix(), -1, 1, -1, 1);
-		frame.setGrayScale(false);
+		frame.setGrayScale(true);
 		frame.setSmooth(true);
 		frame.setRepainting(false);
+		frame.addMatrix(v.getMatrix(), -1, 1, -1, 1);
 		frame.plot();
 	}
-	
-	
+
 	public static void test2(Graph2DFrame frame) {
 		/**
 		 * matrix function
@@ -452,14 +435,14 @@ public class Graph2DFrame extends JFrame {
 			for (int j = 1; j <= n; j++)
 				v.setMatrix(i, j, (i - n / 2) * (j - n / 2));
 		}
-		
+
 		frame.addMatrix(v.getMatrix(), -1, 1, -1, 1);
 		frame.setGrayScale(false);
 		frame.setSmooth(true);
 		frame.setRepainting(false);
 		frame.plot();
 	}
-	
+
 	public static void test3(Graph2DFrame frame) {
 		/**
 		 * matrix function
@@ -472,20 +455,71 @@ public class Graph2DFrame extends JFrame {
 			for (int j = 1; j <= n; j++)
 				v.setMatrix(i, j, (i - n / 2) * (j - n / 2));
 		}
-		
+
 		frame.addMatrix(v.getMatrix(), -1, 1, -1, 1);
 		frame.setGrayScale(false);
 		frame.setSmooth(true);
 		frame.setRepainting(false);
 		frame.plot();
 	}
-	
+
+	/**
+	 * http://www.johndcook.com/blog/cpp_phi/
+	 * 
+	 * @param x
+	 * @return
+	 */
+	private static double phi(double x) {
+		// constants
+		double a1 = 0.254829592;
+		double a2 = -0.284496736;
+		double a3 = 1.421413741;
+		double a4 = -1.453152027;
+		double a5 = 1.061405429;
+		double p = 0.3275911;
+
+		// Save the sign of x
+		int sign = 1;
+		if (x < 0)
+			sign = -1;
+		x = Math.abs(x) / Math.sqrt(2.0);
+
+		// A&S formula 7.1.26
+		double t = 1.0 / (1.0 + p * x);
+		double y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+
+		return 0.5 * (1.0 + sign * y);
+	}
+
+	private static double kernel(double x, double myu, double sigma) {
+		double normalization = phi((1 - myu) / sigma) - phi(-myu / sigma);
+		double gaussian = (1 / (Math.sqrt(2 * Math.PI) * sigma)) * Math.exp(-0.5 * ((x - myu) / sigma) * ((x - myu) / sigma));
+		return gaussian / normalization;
+	}
+
+	private static void test4(Graph2DFrame frame) {
+		int n = 100;
+		double[] x = new double[n];
+		double[] y = new double[n];
+		double t = 0;
+		double step = 1.0 / (n - 1);
+		for (int i = 0; i < n; i++) {
+			x[i] = t;
+			y[i] = kernel(t,0.2,1000);
+			System.out.println(x[i] + "\t" + y[i]);
+			t += step;
+		}
+		frame.addCurve(x, y, Color.blue);
+		frame.plot();
+	}
 
 	public static void main(String args[]) {
 		Graph2DFrame frame = new Graph2DFrame("figure 1");
-		test0(frame);
-//		test1(frame);
-//		test2(frame);
-//		test3(frame);
+		// test0(frame);
+		// test1(frame);
+		// test2(frame);
+		// test3(frame);
+		test4(frame);
 	}
+
 }

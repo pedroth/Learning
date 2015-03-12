@@ -3,22 +3,13 @@ package apps;
 import java.applet.Applet;
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.TextField;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
+import java.util.Arrays;
+import java.util.Random;
 
 import visualization.TextFrame;
 
@@ -33,22 +24,18 @@ import visualization.TextFrame;
  * @author pedro
  * 
  */
-public class ParallelCellularAutomaton extends Applet implements
-		MouseMotionListener, KeyListener {
+public class ParallelCellularAutomaton extends Applet implements MouseMotionListener, KeyListener {
 
 	private static final long serialVersionUID = 1L;
+
 	private BufferedImage buffer;
 	private int wChanged, hChanged;
 	private boolean[][] space;
 	private Graphics gimg;
-	private Timer timer;
-	private JButton button;
 	private boolean timerStarted;
 	private ThreadManager threadManager;
-	
-	private static String helpText = "< mouse > : draw initial state \n\n" +
-			"<any button > : starts animation \n\n" +
-			"Made by Pedroth";
+
+	private static String helpText = "< mouse > : draw initial state \n\n" + "<space> : starts animation \n" + "<r> : reset \n" + "\n" + "Made by Pedroth";
 
 	class CellularAutomaton implements Runnable {
 		private int discreteTime;
@@ -57,13 +44,44 @@ public class ParallelCellularAutomaton extends Applet implements
 		 * change rules where according with
 		 * http://psoup.math.wisc.edu/mcell/rullex_life.html
 		 */
-		private int[] survive = { 1,2,3,4, 5 };
-		private int[] born = { 3 };
+		private int[] survive;
+		private int[] born;
 
-		public CellularAutomaton(int begin, int end) {
+		public CellularAutomaton(int begin, int end, int type) {
 			discreteTime = 0;
 			this.begin = begin;
 			this.end = end;
+			if (type == 0) {
+				int[] sAux = { 1, 2, 3, 4, 5 };
+				int[] bAux = { 3 };
+				survive = Arrays.copyOf(sAux, sAux.length);
+				born = Arrays.copyOf(bAux, bAux.length);
+			} else if (type == 1) {
+				int[] sAux = { 3, 4 };
+				int[] bAux = { 3, 4 };
+				survive = Arrays.copyOf(sAux, sAux.length);
+				born = Arrays.copyOf(bAux, bAux.length);
+			} else if (type == 2) {
+				int[] sAux = { 0, 2,3,6};
+				int[] bAux = { 1};
+				survive = Arrays.copyOf(sAux, sAux.length);
+				born = Arrays.copyOf(bAux, bAux.length);
+			} else if (type == 3) {
+				int[] sAux = { 1, 3, 5, 7, 8 };
+				int[] bAux = { 3, 5, 7 };
+				survive = Arrays.copyOf(sAux, sAux.length);
+				born = Arrays.copyOf(bAux, bAux.length);
+			} else if (type == 4) {
+				int[] sAux = { 4, 5, 6, 7, 8 };
+				int[] bAux = { 3 };
+				survive = Arrays.copyOf(sAux, sAux.length);
+				born = Arrays.copyOf(bAux, bAux.length);
+			} else {
+				int[] sAux = { 2, 3, 5, 6, 7, 8 };
+				int[] bAux = { 3, 7, 8 };
+				survive = Arrays.copyOf(sAux, sAux.length);
+				born = Arrays.copyOf(bAux, bAux.length);
+			}
 		}
 
 		boolean cellularFunction(int x, int y, int t) {
@@ -140,20 +158,25 @@ public class ParallelCellularAutomaton extends Applet implements
 
 	}
 
-	class ThreadManager extends TimerTask {
+	class ThreadManager {
 		private Thread[] threads;
 		private int nCores;
+		private CellularAutomaton[] cells;
 
 		ThreadManager() {
 			nCores = Runtime.getRuntime().availableProcessors();
 			threads = new Thread[nCores];
+			cells = new CellularAutomaton[nCores];
+			Random random = new Random();
+			int type = random.nextInt(6);
+			for (int i = 0; i < nCores; i++) {
+				cells[i] = new CellularAutomaton(i * (wChanged / nCores), (i + 1) * (wChanged / nCores), type);
+			}
 		}
 
-		@Override
 		public void run() {
 			for (int i = 0; i < nCores; i++) {
-				threads[i] = new Thread(new CellularAutomaton(i
-						* (wChanged / nCores), (i + 1) * (wChanged / nCores)));
+				threads[i] = new Thread(cells[i]);
 				threads[i].start();
 			}
 			for (int i = 0; i < nCores; i++) {
@@ -169,8 +192,7 @@ public class ParallelCellularAutomaton extends Applet implements
 
 	/* synchronized */public void drawPoint(int x, int y, Color c) {
 		int rgbColor = c.getRGB();
-		int[] pixels = ((java.awt.image.DataBufferInt) buffer.getRaster()
-				.getDataBuffer()).getData();
+		int[] pixels = ((java.awt.image.DataBufferInt) buffer.getRaster().getDataBuffer()).getData();
 
 		int w = wChanged;
 		pixels[y * w + x] = rgbColor;
@@ -178,42 +200,34 @@ public class ParallelCellularAutomaton extends Applet implements
 
 	public void init() {
 		this.setLayout(null);
-
-		threadManager = new ThreadManager();
-		button = new JButton();
-		// button.setBorder(BorderFactory.createEmptyBorder());
-		// button.setContentAreaFilled(false);
-		this.setSize(500, 250);
+		this.setSize(500, 500);
 		this.addMouseMotionListener(this);
-		buffer = new BufferedImage(this.getWidth(), this.getHeight(),
-				BufferedImage.TYPE_INT_RGB);
+		buffer = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB);
 		space = new boolean[this.getWidth()][this.getHeight()];
 		gimg = buffer.getGraphics();
 		gimg.setColor(Color.black);
 		wChanged = this.getWidth();
 		hChanged = this.getHeight();
 		gimg.fillRect(0, 0, wChanged, hChanged);
-		timer = new Timer();
-		timerStarted = false;
-		button.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				timer.schedule(threadManager, 0, 1);
-				timerStarted = true;
-			}
-
-		});
-		button.setBounds(0, 0, 10, 10);
-		this.add(button);
+		threadManager = new ThreadManager();
 		this.addKeyListener(this);
+	}
+	
+	public void myInit() {
+		this.setSize(500, 500);
+		buffer = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB);
+		space = new boolean[this.getWidth()][this.getHeight()];
+		gimg = buffer.getGraphics();
+		gimg.setColor(Color.black);
+		wChanged = this.getWidth();
+		hChanged = this.getHeight();
+		gimg.fillRect(0, 0, wChanged, hChanged);
+		threadManager = new ThreadManager();
 	}
 
 	public void paint(Graphics g) {
-		if (Math.abs(wChanged - this.getWidth()) > 0
-				|| Math.abs(hChanged - this.getHeight()) > 0) {
-			buffer = new BufferedImage(this.getWidth(), this.getHeight(),
-					BufferedImage.TYPE_INT_RGB);
+		if (Math.abs(wChanged - this.getWidth()) > 0 || Math.abs(hChanged - this.getHeight()) > 0) {
+			buffer = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB);
 			space = new boolean[this.getWidth()][this.getHeight()];
 			gimg = buffer.getGraphics();
 			gimg.setColor(Color.black);
@@ -225,7 +239,12 @@ public class ParallelCellularAutomaton extends Applet implements
 	}
 
 	public void update(Graphics g) {
+		if (timerStarted) {
+			threadManager.run();
+		}
+		buffer.getGraphics().setColor(Color.green);
 		g.drawImage(buffer, 0, 0, wChanged, hChanged, null);
+		repaint();
 	}
 
 	@Override
@@ -250,17 +269,20 @@ public class ParallelCellularAutomaton extends Applet implements
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		// TODO Auto-generated method stub
-
+		if (e.getKeyCode() == KeyEvent.VK_H) {
+			new TextFrame("help", helpText);
+		} else if (e.getKeyCode() == KeyEvent.VK_R) {
+			timerStarted = false;
+			myInit();
+		} else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+			timerStarted = true;
+			repaint();
+		}
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		timer.schedule(threadManager, 0, 10);
-		timerStarted = true;
-		if (e.getKeyCode() == KeyEvent.VK_H) {
-			new TextFrame("help", helpText);
-		}
+		
 	}
 
 	@Override

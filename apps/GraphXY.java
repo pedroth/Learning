@@ -189,7 +189,7 @@ public class GraphXY extends JFrame implements MouseListener,
 	
 	private boolean axisAlreadyBuild;
 
-	public GraphXY() {
+	public GraphXY(boolean isApplet) {
 		// Set JFrame title
 		super("Draw Graph XY");
 
@@ -219,8 +219,9 @@ public class GraphXY extends JFrame implements MouseListener,
 		 * there is no need for the instruction below
 		 */
 		// Set default close operation for JFrame
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+		if(!isApplet) {
+			 setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		 }
 		// Set JFrame size
 		setSize(800, 600);
 
@@ -881,7 +882,7 @@ public class GraphXY extends JFrame implements MouseListener,
 	}
 
 	public static void main(String[] args) {
-		new GraphXY();
+		new GraphXY(false);
 	}
 
 	public void orbit(double t, double p, TriVector x) {

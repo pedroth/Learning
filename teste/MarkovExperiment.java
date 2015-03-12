@@ -14,6 +14,10 @@ import tokenizer.NumbersTokenizer;
 import algebra.Matrix;
 
 public class MarkovExperiment extends JFrame {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private TextArea in1, in2, out;
 	private TextField numberOfIt;
 	private Matrix markovGraph;
@@ -47,6 +51,7 @@ public class MarkovExperiment extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		// Set JFrame size
 		setSize(500, 720);
+		setResizable(false);
 		setVisible(true);
 	}
 

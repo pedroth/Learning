@@ -60,19 +60,17 @@ public class BrownianMotion extends JFrame implements KeyListener {
 
 	private double[] historyX, historyY;
 	private int historyIndex, numHistory = 1000;
-	
-	
-	private static String helpText = "< arrows > : add force to all particles \n\n" +
-			"< + > : increase radius of particles \n\n" +
-			"< - > : decrease radius of particles\n\n" +
-			"Made by Pedroth";
 
-	public BrownianMotion() {
+	private static String helpText = "< arrows > : add force to all particles \n\n" + "< + > : increase radius of particles \n\n" + "< - > : decrease radius of particles\n\n" + "Made by Pedroth";
+
+	public BrownianMotion(boolean isApplet) {
 		// Set JFrame title
 		super("Pseudo - Brownian Motion");
 
 		// Set default close operation for JFrame
-//		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		if (!isApplet) {
+			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		}
 
 		// Set JFrame size
 		setSize(400, 400);
@@ -83,8 +81,7 @@ public class BrownianMotion extends JFrame implements KeyListener {
 		/**
 		 * creation of the canvas the image that will be draw on the window
 		 */
-		canvas = new BufferedImage(widthChanged, heightChanged,
-				BufferedImage.TYPE_INT_RGB);
+		canvas = new BufferedImage(widthChanged, heightChanged, BufferedImage.TYPE_INT_RGB);
 		canvasGraphics = canvas.getGraphics();
 
 		// Make JFrame visible
@@ -97,7 +94,7 @@ public class BrownianMotion extends JFrame implements KeyListener {
 		 */
 		oldTime = (System.currentTimeMillis()) * 1E-03;
 		clearCanvasWithBackground();
-		numParticles = 500;
+		numParticles = 200;
 		/**
 		 * init position of oval
 		 */
@@ -131,11 +128,9 @@ public class BrownianMotion extends JFrame implements KeyListener {
 	 * function to handle the resize of the window
 	 */
 	private void reShape() {
-		if (Math.abs(widthChanged - this.getWidth()) > 0
-				|| Math.abs(heightChanged - this.getHeight()) > 0) {
+		if (Math.abs(widthChanged - this.getWidth()) > 0 || Math.abs(heightChanged - this.getHeight()) > 0) {
 
-			canvas = new BufferedImage(this.getWidth(), this.getHeight(),
-					BufferedImage.TYPE_INT_RGB);
+			canvas = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB);
 
 			canvasGraphics = canvas.getGraphics();
 			/**
@@ -290,8 +285,7 @@ public class BrownianMotion extends JFrame implements KeyListener {
 	}
 
 	public double distance(int i, int j) {
-		return Math.sqrt((x[i] - x[j]) * (x[i] - x[j]) + (y[i] - y[j])
-				* (y[i] - y[j]));
+		return Math.sqrt((x[i] - x[j]) * (x[i] - x[j]) + (y[i] - y[j]) * (y[i] - y[j]));
 	}
 
 	public boolean isContact(int i, int j) {
@@ -301,7 +295,7 @@ public class BrownianMotion extends JFrame implements KeyListener {
 	}
 
 	public static void main(String[] args) {
-		new BrownianMotion();
+		new BrownianMotion(false);
 	}
 
 	@Override
@@ -329,12 +323,10 @@ public class BrownianMotion extends JFrame implements KeyListener {
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_LEFT
-				|| e.getKeyCode() == KeyEvent.VK_RIGHT) {
+		if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_RIGHT) {
 			thrustx = 0;
 		}
-		if (e.getKeyCode() == KeyEvent.VK_UP
-				|| e.getKeyCode() == KeyEvent.VK_DOWN) {
+		if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_DOWN) {
 			thrusty = 0;
 		}
 		if (e.getKeyCode() == KeyEvent.VK_H) {

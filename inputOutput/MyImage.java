@@ -83,8 +83,8 @@ public class MyImage {
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < collumns; j++) {
 				Color c = new Color(intRGB[j * rows + i]);
-				rgb[j][i] = new TriVector(c.getRed() / 225.0,
-						c.getGreen() / 225.0, c.getBlue() / 225.0);
+				rgb[j][i] = new TriVector(c.getRed() / 255.0,
+						c.getGreen() / 255.0, c.getBlue() / 255.0);
 			}
 		}
 		return rgb;
@@ -99,8 +99,8 @@ public class MyImage {
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < collumns; j++) {
 				Color c = new Color(intRGB[i * collumns + j]);
-				rgb[i * collumns + j] = new TriVector(c.getRed() / 225.0,
-						c.getGreen() / 225.0, c.getBlue() / 225.0);
+				rgb[i * collumns + j] = new TriVector(c.getRed() / 255.0,
+						c.getGreen() / 255.0, c.getBlue() / 255.0);
 			}
 		}
 		return rgb;
@@ -152,8 +152,8 @@ public class MyImage {
 		double[][] ret = new double[n][m];
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < m; j++) {
-				ret[i][j] = 0.2126 * image[i][j].getX() + 0.7152
-						* image[i][j].getY() + 0.0722 * image[i][j].getZ();
+				ret[i][j] = 0.2989 * image[i][j].getX() + 0.5870
+						* image[i][j].getY() + 0.1140 * image[i][j].getZ();
 			}
 		}
 		return ret;

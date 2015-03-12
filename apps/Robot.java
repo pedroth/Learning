@@ -35,8 +35,7 @@ import algebra.TriVector;
  * @author pedro
  * 
  */
-public class Robot extends JFrame implements MouseListener,
-		MouseMotionListener, KeyListener, MouseWheelListener {
+public class Robot extends JFrame implements MouseListener, MouseMotionListener, KeyListener, MouseWheelListener {
 	/**
 	 * size of the screen
 	 */
@@ -94,14 +93,12 @@ public class Robot extends JFrame implements MouseListener,
 	private Composite ball;
 	Transformation ballTransform;
 	private boolean showStateSpace;
-	
-	private static String helpText = "< left mouse button > : change orientation of camera \n\n" +
-			"< right mouse button > : zoom in / zoom out \n\n" +
-			"< [w, s] ans arrows > : move ball \n\n" +
-			"< t > : toggle space state \n\n" +
-			"Made by Pedroth";
 
-	public Robot() {
+	private double robotPieceScale = 2;
+
+	private static String helpText = "< left mouse button > : change orientation of camera \n\n" + "< right mouse button > : zoom in / zoom out \n\n" + "< [w, s] ans arrows > : move ball \n\n" + "< t > : toggle space state \n\n" + "Made by Pedroth";
+
+	public Robot(boolean isApplet) {
 		// Set JFrame title
 		super("Robot");
 
@@ -119,8 +116,10 @@ public class Robot extends JFrame implements MouseListener,
 		raw = 10;
 		focalPoint = new TriVector();
 
-		// Set default close operation for JFrame
-//		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		 //Set default close operation for JFrame
+		 if(!isApplet) {
+			 setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		 }
 
 		// Set JFrame size
 		setSize(800, 600);
@@ -141,13 +140,13 @@ public class Robot extends JFrame implements MouseListener,
 		shader.setShininess(25);
 		shader.addLightPoint(new TriVector(3, 3, 3));
 		orbit(theta, phi, focalPoint);
-		ballPos = new TriVector(5, -Math.PI / 4, Math.PI / 12);
+		ballPos = new TriVector(5, Math.PI / 4, Math.PI / 12);
 		ballVel = new TriVector();
 		thrust = new TriVector();
 		buildSphere(0.5);
 		createRobot();
 		showStateSpace = false;
-
+		euler(0.005);
 		/**
 		 * Make JFrame visible
 		 */
@@ -171,17 +170,13 @@ public class Robot extends JFrame implements MouseListener,
 				double cosU = Math.cos(u);
 				double sinV = Math.sin(v);
 				double cosV = Math.cos(v);
-				sphere[i][j] = new TriVector(radius * sinU * cosV, radius
-						* sinU * sinV, radius * cosU);
+				sphere[i][j] = new TriVector(radius * sinU * cosV, radius * sinU * sinV, radius * cosU);
 			}
 		}
 		TriVector p = new TriVector();
 		for (int j = 0; j < numIteV - 1; j++) {
 			for (int i = 0; i < numIteU - 1; i++) {
-				Quad e = new Quad(TriVector.sum(p, sphere[i][j]),
-						TriVector.sum(p, sphere[i + 1][j]), TriVector.sum(p,
-								sphere[i + 1][j + 1]), TriVector.sum(p,
-								sphere[i][j + 1]));
+				Quad e = new Quad(TriVector.sum(p, sphere[i][j]), TriVector.sum(p, sphere[i + 1][j]), TriVector.sum(p, sphere[i + 1][j + 1]), TriVector.sum(p, sphere[i][j + 1]));
 				e.setColor(Color.red);
 				ball.add(e);
 			}
@@ -199,16 +194,14 @@ public class Robot extends JFrame implements MouseListener,
 			nodeList.add(node);
 		}
 
-		public void childIterate(Stack<Matrix> transformStack,
-				Stack<TriVector> translationStack) {
+		public void childIterate(Stack<Matrix> transformStack, Stack<TriVector> translationStack) {
 			Iterator<Node> ite = nodeList.iterator();
 			while (ite.hasNext()) {
 				ite.next().action(transformStack, translationStack);
 			}
 		}
 
-		public abstract void action(Stack<Matrix> transformStack,
-				Stack<TriVector> translationStack);
+		public abstract void action(Stack<Matrix> transformStack, Stack<TriVector> translationStack);
 	}
 
 	private class Transformation extends Node {
@@ -262,8 +255,7 @@ public class Robot extends JFrame implements MouseListener,
 		}
 
 		@Override
-		public void action(Stack<Matrix> transformStack,
-				Stack<TriVector> translationStack) {
+		public void action(Stack<Matrix> transformStack, Stack<TriVector> translationStack) {
 			Matrix rot = null;
 			TriVector translate = null;
 			if (axisOfRotation == "x") {
@@ -306,8 +298,7 @@ public class Robot extends JFrame implements MouseListener,
 		}
 
 		@Override
-		public void action(Stack<Matrix> transformStack,
-				Stack<TriVector> translationStack) {
+		public void action(Stack<Matrix> transformStack, Stack<TriVector> translationStack) {
 			Element e = element.copy();
 			e.transform(transformStack.peek(), translationStack.peek());
 			e.draw(painter);
@@ -323,15 +314,13 @@ public class Robot extends JFrame implements MouseListener,
 		}
 
 		@Override
-		public void action(Stack<Matrix> transformStack,
-				Stack<TriVector> translationStack) {
+		public void action(Stack<Matrix> transformStack, Stack<TriVector> translationStack) {
 			painter.init();
 			childIterate(transformStack, translationStack);
 		}
 	}
 
 	private void createRobot() {
-		Random r = new Random();
 		int numberDOF = 4;
 		Composite[] box = new Composite[numberDOF];
 		for (int i = 0; i < box.length; i++) {
@@ -343,16 +332,15 @@ public class Robot extends JFrame implements MouseListener,
 		 */
 		Matrix t = new Matrix(3, 3);
 		t.identity();
-		t.setMatrix(3, 3, 2);
-		box[1].transform(t, new TriVector(0, 0, 1));
-		box[2].transform(t, new TriVector(0, 0, 1));
-		box[3].transform(t, new TriVector(0, 0, 1));
+		t.setMatrix(3, 3, robotPieceScale);
+		box[1].transform(t, new TriVector(0, 0, robotPieceScale / 2));
+		box[2].transform(t, new TriVector(0, 0, robotPieceScale / 2));
+		box[3].transform(t, new TriVector(0, 0, robotPieceScale / 2));
 		/**
 		 * initial node of the scene
 		 */
 		scene = new InitNode(shader);
-		Transformation originFrame = new Transformation(0.0, "x",
-				new TriVector());
+		Transformation originFrame = new Transformation(0.0, "x", new TriVector());
 		ballTransform = new Transformation(0.0, "x", ballPos);
 		ballTransform.addNode(new Geometry(ball, shader));
 		originFrame.addNode(ballTransform);
@@ -363,16 +351,15 @@ public class Robot extends JFrame implements MouseListener,
 		 */
 		Geometry[] obj = new Geometry[numberDOF];
 		Transformation[] transform = new Transformation[numberDOF];
-		String[] axisOfRotation = { "z", "y", "y", "x"};
+		String[] axisOfRotation = { "z", "y", "y", "x" };
 		TriVector[] v = new TriVector[numberDOF];
 		v[0] = new TriVector(0.0, 0.0, 0.0);
-		v[1] = new TriVector(0, 0, 0.5);
-		v[2] = new TriVector(0, 0, 2);
-		v[3] = new TriVector(0.0, 0.0, 2);
+		v[1] = new TriVector(0, 0, robotPieceScale / 4);
+		v[2] = new TriVector(0, 0, robotPieceScale);
+		v[3] = new TriVector(0.0, 0.0, robotPieceScale);
 		for (int i = 0; i < obj.length; i++) {
 			obj[i] = new Geometry(box[i], shader);
-			transform[i] = new Transformation( Math.PI / 12,
-					axisOfRotation[i], v[i]);
+			transform[i] = new Transformation(Math.PI / 12, axisOfRotation[i], v[i]);
 		}
 		transform[3].addNode(obj[3]);
 		transform[2].addNode(transform[3]);
@@ -400,20 +387,17 @@ public class Robot extends JFrame implements MouseListener,
 			}
 		}
 		for (int i = 0; i < cube.length; i++) {
-			Element e = new Quad(cube[i][0][0], cube[i][1][0], cube[i][1][1],
-					cube[i][0][1]);
+			Element e = new Quad(cube[i][0][0], cube[i][1][0], cube[i][1][1], cube[i][0][1]);
 			e.setColor(c);
 			compositeCube.add(e);
 		}
 		for (int i = 0; i < cube.length; i++) {
-			Element e = new Quad(cube[0][i][0], cube[1][i][0], cube[1][i][1],
-					cube[0][i][1]);
+			Element e = new Quad(cube[0][i][0], cube[1][i][0], cube[1][i][1], cube[0][i][1]);
 			e.setColor(c);
 			compositeCube.add(e);
 		}
 		for (int i = 0; i < cube.length; i++) {
-			Element e = new Quad(cube[0][0][i], cube[1][0][i], cube[1][1][i],
-					cube[0][1][i]);
+			Element e = new Quad(cube[0][0][i], cube[1][0][i], cube[1][1][i], cube[0][1][i]);
 			e.setColor(c);
 			compositeCube.add(e);
 		}
@@ -421,8 +405,7 @@ public class Robot extends JFrame implements MouseListener,
 	}
 
 	public void paint(Graphics g) {
-		if (Math.abs(wChanged - this.getWidth()) > 0
-				|| Math.abs(hChanged - this.getHeight()) > 0) {
+		if (Math.abs(wChanged - this.getWidth()) > 0 || Math.abs(hChanged - this.getHeight()) > 0) {
 			wChanged = this.getWidth();
 			hChanged = this.getHeight();
 			wd.setWindowSize(this.getWidth(), this.getHeight());
@@ -436,10 +419,25 @@ public class Robot extends JFrame implements MouseListener,
 		double dt = currentTime - oldTime;
 		oldTime = currentTime;
 		scene.action(new Stack<Matrix>(), new Stack<TriVector>());
-		if(showStateSpace)
+		if (showStateSpace)
 			graphics.drawElements();
-		euler(dt);
+//		System.out.println(dt);
+		if (dt > 0.05) {
+			euler(0.005);
+		} else {
+			euler(dt);
+		}
 		wd.paint(g);
+	}
+	
+	public double clamp(double x,double xmin,double xmax) {
+		double ans = x; 
+		if (x < xmin) {
+	        ans = xmin;
+		} else if (x > xmax){
+	        ans = xmax;
+		}
+		 return ans;
 	}
 
 	public void euler(double dt) {
@@ -447,11 +445,9 @@ public class Robot extends JFrame implements MouseListener,
 		for (int i = 0; i < dOF.length; i++) {
 			theta[i] = dOF[i].theta;
 		}
-		
+
 		ballVel = TriVector.sum(ballVel, TriVector.multConst(dt, TriVector.sub(thrust, TriVector.multConst(0.5, ballVel))));
-		ballPos = TriVector.sum(
-				TriVector.sum(ballPos, TriVector.multConst(dt, ballVel)),
-				TriVector.multConst(0.5 * dt * dt, TriVector.sub(thrust, TriVector.multConst(0.5, ballVel))));
+		ballPos = TriVector.sum(TriVector.sum(ballPos, TriVector.multConst(dt, ballVel)), TriVector.multConst(0.5 * dt * dt, TriVector.sub(thrust, TriVector.multConst(0.5, ballVel))));
 		double cosP = Math.cos(ballPos.getY());
 		double cosT = Math.cos(ballPos.getZ());
 		double sinP = Math.sin(ballPos.getY());
@@ -461,35 +457,40 @@ public class Robot extends JFrame implements MouseListener,
 		positionXYZ.setY(ballPos.getX() * sinP * sinT);
 		positionXYZ.setZ(ballPos.getX() * cosP);
 		ballTransform.v = positionXYZ;
-		
+
 		for (int i = 0; i < dOF.length; i++) {
-			dOF[i].theta -= (computePartialDerivative(theta, i, positionXYZ) + computeRestriction(theta, i)) * 0.5 * dt;
-//			System.out.print(theta[i] + "\t");
+			double max = 0.01;
+			double vel = clamp((computePartialDerivative(theta, i, positionXYZ) + computeRestriction(theta, i)) * 0.5 * dt,-max,max);
+			dOF[i].theta -= vel;
+			// System.out.println(i + "  " + theta[i] + "\t");
 		}
-//		System.out.print(computeCostFunction(theta, positionXYZ));
-//		System.out.println();
+		// System.out.print(computeCostFunction(theta, positionXYZ));
+		// System.out.println();
 		Element e = new Point(new TriVector(theta[0], theta[1], theta[2]));
 		e.setColor(Color.blue);
 		graphics.addtoList(e);
 		repaint();
 	}
-	
+
 	public double computeRestriction(double[] theta, int i) {
-		if(i == 0) {
+		if (i == 0) {
 			return 0;
-		} else if(i == 1) {
-			return 0;
-//			return -(1 / theta[i] + 1 / (Math.PI / 2  - theta[i]));
-		} else if(i == 2) {
-			return 0;
-//			return -(1 / theta[i] + 1 / (Math.PI / 2  - theta[i]));
+		} else if (i == 1) {
+			// return 0;
+			return 1 / ((Math.PI / 2) - theta[i]) - 1 / theta[i];
+		} else if (i == 2) {
+			// return 0;
+			return 1 / ((Math.PI / 2) - theta[i]) - 1 / theta[i];
+		} else if (i == 3) {
+			// return 0;
+			return 1 / ((Math.PI / 2) - theta[i]) - 1 / ((Math.PI / 2) + theta[i]);
 		} else {
 			return 0;
 		}
 	}
 
 	public double computeCostFunction(double[] theta, TriVector x) {
-		TriVector k = new TriVector(0.0, 0.0, 2);
+		TriVector k = new TriVector(0.0, 0.0, robotPieceScale);
 		Matrix rot = new Matrix(3, 3);
 		rot.identity();
 		TriVector acm = new TriVector();
@@ -506,8 +507,7 @@ public class Robot extends JFrame implements MouseListener,
 		k.Transformation(rot);
 		acm.sum(k);
 		acm = TriVector.sub(acm, x);
-		double s = acm.getLength();
-		return s * s;
+		return TriVector.vInnerProduct(acm, acm);
 	}
 
 	public double computePartialDerivative(double[] theta, int i, TriVector x) {
@@ -520,8 +520,7 @@ public class Robot extends JFrame implements MouseListener,
 		}
 		thetaPlusH[i] += dx;
 		thetaMinusH[i] -= dx;
-		double df = (computeCostFunction(thetaPlusH, x) - computeCostFunction(
-				thetaMinusH, x)) / (2 * dx);
+		double df = (computeCostFunction(thetaPlusH, x) - computeCostFunction(thetaMinusH, x)) / (2 * dx);
 		return df;
 	}
 
@@ -529,7 +528,7 @@ public class Robot extends JFrame implements MouseListener,
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		new Robot();
+		new Robot(false);
 	}
 
 	public void orbit(double t, double p, TriVector x) {
@@ -553,8 +552,7 @@ public class Robot extends JFrame implements MouseListener,
 		aux.setMatrix(2, 1, cosT);
 		aux.setMatrix(3, 1, 0);
 
-		TriVector eye = new TriVector(raw * cosP * cosT + x.getX(), raw * cosP
-				* sinT + x.getY(), raw * sinP + x.getZ());
+		TriVector eye = new TriVector(raw * cosP * cosT + x.getX(), raw * cosP * sinT + x.getY(), raw * sinP + x.getZ());
 
 		graphics.setCamera(aux, eye);
 	}

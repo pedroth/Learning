@@ -24,22 +24,7 @@ import algebra.TriVector;
 
 public class Cube extends JFrame implements MouseListener, MouseMotionListener,
 		KeyListener {
-	/**
-	 * to perform animation with this engine you must not use timers because
-	 * timer will generate a thread that will call methods of TriWin, when the
-	 * other thread hasn't finished.
-	 * 
-	 * method that will cause damage to your program when using a timer in
-	 * animation will be deleting element when other tread is still using them.
-	 * 
-	 * 
-	 * this is a example how to animate using this engine.
-	 * 
-	 * Although you don't have to use 2 TriWin. You can use just one. But if you use
-	 * just one you must delete all object in the engine and draw all over again.
-	 * 
-	 * note: if you want to use Zbuffer you better just use 1 TriWin object.
-	 */
+	
 	private static final long serialVersionUID = 1L;
 	private int wChanged, hChanged;
 	private TriWin graphics, graphParticles;
@@ -82,7 +67,7 @@ public class Cube extends JFrame implements MouseListener, MouseMotionListener,
 			"< v > : toggle between velocity field and acceleration field\n\n" +
 			"Made by Pedroth";
 
-	public Cube() {
+	public Cube(boolean isApplet) {
 		// Set JFrame title
 		super("Draw Cube");
 
@@ -105,8 +90,9 @@ public class Cube extends JFrame implements MouseListener, MouseMotionListener,
 		stateField = 1;
 
 		// Set default close operation for JFrame
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+		if(!isApplet) {
+			 setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		 }
 		// Set JFrame size
 		setSize(800, 550);
 
@@ -420,7 +406,7 @@ public class Cube extends JFrame implements MouseListener, MouseMotionListener,
 	}
 
 	public static void main(String[] args) {
-		new Cube();
+		new Cube(false);
 
 	}
 

@@ -17,8 +17,10 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import window.ImageWindow;
+import windowThreeDim.Composite;
 import windowThreeDim.Element;
 import windowThreeDim.InterpolativeShader;
+import windowThreeDim.LevelSetShader;
 import windowThreeDim.Line;
 import windowThreeDim.Point;
 import windowThreeDim.Quad;
@@ -27,6 +29,8 @@ import windowThreeDim.StringElement;
 import windowThreeDim.TriWin;
 import windowThreeDim.Triangle;
 import windowThreeDim.WiredPrespective;
+import windowThreeDim.ZBufferPrespective;
+import windowThreeDim.ZbufferShader;
 import algebra.Matrix;
 import algebra.TriVector;
 
@@ -303,7 +307,7 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 	public void buildSphere(double radius) {
 		double pi = Math.PI;
 		double step = pi / 2;
-		double n = 2 * pi / step;
+		double n = (2 * pi) / step;
 		int numIte = (int) Math.floor(n);
 		sphere = new TriVector[numIte][numIte];
 		for (int j = 0; j < numIte; j++) {
@@ -324,7 +328,7 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 		if (!isScatterAsPxl) {
 			double pi = Math.PI;
 			double step = pi / 2;
-			double n = 2 * pi / step;
+			double n = (2 * pi) / step;
 			int numIte = (int) Math.floor(n);
 			for (int j = 0; j < numIte - 1; j++) {
 				for (int i = 0; i < numIte - 1; i++) {
@@ -396,6 +400,7 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 	}
 
 	private void euler(double dt) {
+		dt = Math.min(dt, 0.05);
 		double accX = (thrust.getX() - velRaw.getX());
 		double accY = (thrust.getY() - velRaw.getY());
 		double accZ = (thrust.getZ() - velRaw.getZ());
@@ -449,8 +454,11 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 			isDrawAxis = !isDrawAxis;
 			axisAlreadyBuild = false;
 		}
-		if(arg0.getKeyCode() == KeyEvent.VK_S)
-			graphics.setMethod(new InterpolativeShader());
+		if(arg0.getKeyCode() == KeyEvent.VK_S) {
+			ZBufferPrespective s = new InterpolativeShader();
+			s.setCullBack(true);
+			graphics.setMethod(s);
+		}
 		if(arg0.getKeyCode() == KeyEvent.VK_F)
 			graphics.setMethod(shader);
 	}
@@ -529,46 +537,48 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 	public void addElement(Element e) {
 		graphics.addtoList(e);
 	}
-
-	public static void main(String[] args) {
-		Graph3DFrame frame = new Graph3DFrame("figure 1");
-
-		MyImage kakashi = new MyImage(
-				"https://92c3cb5a-a-62cb3a1a-s-sites.googlegroups.com/site/ibplanalto2010/Home/kakashi46-3459488_50_50%5B1%5D.jpg?attachauth=ANoY7cp6kFZ2u7lOyL3KJqDYkzI_jmNGeoLsCE29u25IlE23i8Bgqx-4UsNUTkE4Mh7vBQpKPe107E_-PLAOywT34dv8cW9_r9WV0uOZ8p26uBT4rusztcGEh9wkuZ2QI0f-loBiB4pmzo_3NKMrC0CPbRvHHiwa_vT2wVEjZiWh7fZ9XlUjC6vrCVvNOtnmgsnSd-WjjbZqO-q6jSPBFw1zyyaa8uzcAKExLodMjCR40cjjmDComqp1JMNpKJoE1iTDgXQDWFzU&attredirects=0");
-		
-		
+	
+	public static void test1(MyImage kakashi,Graph3DFrame frame) {
 		/**
 		 * kakashi as scatter point
 		 */
-//		 TriVector[] s = kakashi.getRGBImageVector();
-//		
-//		 frame.setScatterAsPxl(true);
-//		 frame.addScatterData(s, Color.blue, 0.01);
+		 TriVector[] s = kakashi.getRGBImageVector();
 		
+		 frame.setScatterAsPxl(true);
+		 frame.addScatterData(s, Color.blue, 0.01);
+	}
+	
+	public static void test2(MyImage kakashi,Graph3DFrame frame) {
 		/**
 		 * kakashi as rgb surface
 		 */
-//		 TriVector[][] s = kakashi.getRGBImageMatrix();
-//		 frame.addSurface(s);
-		
+		 TriVector[][] s = kakashi.getRGBImageMatrix();
+		 frame.addSurface(s);
+	}
+	
+	public static void test3(MyImage kakashi,Graph3DFrame frame) {
 		/**
 		 * kakashi gray scale matrix
-//		 */
-//		 Matrix v = new Matrix(kakashi.getGrayScale());
-//		 frame.addMatrix(v.getMatrix(), -1, 1, -1, 1);
-//		 
-		 /**
+		 */
+		 Matrix v = new Matrix(kakashi.getGrayScale());
+		 frame.addMatrix(v.getMatrix(), -1, 1, -1, 1);
+	}
+	
+	public static void test4(MyImage kakashi,Graph3DFrame frame) {
+		/**
 		  * random points
 		  */
-//		int n = 20;
-//		Random r = new Random();
-//		TriVector[] v = new TriVector[n];
-//		for (int i = 0; i < n; i++) {
-//			v[i] = new TriVector(r.nextDouble(), r.nextDouble(), r.nextDouble());
-//		}
-//		frame.addScatterData(v, Color.blue, 0.01);
-//		frame.addCurve(v, Color.red);
-		 
+		int n = 200;
+		Random r = new Random();
+		TriVector[] v = new TriVector[n];
+		for (int i = 0; i < n; i++) {
+			v[i] = new TriVector(r.nextDouble(), r.nextDouble(), r.nextDouble());
+		}
+		frame.addScatterData(v, Color.blue, 0.01);
+		frame.addCurve(v, Color.red);
+	}
+	
+	public static void test5(MyImage kakashi,Graph3DFrame frame) {
 		/**
 		 * tests
 		 */
@@ -578,8 +588,73 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 		tri.setColorPoint(Color.blue, 2);
 		 
 		frame.addElement(tri);
+	}
+	
+	private static void test6(Graph3DFrame frame) {
+//		ObjParser obj = new ObjParser("http://graphics.stanford.edu/~mdfisher/Data/Meshes/bunny.obj");
+		ObjParser obj = new ObjParser("C:/Users/pedro/Desktop/Line.obj");
+//		ObjParser obj = new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/Lara_Croft.obj?attredirects=0&d=1");
+//		ObjParser obj = new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/Sonic.obj?attredirects=0&d=1");
+		
+		Composite c = obj.parse();
+		double scale = 1;
+		double[][] m = {{scale,0,0},{0,scale,0},{0,0,scale}};
+		c.transform(new Matrix(m), new TriVector());
+		frame.addElement(c);
+		frame.raw.setX(1.0);
+		frame.focalPoint = c.centroid();
+		frame.shader.setCullBack(false);
+	}
+	
+	private static void test7(Graph3DFrame frame) {
+		int n = 100;
+		TriVector[] p = new TriVector[n];
+		for (int i = 0; i < p.length; i++) {
+			p[i] = new TriVector();
+			p[i].fillRandom(-1, 1);
+			p[i].normalize();
+		}
+		frame.addScatterData(p, Color.blue, 0.01);
+		
+		TriVector[] v = new TriVector[n];
+		TriVector normal = new TriVector(1, 1, 1);
+		normal.normalize();
+		for (int i = 0; i < p.length; i++) {
+			Matrix aux = Matrix.subMatrix((Matrix) p[i], TriVector.multiConsMatrix(TriVector.vInnerProduct(p[i], normal),normal));
+			v[i] = new TriVector(aux.selMatrix(1, 1), aux.selMatrix(2, 1), aux.selMatrix(3, 1));
+		}
+		frame.addScatterData(v, Color.red, 0.01);
+		
+		TriVector[] r = new TriVector[n];
+		TriVector normal2 = TriVector.vectorProduct(normal, new TriVector(1, 0, 0));
+		normal2.normalize();
+		for (int i = 0; i < p.length; i++) {
+			Matrix aux = Matrix.subMatrix((Matrix) v[i], TriVector.multiConsMatrix(TriVector.vInnerProduct(v[i], normal2),normal2));
+			r[i] = new TriVector(aux.selMatrix(1, 1), aux.selMatrix(2, 1), aux.selMatrix(3, 1));
+		}
+		frame.addScatterData(r, Color.green, 0.01);
+	}
+
+	public static void main(String[] args) {
+		Graph3DFrame frame = new Graph3DFrame("figure 1");
+
+		MyImage kakashi = new MyImage(
+				"https://92c3cb5a-a-62cb3a1a-s-sites.googlegroups.com/site/ibplanalto2010/Home/kakashi46-3459488_50_50%5B1%5D.jpg?attachauth=ANoY7cp6kFZ2u7lOyL3KJqDYkzI_jmNGeoLsCE29u25IlE23i8Bgqx-4UsNUTkE4Mh7vBQpKPe107E_-PLAOywT34dv8cW9_r9WV0uOZ8p26uBT4rusztcGEh9wkuZ2QI0f-loBiB4pmzo_3NKMrC0CPbRvHHiwa_vT2wVEjZiWh7fZ9XlUjC6vrCVvNOtnmgsnSd-WjjbZqO-q6jSPBFw1zyyaa8uzcAKExLodMjCR40cjjmDComqp1JMNpKJoE1iTDgXQDWFzU&attredirects=0");
+		
+//		test1(kakashi,frame);
+		
+//		test2(kakashi,frame);
+//		
+//		test3(kakashi,frame);
+//		
+//		test4(kakashi,frame);
+//		
+		test5(kakashi,frame);
+		
+		test6(frame);
+		
+//		test7(frame);
 		
 		frame.plot();
 	}
-
 }

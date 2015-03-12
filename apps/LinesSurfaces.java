@@ -25,26 +25,21 @@ import javax.swing.JOptionPane;
 import visualization.TextFrame;
 import window.ImageWindow;
 import windowThreeDim.Element;
+import windowThreeDim.FlatShader;
 import windowThreeDim.InterpolativeShader;
 import windowThreeDim.LevelSetShader;
 import windowThreeDim.Line;
-import windowThreeDim.ParallelShader;
 import windowThreeDim.Quad;
-import windowThreeDim.SamplingZbuffer;
-import windowThreeDim.FlatShader;
 import windowThreeDim.SquareZBuffer;
 import windowThreeDim.StringElement;
 import windowThreeDim.TriWin;
 import windowThreeDim.WiredPrespective;
-import windowThreeDim.YShader;
-import windowThreeDim.ZBufferPrespective;
 import algebra.Matrix;
 import algebra.TriVector;
 import functions.ExpressionFunction;
 import functions.SyntaxErrorException;
 
-public class LinesSurfaces extends JFrame implements MouseListener,
-		MouseMotionListener, KeyListener, MouseWheelListener {
+public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionListener, KeyListener, MouseWheelListener {
 	/**
 	 * size of the screen
 	 */
@@ -64,8 +59,7 @@ public class LinesSurfaces extends JFrame implements MouseListener,
 	private TextField ftXStr;
 	private TextField ftYStr;
 	private TextField ftZStr;
-	private TextField uMinTxt, uMaxTxt, vMinTxt, vMaxTxt, stepTxt, tMinTxt,
-			tMaxTxt;
+	private TextField uMinTxt, uMaxTxt, vMinTxt, vMaxTxt, stepTxt, tMinTxt, tMaxTxt;
 	Button drawButton;
 	private Button zoomFit;
 	/**
@@ -171,26 +165,12 @@ public class LinesSurfaces extends JFrame implements MouseListener,
 	 * variable control
 	 */
 	private boolean isShading;
-	
-	private static String helpText = "< w > : Camera move foward / zoom in \n\n" +
-			"< s > : Camera move backward /zoom out \n\n" +
-			"< z > : Toggle wireframe / zbuffer \n\n" +
-			"< n > : Toggle flat shading \n\n" +
-			"< [1-3] > : change color of surface \n\n" +
-			"< [4 - 7] > : various surfaces examples \n\n" +
-			"< l > : rotating light mode \n\n" +
-			"< 8 > : interpolative colors \n\n" +
-			"< 9 > : level set shader\n\n" +
-			"< Available functions > : sin ,cos, exp, ln, tan, acos, asin, atan, min, adding more \n\n" +
-			"< operators > : +, - , *, ^ \n\n" +
-			"< Available constants > : pi\n\n" +
-			"< a > : draw Axis \n\n" +
-			"< mouse > : rotate camera\n\n" +
-			"Made by Pedroth";
-	
+
+	private static String helpText = "< w > : Camera move foward / zoom in \n\n" + "< s > : Camera move backward /zoom out \n\n" + "< z > : Toggle wireframe / zbuffer \n\n" + "< n > : Toggle flat shading \n\n" + "< [1-3] > : change color of surface \n\n" + "< [4 - 7] > : various surfaces examples \n\n" + "< l > : rotating light mode \n\n" + "< 8 > : interpolative colors \n\n" + "< 9 > : level set shader\n\n" + "< Available functions > : sin ,cos, exp, ln, tan, acos, asin, atan, min, adding more \n\n" + "< operators > : +, - , *, ^ \n\n" + "< Available constants > : pi\n\n" + "< a > : draw Axis \n\n" + "< mouse > : rotate camera\n" + "---------------------------------------------------\n\n" + "< g > : generate obj file!!!\n\n" + "----------------------------------------------------\n\n" + "Made by Pedroth";
+
 	private boolean axisAlreadyBuild;
 
-	public LinesSurfaces() {
+	public LinesSurfaces(boolean isApplet) {
 		// Set JFrame title
 		super("Draw Lines {x(t),y(t),z(t)} and Surfaces {x(u,v),y(u,v),z(u,v)}");
 
@@ -216,8 +196,9 @@ public class LinesSurfaces extends JFrame implements MouseListener,
 		 * there is no need for the instruction below
 		 */
 		// Set default close operation for JFrame
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+		if (!isApplet) {
+			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		}
 		// Set JFrame size
 		setSize(800, 600);
 
@@ -358,8 +339,7 @@ public class LinesSurfaces extends JFrame implements MouseListener,
 			hideSurfaceUI();
 			processLineUI();
 		}
-		frameGraphics.paintTranslate(this.getGraphics(), border * wChanged
-				/ 100, 0);
+		frameGraphics.paintTranslate(this.getGraphics(), border * wChanged / 100, 0);
 	}
 
 	public void hideLineUI() {
@@ -398,42 +378,33 @@ public class LinesSurfaces extends JFrame implements MouseListener,
 		/**
 		 * comboBox
 		 */
-		comboBox.setBounds((border + 7) * wChanged / 100, 1 * hChanged / 100,
-				10 * wChanged / 100, 3 * hChanged / 100);
+		comboBox.setBounds((border + 7) * wChanged / 100, 1 * hChanged / 100, 10 * wChanged / 100, 3 * hChanged / 100);
 		/**
 		 * function text box
 		 */
-		ftXStr.setBounds((border + 7) * wChanged / 100, hChanged / 10,
-				20 * wChanged / 100, 5 * hChanged / 100);
-		ftYStr.setBounds((border + 7) * wChanged / 100, 2 * hChanged / 10,
-				20 * wChanged / 100, 5 * hChanged / 100);
-		ftZStr.setBounds((border + 7) * wChanged / 100, 3 * hChanged / 10,
-				20 * wChanged / 100, 5 * hChanged / 100);
+		ftXStr.setBounds((border + 7) * wChanged / 100, hChanged / 10, 20 * wChanged / 100, 5 * hChanged / 100);
+		ftYStr.setBounds((border + 7) * wChanged / 100, 2 * hChanged / 10, 20 * wChanged / 100, 5 * hChanged / 100);
+		ftZStr.setBounds((border + 7) * wChanged / 100, 3 * hChanged / 10, 20 * wChanged / 100, 5 * hChanged / 100);
 		/**
 		 * tmin
 		 */
-		tMinTxt.setBounds((border + 5) * wChanged / 100, 43 * hChanged / 100,
-				6 * wChanged / 100, 5 * hChanged / 100);
+		tMinTxt.setBounds((border + 5) * wChanged / 100, 43 * hChanged / 100, 6 * wChanged / 100, 5 * hChanged / 100);
 		/**
 		 * tmax
 		 */
-		tMaxTxt.setBounds((border + 18) * wChanged / 100, 43 * hChanged / 100,
-				6 * wChanged / 100, 5 * hChanged / 100);
+		tMaxTxt.setBounds((border + 18) * wChanged / 100, 43 * hChanged / 100, 6 * wChanged / 100, 5 * hChanged / 100);
 		/**
 		 * t step
 		 */
-		stepTxt.setBounds((border + 5) * wChanged / 100, 55 * hChanged / 100,
-				6 * wChanged / 100, 5 * hChanged / 100);
+		stepTxt.setBounds((border + 5) * wChanged / 100, 55 * hChanged / 100, 6 * wChanged / 100, 5 * hChanged / 100);
 		/**
 		 * draw Button
 		 */
-		drawButton.setBounds((border + 13) * wChanged / 100,
-				55 * hChanged / 100, 15 * wChanged / 100, 7 * hChanged / 100);
+		drawButton.setBounds((border + 13) * wChanged / 100, 55 * hChanged / 100, 15 * wChanged / 100, 7 * hChanged / 100);
 		/**
 		 * zoom fit button
 		 */
-		zoomFit.setBounds((border + 13) * wChanged / 100, 65 * hChanged / 100,
-				10 * wChanged / 100, 5 * hChanged / 100);
+		zoomFit.setBounds((border + 13) * wChanged / 100, 65 * hChanged / 100, 10 * wChanged / 100, 5 * hChanged / 100);
 
 		Graphics g = frameGraphics.getGraphics();
 		/**
@@ -465,52 +436,41 @@ public class LinesSurfaces extends JFrame implements MouseListener,
 		/**
 		 * comboBox
 		 */
-		comboBox.setBounds((border + 7) * wChanged / 100, 1 * hChanged / 100,
-				10 * wChanged / 100, 3 * hChanged / 100);
+		comboBox.setBounds((border + 7) * wChanged / 100, 1 * hChanged / 100, 10 * wChanged / 100, 3 * hChanged / 100);
 		/**
 		 * function text box
 		 */
-		fxStr.setBounds((border + 7) * wChanged / 100, hChanged / 10,
-				20 * wChanged / 100, 5 * hChanged / 100);
-		fyStr.setBounds((border + 7) * wChanged / 100, 2 * hChanged / 10,
-				20 * wChanged / 100, 5 * hChanged / 100);
-		fzStr.setBounds((border + 7) * wChanged / 100, 3 * hChanged / 10,
-				20 * wChanged / 100, 5 * hChanged / 100);
+		fxStr.setBounds((border + 7) * wChanged / 100, hChanged / 10, 20 * wChanged / 100, 5 * hChanged / 100);
+		fyStr.setBounds((border + 7) * wChanged / 100, 2 * hChanged / 10, 20 * wChanged / 100, 5 * hChanged / 100);
+		fzStr.setBounds((border + 7) * wChanged / 100, 3 * hChanged / 10, 20 * wChanged / 100, 5 * hChanged / 100);
 		/**
 		 * umin
 		 */
-		uMinTxt.setBounds((border + 5) * wChanged / 100, 43 * hChanged / 100,
-				6 * wChanged / 100, 5 * hChanged / 100);
+		uMinTxt.setBounds((border + 5) * wChanged / 100, 43 * hChanged / 100, 6 * wChanged / 100, 5 * hChanged / 100);
 		/**
 		 * umax
 		 */
-		uMaxTxt.setBounds((border + 18) * wChanged / 100, 43 * hChanged / 100,
-				6 * wChanged / 100, 5 * hChanged / 100);
+		uMaxTxt.setBounds((border + 18) * wChanged / 100, 43 * hChanged / 100, 6 * wChanged / 100, 5 * hChanged / 100);
 		/**
 		 * vmin
 		 */
-		vMinTxt.setBounds((border + 5) * wChanged / 100, 55 * hChanged / 100,
-				6 * wChanged / 100, 5 * hChanged / 100);
+		vMinTxt.setBounds((border + 5) * wChanged / 100, 55 * hChanged / 100, 6 * wChanged / 100, 5 * hChanged / 100);
 		/**
 		 * vmax
 		 */
-		vMaxTxt.setBounds((border + 18) * wChanged / 100, 55 * hChanged / 100,
-				6 * wChanged / 100, 5 * hChanged / 100);
+		vMaxTxt.setBounds((border + 18) * wChanged / 100, 55 * hChanged / 100, 6 * wChanged / 100, 5 * hChanged / 100);
 		/**
 		 * U/V step
 		 */
-		stepTxt.setBounds((border + 5) * wChanged / 100, 65 * hChanged / 100,
-				6 * wChanged / 100, 5 * hChanged / 100);
+		stepTxt.setBounds((border + 5) * wChanged / 100, 65 * hChanged / 100, 6 * wChanged / 100, 5 * hChanged / 100);
 		/**
 		 * draw Button
 		 */
-		drawButton.setBounds((border + 13) * wChanged / 100,
-				65 * hChanged / 100, 15 * wChanged / 100, 7 * hChanged / 100);
+		drawButton.setBounds((border + 13) * wChanged / 100, 65 * hChanged / 100, 15 * wChanged / 100, 7 * hChanged / 100);
 		/**
 		 * zoom fit button
 		 */
-		zoomFit.setBounds((border + 13) * wChanged / 100, 75 * hChanged / 100,
-				10 * wChanged / 100, 5 * hChanged / 100);
+		zoomFit.setBounds((border + 13) * wChanged / 100, 75 * hChanged / 100, 10 * wChanged / 100, 5 * hChanged / 100);
 
 		Graphics g = frameGraphics.getGraphics();
 		/**
@@ -572,14 +532,12 @@ public class LinesSurfaces extends JFrame implements MouseListener,
 		 */
 		public void updateLight(double dt) {
 			if (isMotionLight) {
-				TriVector v = new TriVector(-motionLight.getY(),
-						motionLight.getX(), 0);
+				TriVector v = new TriVector(-motionLight.getY(), motionLight.getX(), 0);
 				v.multiConstMatrix(dt);
 				motionLight.sum(v);
 				shader.changeNthLight(0, motionLight);
 			} else {
-				TriVector aux = TriVector.sum(shader.getEyePos(),
-						new TriVector(0, 0, 3));
+				TriVector aux = TriVector.sum(shader.getEyePos(), new TriVector(0, 0, 3));
 				shader.changeNthLight(0, aux);
 			}
 		}
@@ -611,14 +569,7 @@ public class LinesSurfaces extends JFrame implements MouseListener,
 				yTFunc.init();
 				zTFunc.init();
 			} catch (SyntaxErrorException e) {
-				JOptionPane
-						.showMessageDialog(
-								null,
-								"there is a syntax error in the formula, pls change the formula."
-										+ String.format("%n")
-										+ " try to use more brackets, try not to cocatenate 2*x^2 as 2x2."
-										+ String.format("%n")
-										+ "check also for simple errors like 1/*2.");
+				JOptionPane.showMessageDialog(null, "there is a syntax error in the formula, pls change the formula." + String.format("%n") + " try to use more brackets, try not to cocatenate 2*x^2 as 2x2." + String.format("%n") + "check also for simple errors like 1/*2.");
 			}
 			nt = Math.abs(tmax - tmin) / (step);
 			if (!isZBuffer) {
@@ -729,14 +680,7 @@ public class LinesSurfaces extends JFrame implements MouseListener,
 			yFunc.init();
 			zFunc.init();
 		} catch (SyntaxErrorException e) {
-			JOptionPane
-					.showMessageDialog(
-							null,
-							"there is a syntax error in the formula, pls change the formula."
-									+ String.format("%n")
-									+ " try to use more brackets, try not to cocatenate 2*x^2 as 2x2."
-									+ String.format("%n")
-									+ "check also for simple errors like 1/*2.");
+			JOptionPane.showMessageDialog(null, "there is a syntax error in the formula, pls change the formula." + String.format("%n") + " try to use more brackets, try not to cocatenate 2*x^2 as 2x2." + String.format("%n") + "check also for simple errors like 1/*2.");
 		}
 		nu = Math.abs(umax - umin) / (step);
 		nv = Math.abs(vmax - vmin) / (step);
@@ -818,8 +762,7 @@ public class LinesSurfaces extends JFrame implements MouseListener,
 
 		for (int j = 0; j < inv; j++) {
 			for (int i = 0; i < inu; i++) {
-				Element e = new Quad(surface[i][j], surface[i + 1][j],
-						surface[i + 1][j + 1], surface[i][j + 1]);
+				Element e = new Quad(surface[i][j], surface[i + 1][j], surface[i + 1][j + 1], surface[i][j + 1]);
 				setElementColor(e, colorHSB);
 				graphics.addtoList(e);
 			}
@@ -830,7 +773,7 @@ public class LinesSurfaces extends JFrame implements MouseListener,
 		double red = 0;
 		double blue = 240.0 / 360.0;
 		double green = 120.0 / 360.0;
-		
+
 		for (int i = 0; i < e.getNumOfPoints(); i++) {
 			double z = e.getNPoint(i).getZ();
 			double x = -1 + 2 * (z - minZ) / (maxZ - minZ);
@@ -840,13 +783,12 @@ public class LinesSurfaces extends JFrame implements MouseListener,
 				 * linear interpolation between blue color and red
 				 */
 				colorHSB = blue + (red - blue) * 0.5 * (x + 1);
-				e.setColorPoint(Color.getHSBColor((float) colorHSB, 1f, 1f),i);
+				e.setColorPoint(Color.getHSBColor((float) colorHSB, 1f, 1f), i);
 			} else if (colorState == 1) {
 				Random r = new Random();
-				e.setColorPoint(Color.getHSBColor((float) colorHSB, r.nextFloat(),
-						1f),i);
+				e.setColorPoint(Color.getHSBColor((float) colorHSB, r.nextFloat(), 1f), i);
 			} else if (colorState == 2) {
-				e.setColorPoint(Color.blue,i);
+				e.setColorPoint(Color.blue, i);
 			}
 		}
 	}
@@ -883,14 +825,12 @@ public class LinesSurfaces extends JFrame implements MouseListener,
 		}
 
 		stepTxt.setText("" + nextStep);
-		JOptionPane.showMessageDialog(null,
-				"the X/Y step is too low, pls choose a higher one");
+		JOptionPane.showMessageDialog(null, "the X/Y step is too low, pls choose a higher one");
 
 	}
 
 	public void paint(Graphics g) {
-		if (Math.abs(wChanged - this.getWidth()) > 0
-				|| Math.abs(hChanged - this.getHeight()) > 0) {
+		if (Math.abs(wChanged - this.getWidth()) > 0 || Math.abs(hChanged - this.getHeight()) > 0) {
 			wChanged = this.getWidth();
 			hChanged = this.getHeight();
 		}
@@ -905,7 +845,7 @@ public class LinesSurfaces extends JFrame implements MouseListener,
 	}
 
 	public static void main(String[] args) {
-		new LinesSurfaces();
+		new LinesSurfaces(false);
 	}
 
 	public void orbit(double t, double p, TriVector x) {
@@ -929,8 +869,7 @@ public class LinesSurfaces extends JFrame implements MouseListener,
 		aux.setMatrix(2, 1, cosT);
 		aux.setMatrix(3, 1, 0);
 
-		TriVector eye = new TriVector(raw * cosP * cosT + x.getX(), raw * cosP
-				* sinT + x.getY(), raw * sinP + x.getZ());
+		TriVector eye = new TriVector(raw * cosP * cosT + x.getX(), raw * cosP * sinT + x.getY(), raw * sinP + x.getZ());
 
 		graphics.setCamera(aux, eye);
 		// shader.changeNthLight(0, eye);
@@ -1025,12 +964,100 @@ public class LinesSurfaces extends JFrame implements MouseListener,
 			drawFunction = true;
 		} else if (arg0.getKeyCode() == KeyEvent.VK_L) {
 			isMotionLight = !isMotionLight;
-		} else if(arg0.getKeyCode() == KeyEvent.VK_8) {
-			graphics.setMethod(new YShader());
-		} else if(arg0.getKeyCode() == KeyEvent.VK_9) {
+		} else if (arg0.getKeyCode() == KeyEvent.VK_8) {
+			graphics.setMethod(new InterpolativeShader());
+		} else if (arg0.getKeyCode() == KeyEvent.VK_9) {
 			graphics.setMethod(new LevelSetShader());
+		} else if (arg0.getKeyCode() == KeyEvent.VK_G) {
+			generateMesh();
 		}
 
+	}
+
+	public static boolean isNumeric(String str) {
+		try {
+			double d = Double.parseDouble(str);
+		} catch (NumberFormatException nfe) {
+			return false;
+		}
+		return true;
+	}
+
+	private void generateMesh() {
+		String s = (String)JOptionPane.showInputDialog(
+		                    this,
+		                    (comboBox.getSelectedItem() == "Surface")?"UV step":"T step",
+		                    "Obj file generation",
+		                    JOptionPane.PLAIN_MESSAGE,
+		                    null,
+		                    null,
+		                    null);
+		
+
+		if(!(s == null)) {
+			double step = numericRead(s);
+			if(comboBox.getSelectedItem() == "Surface") {
+				generateSurf(step);
+			} else {
+				generateLine(step);
+			}
+		}
+	}
+
+	private void generateLine(double step) {
+		int numSamples = (int) Math.floor(Math.abs(tmax - tmin) / step);
+		double newStep = (tmax - tmin) / (numSamples-1);
+		TriVector[] curve = new TriVector[numSamples];
+		for (int i = 0; i < numSamples; i++) {
+			double t = tmin + i * newStep;
+			Double[] tvar = { t };
+			double x = xTFunc.compute(tvar);
+			double y = yTFunc.compute(tvar);
+			double z = zTFunc.compute(tvar);
+			curve[i] = new TriVector(x,y,z);
+		}
+		String objFile = "";
+		for (int i = 0; i < curve.length; i++) {
+			objFile += "v" + " " + curve[i].getX() + " " + curve[i].getY() + " " + curve[i].getZ() + "\n"; 
+		}
+		for (int i = 0; i < curve.length - 1; i++) {
+			objFile += "l" + " " + (i+1) + " " + (i+2) + "\n";
+		}
+		TextFrame frame = new TextFrame("Curve obj file", objFile);
+	}
+
+	private void generateSurf(double step) {
+		int numSamplesU = (int) Math.floor(Math.abs(umax - umin) / step);
+		double newStepU = (umax - umin) / (numSamplesU-1);
+		int numSamplesV = (int) Math.floor(Math.abs(vmax - vmin) / step);
+		double newStepV = (vmax - vmin) / (numSamplesV-1);
+		TriVector[][] surf = new TriVector[numSamplesU][numSamplesV];
+		for (int i = 0; i < numSamplesU; i++) {
+			for (int j = 0; j < numSamplesV; j++) {
+				double u = umin + i * newStepU;
+				double v = vmin + j * newStepV;
+				Double[] uv = { u, v };
+				double x = xFunc.compute(uv);
+				double y = yFunc.compute(uv);
+				double z = zFunc.compute(uv);
+				surf[i][j] = new TriVector(x, y, z);
+			}
+		}
+		
+		String objFile = "";
+		for (int i = 0; i < numSamplesU; i++) {
+			for (int j = 0; j < numSamplesV; j++) {
+				objFile += "v" + " " + surf[i][j].getX() + " " + surf[i][j].getY() + " " + surf[i][j].getZ() + "\n";
+			}
+		}
+		for (int i = 0; i < numSamplesU - 1; i++) {
+			for (int j = 0; j < numSamplesV - 1; j++) {
+				int index = j + numSamplesV * i + 1;
+				objFile += "f" + " " + index + " " + (index + numSamplesV) + " " + (index + numSamplesV + 1)+"\n";
+				objFile += "f" + " " + index + " " + (index + numSamplesV + 1) + " " + (index + 1)+"\n";
+			}
+		}
+		TextFrame frame = new TextFrame("Surface obj file", objFile);
 	}
 
 	@Override

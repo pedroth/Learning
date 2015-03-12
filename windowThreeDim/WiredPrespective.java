@@ -19,7 +19,7 @@ public class WiredPrespective implements PaintMethod {
 
 	public WiredPrespective() {
 		d = 1;
-		zd = d/2;
+		zd = d/256;
 		isInsideFustrum = true;
 	}
 

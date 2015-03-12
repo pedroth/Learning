@@ -164,7 +164,7 @@ public class ColorFunctionReal extends Applet implements MouseMotionListener,
 				drawFunctionR(g);
 				elapsedTime = System.currentTimeMillis() - start;
 				Long et = new Long(elapsedTime);
-				et = Math.round(1 / (et / 10E3));
+				et = Math.round(1 / (et * 10E-3));
 				bImg.getGraphics().setColor(Color.green);
 
 				bImg.getGraphics().drawString(

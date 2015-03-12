@@ -151,7 +151,7 @@ public class RandomCurve extends JFrame implements MouseListener, KeyListener {
 		}
 	}
 
-	public RandomCurve() {
+	public RandomCurve(boolean isApplet) {
 
 		// Set JFrame title
 		super("Draw A PolygonFill In JFrame");
@@ -170,6 +170,10 @@ public class RandomCurve extends JFrame implements MouseListener, KeyListener {
 		oldTime = ((double) System.currentTimeMillis()) * 1E-03;
 		lineVector[0][0] = 10 * rand.nextDouble() - 5.0;
 		lineVector[0][1] = 10 * rand.nextDouble() - 5.0;
+		
+		if(!isApplet) {
+			 setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		 }
 
 		// Set JFrame size
 		setSize(800, 550);
@@ -216,7 +220,7 @@ public class RandomCurve extends JFrame implements MouseListener, KeyListener {
 	}
 
 	public static void main(String[] args) {
-		new RandomCurve();
+		new RandomCurve(false);
 	}
 
 	@Override

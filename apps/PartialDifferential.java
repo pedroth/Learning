@@ -199,7 +199,7 @@ public class PartialDifferential extends JFrame implements MouseListener,
 
 	private boolean axisAlreadyBuild;
 
-	public PartialDifferential() {
+	public PartialDifferential(boolean isApplet) {
 		// Set JFrame title
 		super("PDE");
 
@@ -217,8 +217,9 @@ public class PartialDifferential extends JFrame implements MouseListener,
 		colorState = 0;
 		drawAxis = false;
 		// Set default close operation for JFrame
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+		if(!isApplet) {
+			 setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		 }
 		// Set JFrame size
 		setSize(800, 600);
 
@@ -696,7 +697,8 @@ public class PartialDifferential extends JFrame implements MouseListener,
 
 			double x = -1 + 2 * (z - minHeightColor)
 					/ (maxHeightColor - minHeightColor);
-
+			double perc = (z - minHeightColor)
+					/ (maxHeightColor - minHeightColor);
 			if (colorState == 0) {
 				/**
 				 * linear interpolation between blue color and red
@@ -704,7 +706,7 @@ public class PartialDifferential extends JFrame implements MouseListener,
 				double colorHSB = blue + (red - blue) * 0.5 * (x + 1);
 				e.setColorPoint(Color.getHSBColor((float) colorHSB, 1f, 1f), i);
 			} else if (colorState == 1) {
-
+				e.setColorPoint(new Color((float)(1 / (1 + Math.exp(-20*(perc-0.1)))),(float) ( 1 / (1 + Math.exp(-20*(perc-0.5)))),(float) ( 1 / (1 + Math.exp(-20*(perc-0.75))))),i);
 			} else if (colorState == 2) {
 
 			}
@@ -1132,7 +1134,7 @@ public class PartialDifferential extends JFrame implements MouseListener,
 	}
 
 	public static void main(String[] args) {
-		new PartialDifferential();
+		new PartialDifferential(false);
 	}
 
 	public void orbit(double t, double p, TriVector x) {
@@ -1191,6 +1193,10 @@ public class PartialDifferential extends JFrame implements MouseListener,
 			colorState = 0;
 			graphics.removeAllElements();
 			drawFunction = true;
+		} else if (arg0.getKeyCode() == KeyEvent.VK_2) {
+				colorState = 1;
+				graphics.removeAllElements();
+				drawFunction = true;
 		} else if (arg0.getKeyCode() == KeyEvent.VK_A) {
 			drawAxis = !drawAxis;
 			axisAlreadyBuild = false;

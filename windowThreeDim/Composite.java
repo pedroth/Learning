@@ -48,5 +48,18 @@ public class Composite extends Element {
 		}
 		return ret;
 	}
+	
+	public TriVector centroid() {
+		int count = 0;
+		TriVector acm = new TriVector();
+		for (Element obj : elementList) {
+			for (int i = 0; i < obj.getNumOfPoints(); i++) {
+				acm = TriVector.sum(acm, obj.getNPoint(i));
+				count++;
+			}
+		}
+		acm = TriVector.multConst(1.0 / count, acm);
+		return acm;
+	}
 
 }
