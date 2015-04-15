@@ -392,7 +392,7 @@ public class Graph2DFrame extends JFrame {
 		// MyImage kakashi = new
 		// MyImage("https://92c3cb5a-a-62cb3a1a-s-sites.googlegroups.com/site/ibplanalto2010/Home/kakashi46-3459488_50_50%5B1%5D.jpg?attachauth=ANoY7cp6kFZ2u7lOyL3KJqDYkzI_jmNGeoLsCE29u25IlE23i8Bgqx-4UsNUTkE4Mh7vBQpKPe107E_-PLAOywT34dv8cW9_r9WV0uOZ8p26uBT4rusztcGEh9wkuZ2QI0f-loBiB4pmzo_3NKMrC0CPbRvHHiwa_vT2wVEjZiWh7fZ9XlUjC6vrCVvNOtnmgsnSd-WjjbZqO-q6jSPBFw1zyyaa8uzcAKExLodMjCR40cjjmDComqp1JMNpKJoE1iTDgXQDWFzU&attredirects=0");
 
-		MyImage kakashi = new MyImage("http://i106.photobucket.com/albums/m255/Farumbrosius/10_bar-refaeli_04.jpg");
+		MyImage kakashi = new MyImage("http://ia.media-imdb.com/images/M/MV5BMTQ1MjQwMTE5OF5BMl5BanBnXkFtZTgwNjk3MTcyMDE@._V1_SX300.jpg");
 
 		// MyImage kakashi = new
 		// MyImage("http://static2.wikia.nocookie.net/__cb20130215214233/naruto/images/3/3b/KakashiMangeky%C5%8DSharinganAnime.jpg");
@@ -416,7 +416,7 @@ public class Graph2DFrame extends JFrame {
 		/**
 		 * add matrix
 		 */
-		frame.setGrayScale(true);
+		frame.setGrayScale(false);
 		frame.setSmooth(true);
 		frame.setRepainting(false);
 		frame.addMatrix(v.getMatrix(), -1, 1, -1, 1);
@@ -516,10 +516,10 @@ public class Graph2DFrame extends JFrame {
 	public static void main(String args[]) {
 		Graph2DFrame frame = new Graph2DFrame("figure 1");
 		// test0(frame);
-		// test1(frame);
+		 test1(frame);
 		// test2(frame);
 		// test3(frame);
-		test4(frame);
+//		test4(frame);
 	}
 
 }
