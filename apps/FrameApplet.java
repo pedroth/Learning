@@ -30,7 +30,7 @@ public class FrameApplet extends Applet implements ComponentListener {
 	void showFrame() {
 		if (frame == null) {
 			started = true;
-			frame = new LinesSurfaces(true);
+			frame = new SimplePhysics(true);
 			repaint();
 		}
 	}

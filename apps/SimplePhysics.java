@@ -1,6 +1,5 @@
 package apps;
 
-import java.applet.Applet;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
@@ -14,14 +13,14 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.swing.JFrame;
+
 import visualization.TextFrame;
 import window.ImageWindow;
 import window.Window2D;
-
 import algebra.Matrix;
 
-public class SimplePhysics extends Applet implements MouseListener,
-		KeyListener, MouseWheelListener {
+public class SimplePhysics extends JFrame implements MouseListener, KeyListener, MouseWheelListener {
 	/**
 	 * 
 	 */
@@ -58,16 +57,18 @@ public class SimplePhysics extends Applet implements MouseListener,
 	private double ranAmp2;
 
 	private boolean camera;
-	
-	private static String helpText = "< arrows > : move square \n\n" +
-			"< c > : follow square \n\n" +
-			"< [1-9] > : change map \n\n" +
-			"Made By Pedroth";
 
-	public void init() {
+	private static String helpText = "< arrows > : move square \n\n" + "< c > : follow square \n\n" + "< [1-9] >,<space> : change map \n\n" + "Made By Pedroth";
+
+	public SimplePhysics(boolean isApplet) {
 		wd = new ImageWindow(-5, 5, -5, 5);
+		this.setSize(500, 500);
 		wChanged = this.getWidth();
 		hChanged = this.getHeight();
+		// Set default close operation for JFrame
+		if (!isApplet) {
+			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		}
 		wd.setWindowSize(wChanged, hChanged);
 		time = 0.0;
 		wd.setBackGroundColor(Color.white);
@@ -90,6 +91,7 @@ public class SimplePhysics extends Applet implements MouseListener,
 		this.requestFocus();
 		this.setFocusable(true);
 		camera = false;
+		this.setVisible(true);
 	}
 
 	public class Euler extends TimerTask {
@@ -121,17 +123,12 @@ public class SimplePhysics extends Applet implements MouseListener,
 
 			for (int i = 1; i <= 4; i++) {
 				// check contact with some precision
-				dfdt = 1 / 1E-09 * (function(vertex.selMatrix(1, i),
-						time + 1E-09) - function(vertex.selMatrix(1, i), time));
-				if ((vertex.selMatrix(2, i))
-						+ square.velYCenter
-						* 0.01
-						- (function(vertex.selMatrix(1, i), time) + dfdt * 0.01) < 1E-02) {
+				dfdt = 1 / 1E-09 * (function(vertex.selMatrix(1, i), time + 1E-09) - function(vertex.selMatrix(1, i), time));
+				if ((vertex.selMatrix(2, i)) + square.velYCenter * 0.01 - (function(vertex.selMatrix(1, i), time) + dfdt * 0.01) < 1E-02) {
 					logic = true;
 
 					// figure out max distance between floor and vertex
-					double aux = vertex.selMatrix(2, i)
-							- function(vertex.selMatrix(1, i), time);
+					double aux = vertex.selMatrix(2, i) - function(vertex.selMatrix(1, i), time);
 					if (minGetOut > aux) {
 						minGetOut = aux;
 					}
@@ -142,11 +139,7 @@ public class SimplePhysics extends Applet implements MouseListener,
 					ds = Math.sqrt(dx * dx + dy * dy);
 					dx = (1 / ds) * dx;
 					dy = (1 / ds) * dy;
-					dot = -(dx
-							* ax(vertex.selMatrix(1, i),
-									vertex.selMatrix(2, i), time) + dy
-							* ay(vertex.selMatrix(1, i),
-									vertex.selMatrix(2, i), time));
+					dot = -(dx * ax(vertex.selMatrix(1, i), vertex.selMatrix(2, i), time) + dy * ay(vertex.selMatrix(1, i), vertex.selMatrix(2, i), time));
 					contactXForce = 1 * dot * dx;
 					contactYForce = 1 * dot * dy;
 
@@ -155,16 +148,8 @@ public class SimplePhysics extends Applet implements MouseListener,
 					contactYForce = 0.0;
 				}
 
-				ai.setMatrix(
-						1,
-						i,
-						ax(vertex.selMatrix(1, i), vertex.selMatrix(2, i), time)
-								+ contactXForce + xThrust);
-				ai.setMatrix(
-						2,
-						i,
-						ay(vertex.selMatrix(1, i), vertex.selMatrix(2, i), time)
-								+ contactYForce + yThrust);
+				ai.setMatrix(1, i, ax(vertex.selMatrix(1, i), vertex.selMatrix(2, i), time) + contactXForce + xThrust);
+				ai.setMatrix(2, i, ay(vertex.selMatrix(1, i), vertex.selMatrix(2, i), time) + contactYForce + yThrust);
 				// wd.drawLine(vertex.selMatrix(1, i), vertex.selMatrix(2, i),
 				// ai.selMatrix(1, i)+vertex.selMatrix(1, i), ai.selMatrix(2,
 				// i)+vertex.selMatrix(2, i));
@@ -181,8 +166,7 @@ public class SimplePhysics extends Applet implements MouseListener,
 
 			if (logic) {
 				// floor velocity
-				if ((dfdt = 1 / 1E-09 * (function(square.xCenter, time + 1E-09) - function(
-						square.xCenter, time))) < 0.0)
+				if ((dfdt = 1 / 1E-09 * (function(square.xCenter, time + 1E-09) - function(square.xCenter, time))) < 0.0)
 					dfdt = 0.0;
 				// collision velocity
 				dx = -nthDerivativeFunction(square.getXCenter(), 1);
@@ -190,30 +174,22 @@ public class SimplePhysics extends Applet implements MouseListener,
 				ds = Math.sqrt(dx * dx + dy * dy);
 				dx = (1 / ds) * dx;
 				dy = (1 / ds) * dy;
-				dot = -(dx * square.getXCenterVelocity() + dy
-						* square.getYCenterVelocity());
-				square.setXCenterVelocity(1.5 * dot * dx
-						+ square.getXCenterVelocity());
-				square.setYCenterVelocity(1.5 * dot * dy
-						+ square.getYCenterVelocity());
+				dot = -(dx * square.getXCenterVelocity() + dy * square.getYCenterVelocity());
+				square.setXCenterVelocity(1.5 * dot * dx + square.getXCenterVelocity());
+				square.setYCenterVelocity(1.5 * dot * dy + square.getYCenterVelocity());
 
 				// get out of floor speed
 				dot = -epsilon * (dy * minGetOut);
-				square.setXCenterVelocity(square.getXCenterVelocity() + dot
-						* dx);
-				square.setYCenterVelocity(square.getYCenterVelocity() + dot
-						* dy);
+				square.setXCenterVelocity(square.getXCenterVelocity() + dot * dx);
+				square.setYCenterVelocity(square.getYCenterVelocity() + dot * dy);
 
 				// floor movement velocity
 				dot = (dy * dfdt);
-				square.setXCenterVelocity(square.getXCenterVelocity() + dot
-						* dx);
-				square.setYCenterVelocity(square.getYCenterVelocity() + dot
-						* dy);
+				square.setXCenterVelocity(square.getXCenterVelocity() + dot * dx);
+				square.setYCenterVelocity(square.getYCenterVelocity() + dot * dy);
 
 				// contact force calculation
-				dot = -(dx * ax(square.xCenter, square.yCenter, time) + dy
-						* ay(square.xCenter, square.yCenter, time));
+				dot = -(dx * ax(square.xCenter, square.yCenter, time) + dy * ay(square.xCenter, square.yCenter, time));
 				contactXForce = 1 * dot * dx;
 				contactYForce = 1 * dot * dy;
 
@@ -221,27 +197,21 @@ public class SimplePhysics extends Applet implements MouseListener,
 				// dot*dx, square.yCenter + dot*dy);
 
 				// floor movement acceleration
-				if ((dfdt = (1 / (1E-04 * 1E-04))
-						* (function(square.xCenter, time + 2 * 1E-04) - function(
-								square.xCenter, time))) < 0.0)
+				if ((dfdt = (1 / (1E-04 * 1E-04)) * (function(square.xCenter, time + 2 * 1E-04) - function(square.xCenter, time))) < 0.0)
 					dfdt = 0.0;
 				dot = (dy * dfdt);
 				contactXForce += 0.01 * dot * dx;
 				contactYForce += 0.01 * dot * dy;
 
 			}
-			ax = ax(square.xCenter, square.yCenter, time) + contactXForce
-					+ xThrust;
-			ay = ay(square.xCenter, square.yCenter, time) + contactYForce
-					+ yThrust;
+			ax = ax(square.xCenter, square.yCenter, time) + contactXForce + xThrust;
+			ay = ay(square.xCenter, square.yCenter, time) + contactYForce + yThrust;
 
 			square.setXCenterAceleration(ax);
 			square.setYCenterAceleration(ay);
 
-			double vx = square.getXCenterVelocity()
-					+ square.getXCenterAceleration() * dt;
-			double vy = square.getYCenterVelocity()
-					+ square.getYCenterAceleration() * dt;
+			double vx = square.getXCenterVelocity() + square.getXCenterAceleration() * dt;
+			double vy = square.getYCenterVelocity() + square.getYCenterAceleration() * dt;
 			double x = square.getXCenter() + vx * dt;
 			double y = square.getYCenter() + vy * dt;
 
@@ -272,8 +242,8 @@ public class SimplePhysics extends Applet implements MouseListener,
 			omega = square.getMomentum() + square.getTorque() * dt;
 			double theta = square.getAngle() + omega * dt;
 
-//			System.out.printf("%.3f\t %.3f\t %.3f\t %.3f\t \n", time, torque,
-//					omega, theta);
+			// System.out.printf("%.3f\t %.3f\t %.3f\t %.3f\t \n", time, torque,
+			// omega, theta);
 			vertex.setMatrix(1, 1, x + square.getWidth());
 			vertex.setMatrix(2, 1, y + square.getWidth());
 			vertex.setMatrix(1, 2, x - square.getWidth());
@@ -450,19 +420,14 @@ public class SimplePhysics extends Applet implements MouseListener,
 		}
 
 		public void draw(Window2D w) {
-			w.drawFilledQuadrilateral(vertex.selMatrix(1, 1),
-					vertex.selMatrix(2, 1), vertex.selMatrix(1, 2),
-					vertex.selMatrix(2, 2), vertex.selMatrix(1, 3),
-					vertex.selMatrix(2, 3), vertex.selMatrix(1, 4),
-					vertex.selMatrix(2, 4));
+			w.drawFilledQuadrilateral(vertex.selMatrix(1, 1), vertex.selMatrix(2, 1), vertex.selMatrix(1, 2), vertex.selMatrix(2, 2), vertex.selMatrix(1, 3), vertex.selMatrix(2, 3), vertex.selMatrix(1, 4), vertex.selMatrix(2, 4));
 			// w.drawFilledQuadrilateral(0, 0, 1, 0, 1, 1, 0, 1);
 		}
 
 	}
 
 	public void paint(Graphics g) {
-		if (Math.abs(wChanged - this.getWidth()) > 0
-				|| Math.abs(hChanged - this.getHeight()) > 0) {
+		if (Math.abs(wChanged - this.getWidth()) > 0 || Math.abs(hChanged - this.getHeight()) > 0) {
 			wd.setWindowSize(this.getWidth(), this.getHeight());
 			wChanged = this.getWidth();
 			hChanged = this.getHeight();
@@ -489,26 +454,16 @@ public class SimplePhysics extends Applet implements MouseListener,
 			wd.clearImageWithBackGround();
 
 			if (camera) {
-				wd.setViewWindow(square.xCenter + square.velXCenter * 0.01 - 5,
-						square.xCenter + square.velXCenter * 0.01 + 5,
-						square.yCenter + square.velYCenter * 0.01 - 5,
-						square.yCenter + square.velYCenter * 0.01 + 5);
+				wd.setViewWindow(square.xCenter + square.velXCenter * 0.01 - 5, square.xCenter + square.velXCenter * 0.01 + 5, square.yCenter + square.velYCenter * 0.01 - 5, square.yCenter + square.velYCenter * 0.01 + 5);
 			}
 			this.drawLandScape();
 			wd.setDrawColor(Color.black);
-			double dt = (1 / (1E-04 * 1E-04))
-					* (function(square.xCenter, time + 2 * 1E-04) - function(
-							square.xCenter, time));
-			wd.drawLine(square.xCenter, function(square.xCenter, time),
-					square.xCenter, function(square.xCenter, time) + 0.01 * dt);
+			double dt = (1 / (1E-04 * 1E-04)) * (function(square.xCenter, time + 2 * 1E-04) - function(square.xCenter, time));
+			wd.drawLine(square.xCenter, function(square.xCenter, time), square.xCenter, function(square.xCenter, time) + 0.01 * dt);
 			wd.setDrawColor(Color.red);
-			wd.drawLine(square.getXCenter(), square.getYCenter(),
-					square.getXCenter() + square.getXCenterAceleration(),
-					square.getYCenter() + square.getYCenterAceleration());
+			wd.drawLine(square.getXCenter(), square.getYCenter(), square.getXCenter() + square.getXCenterAceleration(), square.getYCenter() + square.getYCenterAceleration());
 			wd.setDrawColor(Color.blue);
-			wd.drawLine(square.getXCenter(), square.getYCenter(),
-					square.getXCenter() + square.getXCenterVelocity(),
-					square.getYCenter() + square.getYCenterVelocity());
+			wd.drawLine(square.getXCenter(), square.getYCenter(), square.getXCenter() + square.getXCenterVelocity(), square.getYCenter() + square.getYCenterVelocity());
 			square.draw(wd);
 		}
 	}
@@ -527,11 +482,10 @@ public class SimplePhysics extends Applet implements MouseListener,
 
 		while (xmin < xmax) {
 			wd.setDrawColor(Color.green);
-			wd.drawLine(xmin, function(xmin, time), xmin + h,
-					function(xmin + h, time));
-//			wd.setDrawColor(Color.red);
-//			wd.drawFilledRectangle(xmin, function(xmin, time), 0.1, 0.1);
-//			wd.setDrawColor(Color.green);
+			wd.drawLine(xmin, function(xmin, time), xmin + h, function(xmin + h, time));
+			// wd.setDrawColor(Color.red);
+			// wd.drawFilledRectangle(xmin, function(xmin, time), 0.1, 0.1);
+			// wd.setDrawColor(Color.green);
 			xmin = xmin + h;
 			h = minimalStepFunction(xmin);
 		}
@@ -558,9 +512,7 @@ public class SimplePhysics extends Applet implements MouseListener,
 		case 0:
 			return Math.sin(2 * x) * Math.cos(1.5 * x);
 		case 1:
-			return 3 * Math.exp(-Math.pow(x - Math.sin(t), 2))
-					+ Math.exp(-Math.pow(x - 3 * Math.sin(t), 2))
-					+ Math.exp(-Math.pow(x - 2 * Math.cos(t), 2)) - 3;
+			return 3 * Math.exp(-Math.pow(x - Math.sin(t), 2)) + Math.exp(-Math.pow(x - 3 * Math.sin(t), 2)) + Math.exp(-Math.pow(x - 2 * Math.cos(t), 2)) - 3;
 		case 2:
 			return 0.25 * x;
 		case 3:
@@ -574,19 +526,11 @@ public class SimplePhysics extends Applet implements MouseListener,
 		case 7:
 			return Math.sin(x + t);
 		case 8:
-			return 3 * Math.exp(-Math.pow(x, 2))
-					+ Math.exp(-Math.pow(x - 1.5, 2))
-					+ Math.exp(-Math.pow(x - 2, 2)) - 3;
+			return 3 * Math.exp(-Math.pow(x, 2)) + Math.exp(-Math.pow(x - 1.5, 2)) + Math.exp(-Math.pow(x - 2, 2)) - 3;
 		case 9:
-			return Math.sin(vRanGauss1 * x - vRanGauss2 * t)
-					+ Math.cos(vRanGauss2 * x - vRanGauss1 * t);
+			return Math.sin(vRanGauss1 * x - vRanGauss2 * t) + Math.cos(vRanGauss2 * x - vRanGauss1 * t);
 		default:
-			return ((-2 + 4 * ranAmp1) * Math.cos(t))
-					* Math.exp(-(x - (Math.sin(5 * vRanGauss1 * t)))
-							* (x - Math.sin(5 * vRanGauss1 * t)))
-					+ ((-2 + 4 * ranAmp2) * Math.cos(t))
-					* Math.exp(-(x - (Math.sin(5 * vRanGauss2 * t)))
-							* (x - Math.sin(5 * vRanGauss2 * t)));
+			return ((-2 + 4 * ranAmp1) * Math.cos(t)) * Math.exp(-(x - (Math.sin(5 * vRanGauss1 * t))) * (x - Math.sin(5 * vRanGauss1 * t))) + ((-2 + 4 * ranAmp2) * Math.cos(t)) * Math.exp(-(x - (Math.sin(5 * vRanGauss2 * t))) * (x - Math.sin(5 * vRanGauss2 * t)));
 		}
 	}
 
@@ -594,9 +538,7 @@ public class SimplePhysics extends Applet implements MouseListener,
 		if (n == 0)
 			return function(x0, time);
 		else
-			return (nthDerivativeFunction(x0 + dx * Math.pow(10, n + 1), n - 1) - nthDerivativeFunction(
-					x0 - dx * Math.pow(10, n + 1), n - 1))
-					/ (2 * dx * Math.pow(10, n + 1));
+			return (nthDerivativeFunction(x0 + dx * Math.pow(10, n + 1), n - 1) - nthDerivativeFunction(x0 - dx * Math.pow(10, n + 1), n - 1)) / (2 * dx * Math.pow(10, n + 1));
 	}
 
 	public double minimalStepFunction(double x0) {
@@ -604,7 +546,7 @@ public class SimplePhysics extends Applet implements MouseListener,
 		double df = 1.0;
 		double epsilon = 0.001;
 		boolean logic = false;
-		
+
 		/**
 		 * DISCRETIZE TO MUCH
 		 */
@@ -612,8 +554,7 @@ public class SimplePhysics extends Applet implements MouseListener,
 			df = Math.abs(nthDerivativeFunction(x0, i));
 			if (df > min) {
 				logic = true;
-				df = Math.pow((factorial(i) * epsilon) / Math.abs(df),
-						1.0 / (i));
+				df = Math.pow((factorial(i) * epsilon) / Math.abs(df), 1.0 / (i));
 			}
 		}
 		if (logic) {
@@ -623,25 +564,25 @@ public class SimplePhysics extends Applet implements MouseListener,
 				return wd.pxlXStep();
 		} else
 			return 1;
-		
-//		for (int i = 1; i < 5 && !logic; i = 2 * i + 1) {
-//			
-//			df = Math.abs(nthDerivativeFunction(x0, i + 1));
-//			if (df > min) {
-//				logic = true;
-//				df = Math.pow((factorial(i + 2) * epsilon) / (2 * df),
-//						1.0 / (i + 2));
-//			}
-//		}
-//		
-//		if (logic) {
-//			if (df >= wd.pxlXStep())
-//				return df;
-//			else
-//				return wd.pxlXStep();
-//		} else
-//			return 1;
-		
+
+		// for (int i = 1; i < 5 && !logic; i = 2 * i + 1) {
+		//
+		// df = Math.abs(nthDerivativeFunction(x0, i + 1));
+		// if (df > min) {
+		// logic = true;
+		// df = Math.pow((factorial(i + 2) * epsilon) / (2 * df),
+		// 1.0 / (i + 2));
+		// }
+		// }
+		//
+		// if (logic) {
+		// if (df >= wd.pxlXStep())
+		// return df;
+		// else
+		// return wd.pxlXStep();
+		// } else
+		// return 1;
+
 	}
 
 	double factorial(int x) {
@@ -687,10 +628,7 @@ public class SimplePhysics extends Applet implements MouseListener,
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_UP
-				|| e.getKeyCode() == KeyEvent.VK_DOWN
-				|| e.getKeyCode() == KeyEvent.VK_LEFT
-				|| e.getKeyCode() == KeyEvent.VK_RIGHT) {
+		if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_RIGHT) {
 			xThrust = 0;
 			yThrust = 0;
 		}
@@ -763,4 +701,7 @@ public class SimplePhysics extends Applet implements MouseListener,
 		repaint();
 	}
 
+	public static void main(String[] args) {
+		new SimplePhysics(false);
+	}
 }

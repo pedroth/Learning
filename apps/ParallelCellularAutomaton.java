@@ -1,6 +1,5 @@
 package apps;
 
-import java.applet.Applet;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
@@ -10,6 +9,8 @@ import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.Random;
+
+import javax.swing.JFrame;
 
 import visualization.TextFrame;
 
@@ -24,7 +25,7 @@ import visualization.TextFrame;
  * @author pedro
  * 
  */
-public class ParallelCellularAutomaton extends Applet implements MouseMotionListener, KeyListener {
+public class ParallelCellularAutomaton extends JFrame implements MouseMotionListener, KeyListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -62,8 +63,8 @@ public class ParallelCellularAutomaton extends Applet implements MouseMotionList
 				survive = Arrays.copyOf(sAux, sAux.length);
 				born = Arrays.copyOf(bAux, bAux.length);
 			} else if (type == 2) {
-				int[] sAux = { 0, 2,3,6};
-				int[] bAux = { 1};
+				int[] sAux = { 0, 2, 3, 6 };
+				int[] bAux = { 1 };
 				survive = Arrays.copyOf(sAux, sAux.length);
 				born = Arrays.copyOf(bAux, bAux.length);
 			} else if (type == 3) {
@@ -198,8 +199,12 @@ public class ParallelCellularAutomaton extends Applet implements MouseMotionList
 		pixels[y * w + x] = rgbColor;
 	}
 
-	public void init() {
+	public ParallelCellularAutomaton(boolean isApplet) {
 		this.setLayout(null);
+		// Set default close operation for JFrame
+		if (!isApplet) {
+			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		}
 		this.setSize(500, 500);
 		this.addMouseMotionListener(this);
 		buffer = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB);
@@ -211,8 +216,9 @@ public class ParallelCellularAutomaton extends Applet implements MouseMotionList
 		gimg.fillRect(0, 0, wChanged, hChanged);
 		threadManager = new ThreadManager();
 		this.addKeyListener(this);
+		this.setVisible(true);
 	}
-	
+
 	public void myInit() {
 		this.setSize(500, 500);
 		buffer = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB);
@@ -282,12 +288,16 @@ public class ParallelCellularAutomaton extends Applet implements MouseMotionList
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		
+
 	}
 
 	@Override
 	public void keyTyped(KeyEvent e) {
 		// TODO Auto-generated method stub
 
+	}
+
+	public static void main(String[] args) {
+		new ParallelCellularAutomaton(false);
 	}
 }

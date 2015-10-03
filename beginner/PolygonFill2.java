@@ -52,7 +52,7 @@ public class PolygonFill2 extends JFrame implements MouseListener, KeyListener {
 		// Make JFrame visible
 		setVisible(true);
 
-		nVertex = 5;
+		nVertex = 3;
 		bImg = new BufferedImage(this.getWidth(), this.getHeight(),
 				BufferedImage.TYPE_INT_RGB);
 		wChanged = this.getWidth();
@@ -97,10 +97,10 @@ public class PolygonFill2 extends JFrame implements MouseListener, KeyListener {
 			int root =(int) Math.floor(Math.sqrt(area));
 			for(int i = 0; i < area;  i++) { 
 				g.setColor(Color.blue);
-				int[] v = RandomPointOnPoly2();
-				//int[] v = RandomPointOnPoly();
-				//int[] v = pointOnDistribution(i % root,i / root, root);
-				//int[] v = RandomPointOnPoly3();
+//				int[] v = RandomPointOnPoly2();
+				int[] v = RandomPointOnPoly();
+//				int[] v = pointOnDistribution(i % root,i / root, root);
+//				int[] v = RandomPointOnPoly3();
 				g.drawLine(v[0], v[1], v[0], v[1]);
 			}
 			double currentTime = System.currentTimeMillis() * 1E-3;

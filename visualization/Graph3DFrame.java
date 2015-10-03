@@ -22,6 +22,8 @@ import windowThreeDim.Element;
 import windowThreeDim.InterpolativeShader;
 import windowThreeDim.LevelSetShader;
 import windowThreeDim.Line;
+import windowThreeDim.MaxBaryShader;
+import windowThreeDim.PaintMethod;
 import windowThreeDim.Point;
 import windowThreeDim.Quad;
 import windowThreeDim.FlatShader;
@@ -445,6 +447,10 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 
 		graphics.setCamera(aux, eye);
 	}
+	
+	public void setShader(PaintMethod shader) {
+		graphics.setMethod(shader);
+	}
 
 	@Override
 	public void keyPressed(KeyEvent arg0) {
@@ -582,17 +588,18 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 		/**
 		 * tests
 		 */
+		frame.setShader(new MaxBaryShader());
 		Triangle tri = new Triangle(new TriVector(1, 0, 0), new TriVector(0, 1, 0), new TriVector(0, 0, 1));
 		tri.setColorPoint(Color.red, 0);
 		tri.setColorPoint(Color.green, 1);
 		tri.setColorPoint(Color.blue, 2);
-		 
+		frame.raw.setX(2.0);
 		frame.addElement(tri);
 	}
 	
 	private static void test6(Graph3DFrame frame) {
-//		ObjParser obj = new ObjParser("http://graphics.stanford.edu/~mdfisher/Data/Meshes/bunny.obj");
-		ObjParser obj = new ObjParser("C:/Users/pedro/Desktop/Line.obj");
+		ObjParser obj = new ObjParser("http://graphics.stanford.edu/~mdfisher/Data/Meshes/bunny.obj");
+//		ObjParser obj = new ObjParser("C:/Users/pedro/Desktop/Line.obj");
 //		ObjParser obj = new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/Lara_Croft.obj?attredirects=0&d=1");
 //		ObjParser obj = new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/Sonic.obj?attredirects=0&d=1");
 		
@@ -650,8 +657,8 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 //		test4(kakashi,frame);
 //		
 		test5(kakashi,frame);
-		
-		test6(frame);
+//		
+//		test6(frame);
 		
 //		test7(frame);
 		

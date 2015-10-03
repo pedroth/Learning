@@ -192,9 +192,6 @@ public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionL
 		colorState = 0;
 		drawAxis = false;
 
-		/**
-		 * there is no need for the instruction below
-		 */
 		// Set default close operation for JFrame
 		if (!isApplet) {
 			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
