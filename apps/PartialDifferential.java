@@ -8,7 +8,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.TextField;
-import java.awt.datatransfer.FlavorTable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -28,17 +27,16 @@ import javax.swing.JOptionPane;
 import visualization.TextFrame;
 import window.ImageWindow;
 import windowThreeDim.Element;
+import windowThreeDim.FlatShader;
 import windowThreeDim.InterpolativeShader;
 import windowThreeDim.LevelSetShader;
 import windowThreeDim.Line;
 import windowThreeDim.Quad;
 import windowThreeDim.SamplingZbuffer;
-import windowThreeDim.FlatShader;
 import windowThreeDim.StringElement;
 import windowThreeDim.TriWin;
 import windowThreeDim.WiredPrespective;
 import windowThreeDim.ZBufferPrespective;
-import windowThreeDim.ZbufferShader;
 import algebra.Matrix;
 import algebra.TriVector;
 import functionNode.CombinationNode;
@@ -46,8 +44,7 @@ import functionNode.FunctionNode;
 import functions.ExpressionFunction;
 import functions.SyntaxErrorException;
 
-public class PartialDifferential extends JFrame implements MouseListener,
-		MouseMotionListener, KeyListener, MouseWheelListener {
+public class PartialDifferential extends JFrame implements MouseListener, MouseMotionListener, KeyListener, MouseWheelListener {
 	/**
 	* 
 	*/
@@ -179,23 +176,7 @@ public class PartialDifferential extends JFrame implements MouseListener,
 	 */
 	private boolean isKakashi;
 
-	private static String helpText = "< w > : Camera move foward / zoom in \n\n"
-			+ "< s > : Camera move backward /zoom out \n\n"
-			+ "< z > : Toggle wireframe / zbuffer \n\n"
-			+ "< n > : Toggle flat shading \n\n"
-			+ "< [1-3] > : change color of surface \n\n"
-			+ "< e > : random examples of functions\n\n"
-			+ "< 8 > : interpolative colors \n\n"
-			+ "< 9 > : level set shader\n\n"
-			+ "< Available functions > : sin ,cos, exp, ln, tan, acos, asin, atan, min, adding more \n\n"
-			+ "< operators > : +, - , *, ^ \n\n"
-			+ "< Available constants > : pi\n\n"
-			+ "< a > : draw Axis \n\n"
-			+ "< mouse > : rotate camera \n\n"
-			+ "< k > : toogle kakashi mode\n\n"
-			+ "< Available function on animation part > :  dfx(x,y) (df / dx), dfy(x,y) (df / dy) , dt(x,y) (df / dt), d2fx(x,y)(d2f / dx2)\n\n"
-			+ "d2fy(x,y) (d2f / dy2), f(x,y), d2fxy(x,y)\n\n"
-			+ "Made by Pedroth";
+	private static String helpText = "< w > : Camera move foward / zoom in \n\n" + "< s > : Camera move backward /zoom out \n\n" + "< z > : Toggle wireframe / zbuffer \n\n" + "< n > : Toggle flat shading \n\n" + "< [1-3] > : change color of surface \n\n" + "< e > : random examples of functions\n\n" + "< 8 > : interpolative colors \n\n" + "< 9 > : level set shader\n\n" + "< Available functions > : sin ,cos, exp, ln, tan, acos, asin, atan, min, adding more \n\n" + "< operators > : +, - , *, ^ \n\n" + "< Available constants > : pi\n\n" + "< a > : draw Axis \n\n" + "< mouse > : rotate camera \n\n" + "< k > : toogle kakashi mode\n\n" + "< Available function on animation part > :  dfx(x,y) (df / dx), dfy(x,y) (df / dy) , dt(x,y) (df / dt), d2fx(x,y)(d2f / dx2)\n\n" + "d2fy(x,y) (d2f / dy2), f(x,y), d2fxy(x,y)\n\n" + "Made by Pedroth";
 
 	private boolean axisAlreadyBuild;
 
@@ -217,9 +198,9 @@ public class PartialDifferential extends JFrame implements MouseListener,
 		colorState = 0;
 		drawAxis = false;
 		// Set default close operation for JFrame
-		if(!isApplet) {
-			 setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		 }
+		if (!isApplet) {
+			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		}
 		// Set JFrame size
 		setSize(800, 600);
 
@@ -346,8 +327,7 @@ public class PartialDifferential extends JFrame implements MouseListener,
 			this.add(functionVel);
 			functionString.setText("sin( x ^ 2 + y ^ 2)");
 			functionAcc.setText("d2x(x,y) + d2y(x,y) - 0.5 * dt(x,y)");
-			functionVel
-					.setText("(1 / ((1 + dx(x,y)^2 + dy(x,y)^2)^(3/2))) * (d2x(x,y)*(1 + dy(x,y)^2) +2*dx(x,y)*dy(x,y)*d2xy(x,y) +  d2y(x,y)*(1 + dx(x,y)^2))");
+			functionVel.setText("(1 / ((1 + dx(x,y)^2 + dy(x,y)^2)^(3/2))) * (d2x(x,y)*(1 + dy(x,y)^2) +2*dx(x,y)*dy(x,y)*d2xy(x,y) +  d2y(x,y)*(1 + dx(x,y)^2))");
 			xMinTxt.setText("-1");
 			xMaxTxt.setText("1");
 			yMinTxt.setText("-1");
@@ -364,64 +344,51 @@ public class PartialDifferential extends JFrame implements MouseListener,
 		/**
 		 * function text box
 		 */
-		functionString.setBounds((border + 3) * wChanged / 100, hChanged / 10,
-				20 * wChanged / 100, 5 * hChanged / 100);
+		functionString.setBounds((border + 3) * wChanged / 100, hChanged / 10, 20 * wChanged / 100, 5 * hChanged / 100);
 		/**
 		 * xmin
 		 */
-		xMinTxt.setBounds((border + 3) * wChanged / 100, 23 * hChanged / 100,
-				6 * wChanged / 100, 5 * hChanged / 100);
+		xMinTxt.setBounds((border + 3) * wChanged / 100, 23 * hChanged / 100, 6 * wChanged / 100, 5 * hChanged / 100);
 		/**
 		 * xmax
 		 */
-		xMaxTxt.setBounds((border + 18) * wChanged / 100, 23 * hChanged / 100,
-				6 * wChanged / 100, 5 * hChanged / 100);
+		xMaxTxt.setBounds((border + 18) * wChanged / 100, 23 * hChanged / 100, 6 * wChanged / 100, 5 * hChanged / 100);
 		/**
 		 * ymin
 		 */
-		yMinTxt.setBounds((border + 3) * wChanged / 100, 35 * hChanged / 100,
-				6 * wChanged / 100, 5 * hChanged / 100);
+		yMinTxt.setBounds((border + 3) * wChanged / 100, 35 * hChanged / 100, 6 * wChanged / 100, 5 * hChanged / 100);
 		/**
 		 * ymax
 		 */
-		yMaxTxt.setBounds((border + 18) * wChanged / 100, 35 * hChanged / 100,
-				6 * wChanged / 100, 5 * hChanged / 100);
+		yMaxTxt.setBounds((border + 18) * wChanged / 100, 35 * hChanged / 100, 6 * wChanged / 100, 5 * hChanged / 100);
 		/**
 		 * X/Y step
 		 */
-		stepTxt.setBounds((border + 3) * wChanged / 100, 45 * hChanged / 100,
-				6 * wChanged / 100, 5 * hChanged / 100);
+		stepTxt.setBounds((border + 3) * wChanged / 100, 45 * hChanged / 100, 6 * wChanged / 100, 5 * hChanged / 100);
 		/**
 		 * draw Button
 		 */
-		drawButton.setBounds((border + 13) * wChanged / 100,
-				45 * hChanged / 100, 15 * wChanged / 100, 7 * hChanged / 100);
+		drawButton.setBounds((border + 13) * wChanged / 100, 45 * hChanged / 100, 15 * wChanged / 100, 7 * hChanged / 100);
 		/**
 		 * zoomfit button
 		 */
-		zoomFit.setBounds((border + 15) * wChanged / 100, 87 * hChanged / 100,
-				10 * wChanged / 100, 5 * hChanged / 100);
+		zoomFit.setBounds((border + 15) * wChanged / 100, 87 * hChanged / 100, 10 * wChanged / 100, 5 * hChanged / 100);
 		/**
 		 * Acceleration/Velocity
 		 */
 		if (comboBox.getSelectedItem() == "Acceleration") {
 			functionVel.setVisible(false);
 			functionAcc.setVisible(true);
-			functionAcc.setBounds((border + 3) * wChanged / 100,
-					65 * hChanged / 100, 19 * wChanged / 100,
-					5 * hChanged / 100);
+			functionAcc.setBounds((border + 3) * wChanged / 100, 65 * hChanged / 100, 19 * wChanged / 100, 5 * hChanged / 100);
 		} else {
 			functionVel.setVisible(true);
 			functionAcc.setVisible(false);
-			functionVel.setBounds((border + 3) * wChanged / 100,
-					65 * hChanged / 100, 19 * wChanged / 100,
-					5 * hChanged / 100);
+			functionVel.setBounds((border + 3) * wChanged / 100, 65 * hChanged / 100, 19 * wChanged / 100, 5 * hChanged / 100);
 		}
 		/**
 		 * animation button
 		 */
-		animate.setBounds((border + 3) * wChanged / 100, 75 * hChanged / 100,
-				15 * wChanged / 100, 7 * hChanged / 100);
+		animate.setBounds((border + 3) * wChanged / 100, 75 * hChanged / 100, 15 * wChanged / 100, 7 * hChanged / 100);
 
 		Graphics g = frameGraphics.getGraphics();
 
@@ -432,8 +399,7 @@ public class PartialDifferential extends JFrame implements MouseListener,
 		/**
 		 * comboBox
 		 */
-		comboBox.setBounds((border + 3) * wChanged / 100, 55 * hChanged / 100,
-				10 * wChanged / 100, 3 * hChanged / 100);
+		comboBox.setBounds((border + 3) * wChanged / 100, 55 * hChanged / 100, 10 * wChanged / 100, 3 * hChanged / 100);
 		/**
 		 * Function text
 		 */
@@ -455,18 +421,11 @@ public class PartialDifferential extends JFrame implements MouseListener,
 		 * PDE text
 		 */
 		if (comboBox.getSelectedItem() == "Acceleration") {
-			frameGraphics
-					.drawString(
-							"d2F/d2t = G(f(x,y),dx(x,y),dy(x,y),d2x(x,y),d2y(x,y),d2xy(x,y),dt(x,y),t,x,y)",
-							0.03, 1 - 0.68);
+			frameGraphics.drawString("d2F/d2t = G(f(x,y),dx(x,y),dy(x,y),d2x(x,y),d2y(x,y),d2xy(x,y),dt(x,y),t,x,y)", 0.03, 1 - 0.68);
 		} else {
-			frameGraphics
-					.drawString(
-							"dF/dt = G(f(x,y),dx(x,y),dy(x,y),d2x(x,y),d2y(x,y),d2xy(x,y),t,x,y)",
-							0.03, 1 - 0.68);
+			frameGraphics.drawString("dF/dt = G(f(x,y),dx(x,y),dy(x,y),d2x(x,y),d2y(x,y),d2xy(x,y),t,x,y)", 0.03, 1 - 0.68);
 		}
-		frameGraphics.paintTranslate(this.getGraphics(), border * wChanged
-				/ 100, 0);
+		frameGraphics.paintTranslate(this.getGraphics(), border * wChanged / 100, 0);
 	}
 
 	class Euler {
@@ -529,8 +488,7 @@ public class PartialDifferential extends JFrame implements MouseListener,
 		double u = x;
 		double v = y;
 		double w = window / 2.0;
-		return 1 / (4 * w * w)
-				* Math.exp(-0.25 * ((u - w) * (u - w) + (v - w) * (v - w)));
+		return 1 / (4 * w * w) * Math.exp(-0.25 * ((u - w) * (u - w) + (v - w) * (v - w)));
 	}
 
 	private void gaussianFilterToSurface(TriVector[][] s, int window) {
@@ -550,8 +508,7 @@ public class PartialDifferential extends JFrame implements MouseListener,
 				}
 				int x = Math.min(s.length - 1, i);
 				int y = Math.min(s[0].length - 1, j);
-				surface[i][j] = new TriVector(s[x][y].getX(), s[x][y].getY(),
-						aux);
+				surface[i][j] = new TriVector(s[x][y].getX(), s[x][y].getY(), aux);
 				double auxZ = surface[i][j].getZ();
 				if (!Double.isInfinite(auxZ) && !Double.isNaN(auxZ)) {
 					maxHeightColor = Math.max(auxZ, maxHeightColor);
@@ -563,8 +520,7 @@ public class PartialDifferential extends JFrame implements MouseListener,
 	}
 
 	public void buildKakashi() {
-		MyImage kakashi = new MyImage(
-				"https://92c3cb5a-a-62cb3a1a-s-sites.googlegroups.com/site/ibplanalto2010/Home/kakashi46-3459488_50_50%5B1%5D.jpg?attachauth=ANoY7cp6kFZ2u7lOyL3KJqDYkzI_jmNGeoLsCE29u25IlE23i8Bgqx-4UsNUTkE4Mh7vBQpKPe107E_-PLAOywT34dv8cW9_r9WV0uOZ8p26uBT4rusztcGEh9wkuZ2QI0f-loBiB4pmzo_3NKMrC0CPbRvHHiwa_vT2wVEjZiWh7fZ9XlUjC6vrCVvNOtnmgsnSd-WjjbZqO-q6jSPBFw1zyyaa8uzcAKExLodMjCR40cjjmDComqp1JMNpKJoE1iTDgXQDWFzU&attredirects=0");
+		MyImage kakashi = new MyImage("https://92c3cb5a-a-62cb3a1a-s-sites.googlegroups.com/site/ibplanalto2010/Home/kakashi46-3459488_50_50%5B1%5D.jpg?attachauth=ANoY7cp6kFZ2u7lOyL3KJqDYkzI_jmNGeoLsCE29u25IlE23i8Bgqx-4UsNUTkE4Mh7vBQpKPe107E_-PLAOywT34dv8cW9_r9WV0uOZ8p26uBT4rusztcGEh9wkuZ2QI0f-loBiB4pmzo_3NKMrC0CPbRvHHiwa_vT2wVEjZiWh7fZ9XlUjC6vrCVvNOtnmgsnSd-WjjbZqO-q6jSPBFw1zyyaa8uzcAKExLodMjCR40cjjmDComqp1JMNpKJoE1iTDgXQDWFzU&attredirects=0");
 		Matrix v = new Matrix(kakashi.getGrayScale());
 		TriVector[][] s = v.matrixToSurface(-1, 1, -1, 1);
 		xmin = -1;
@@ -579,8 +535,7 @@ public class PartialDifferential extends JFrame implements MouseListener,
 
 		for (int j = 0; j < s[0].length; j++) {
 			for (int i = 0; i < s.length; i++) {
-				Element e = new Quad(surface[i][j], surface[i + 1][j],
-						surface[i + 1][j + 1], surface[i][j + 1]);
+				Element e = new Quad(surface[i][j], surface[i + 1][j], surface[i + 1][j + 1], surface[i][j + 1]);
 				setElementColor(e);
 				graphics.addtoList(e);
 			}
@@ -607,14 +562,7 @@ public class PartialDifferential extends JFrame implements MouseListener,
 		try {
 			exprFunction.init();
 		} catch (SyntaxErrorException e) {
-			JOptionPane
-					.showMessageDialog(
-							null,
-							"there is a syntax error in the formula, pls change the formula."
-									+ String.format("%n")
-									+ " try to use more brackets, try not to cocatenate 2*x^2 as 2x2."
-									+ String.format("%n")
-									+ "check also for simple errors like 1/*2.");
+			JOptionPane.showMessageDialog(null, "there is a syntax error in the formula, pls change the formula." + String.format("%n") + " try to use more brackets, try not to cocatenate 2*x^2 as 2x2." + String.format("%n") + "check also for simple errors like 1/*2.");
 		}
 		nx = Math.abs(xmax - xmin) / (step);
 		ny = Math.abs(ymax - ymin) / (step);
@@ -679,8 +627,7 @@ public class PartialDifferential extends JFrame implements MouseListener,
 
 		for (int j = 0; j < iny; j++) {
 			for (int i = 0; i < inx; i++) {
-				Element e = new Quad(surface[i][j], surface[i + 1][j],
-						surface[i + 1][j + 1], surface[i][j + 1]);
+				Element e = new Quad(surface[i][j], surface[i + 1][j], surface[i + 1][j + 1], surface[i][j + 1]);
 				setElementColor(e);
 				graphics.addtoList(e);
 			}
@@ -695,10 +642,8 @@ public class PartialDifferential extends JFrame implements MouseListener,
 		for (int i = 0; i < e.getNumOfPoints(); i++) {
 			double z = e.getNPoint(i).getZ();
 
-			double x = -1 + 2 * (z - minHeightColor)
-					/ (maxHeightColor - minHeightColor);
-			double perc = (z - minHeightColor)
-					/ (maxHeightColor - minHeightColor);
+			double x = -1 + 2 * (z - minHeightColor) / (maxHeightColor - minHeightColor);
+			double perc = (z - minHeightColor) / (maxHeightColor - minHeightColor);
 			if (colorState == 0) {
 				/**
 				 * linear interpolation between blue color and red
@@ -706,7 +651,7 @@ public class PartialDifferential extends JFrame implements MouseListener,
 				double colorHSB = blue + (red - blue) * 0.5 * (x + 1);
 				e.setColorPoint(Color.getHSBColor((float) colorHSB, 1f, 1f), i);
 			} else if (colorState == 1) {
-				e.setColorPoint(new Color((float)(1 / (1 + Math.exp(-20*(perc-0.1)))),(float) ( 1 / (1 + Math.exp(-20*(perc-0.5)))),(float) ( 1 / (1 + Math.exp(-20*(perc-0.75))))),i);
+				e.setColorPoint(new Color((float) (1 / (1 + Math.exp(-20 * (perc - 0.1)))), (float) (1 / (1 + Math.exp(-20 * (perc - 0.5)))), (float) (1 / (1 + Math.exp(-20 * (perc - 0.75))))), i);
 			} else if (colorState == 2) {
 
 			}
@@ -764,8 +709,7 @@ public class PartialDifferential extends JFrame implements MouseListener,
 		}
 
 		stepTxt.setText("" + nextStep);
-		JOptionPane.showMessageDialog(null,
-				"the X/Y step is too low, pls choose a higher one");
+		JOptionPane.showMessageDialog(null, "the X/Y step is too low, pls choose a higher one");
 
 	}
 
@@ -805,14 +749,7 @@ public class PartialDifferential extends JFrame implements MouseListener,
 		try {
 			accEquation.init();
 		} catch (SyntaxErrorException e) {
-			JOptionPane
-					.showMessageDialog(
-							null,
-							"there is a syntax error in the formula, pls change the formula."
-									+ String.format("%n")
-									+ " try to use more brackets, try not to cocatenate 2*x^2 as 2x2."
-									+ String.format("%n")
-									+ "check also for simple errors like 1/*2.");
+			JOptionPane.showMessageDialog(null, "there is a syntax error in the formula, pls change the formula." + String.format("%n") + " try to use more brackets, try not to cocatenate 2*x^2 as 2x2." + String.format("%n") + "check also for simple errors like 1/*2.");
 		}
 		double nx = Math.abs(xmax - xmin) / (step);
 		double ny = Math.abs(ymax - ymin) / (step);
@@ -827,12 +764,11 @@ public class PartialDifferential extends JFrame implements MouseListener,
 				x[0] = xmin + i * step;
 				x[1] = ymin + j * step;
 				x[2] = time;
-				
+
 				double acceleration = accEquation.compute(x);
 
 				dudt[i][j] = dudt[i][j] + acceleration * dt;
-				auxZ = surface[i][j].getZ() + dudt[i][j] * dt + 0.5
-						* acceleration * dt * dt;
+				auxZ = surface[i][j].getZ() + dudt[i][j] * dt + 0.5 * acceleration * dt * dt;
 				aux[i][j] = (auxZ);
 				if (!Double.isInfinite(auxZ) && !Double.isNaN(auxZ)) {
 					maxHeightColor = Math.max(auxZ, maxHeightColor);
@@ -847,8 +783,7 @@ public class PartialDifferential extends JFrame implements MouseListener,
 				surface[i + 1][j].setZ(aux[i + 1][j]);
 				surface[i + 1][j + 1].setZ(aux[i + 1][j + 1]);
 				surface[i][j + 1].setZ(aux[i][j + 1]);
-				Element e = new Quad(surface[i][j], surface[i + 1][j],
-						surface[i + 1][j + 1], surface[i][j + 1]);
+				Element e = new Quad(surface[i][j], surface[i + 1][j], surface[i + 1][j + 1], surface[i][j + 1]);
 				setElementColor(e);
 				graphics.addtoList(e);
 			}
@@ -875,14 +810,7 @@ public class PartialDifferential extends JFrame implements MouseListener,
 		try {
 			velEquation.init();
 		} catch (SyntaxErrorException e) {
-			JOptionPane
-					.showMessageDialog(
-							null,
-							"there is a syntax error in the formula, pls change the formula."
-									+ String.format("%n")
-									+ " try to use more brackets, try not to cocatenate 2*x^2 as 2x2."
-									+ String.format("%n")
-									+ "check also for simple errors like 1/*2.");
+			JOptionPane.showMessageDialog(null, "there is a syntax error in the formula, pls change the formula." + String.format("%n") + " try to use more brackets, try not to cocatenate 2*x^2 as 2x2." + String.format("%n") + "check also for simple errors like 1/*2.");
 		}
 		double nx = Math.abs(xmax - xmin) / (step);
 		double ny = Math.abs(ymax - ymin) / (step);
@@ -912,8 +840,7 @@ public class PartialDifferential extends JFrame implements MouseListener,
 				surface[i + 1][j].setZ(aux[i + 1][j]);
 				surface[i + 1][j + 1].setZ(aux[i + 1][j + 1]);
 				surface[i][j + 1].setZ(aux[i][j + 1]);
-				Element e = new Quad(surface[i][j], surface[i + 1][j],
-						surface[i + 1][j + 1], surface[i][j + 1]);
+				Element e = new Quad(surface[i][j], surface[i + 1][j], surface[i + 1][j + 1], surface[i][j + 1]);
 				setElementColor(e);
 				graphics.addtoList(e);
 			}
@@ -1021,8 +948,7 @@ public class PartialDifferential extends JFrame implements MouseListener,
 			int j = (int) ((variables[1] - ymin) / step);
 			int k = Math.min(i + 1, surface.length - 1);
 			int l = Math.max(i - 1, 0);
-			return (surface[k][j].getZ() - 2 * surface[i][j].getZ() + surface[l][j]
-					.getZ()) / (4 * step * step);
+			return (surface[k][j].getZ() - 2 * surface[i][j].getZ() + surface[l][j].getZ()) / (4 * step * step);
 		}
 
 	}
@@ -1049,8 +975,7 @@ public class PartialDifferential extends JFrame implements MouseListener,
 			int j = (int) ((variables[1] - ymin) / step);
 			int k = Math.min(j + 1, surface[0].length - 1);
 			int l = Math.max(j - 1, 0);
-			return (surface[i][k].getZ() - 2 * surface[i][j].getZ() + surface[i][l]
-					.getZ()) / (4 * step * step);
+			return (surface[i][k].getZ() - 2 * surface[i][j].getZ() + surface[i][l].getZ()) / (4 * step * step);
 		}
 
 	}
@@ -1079,9 +1004,7 @@ public class PartialDifferential extends JFrame implements MouseListener,
 			int l = Math.max(j - 1, 0);
 			int m = Math.min(i + 1, surface.length - 1);
 			int n = Math.max(i - 1, 0);
-			return (surface[m][k].getZ() - surface[m][l].getZ()
-					- surface[n][k].getZ() + surface[n][l].getZ())
-					/ (4 * step * step);
+			return (surface[m][k].getZ() - surface[m][l].getZ() - surface[n][k].getZ() + surface[n][l].getZ()) / (4 * step * step);
 		}
 
 	}
@@ -1114,8 +1037,7 @@ public class PartialDifferential extends JFrame implements MouseListener,
 
 	public void paint(Graphics g) {
 		double timeElapse = System.currentTimeMillis() * 1E-3;
-		if (Math.abs(wChanged - this.getWidth()) > 0
-				|| Math.abs(hChanged - this.getHeight()) > 0) {
+		if (Math.abs(wChanged - this.getWidth()) > 0 || Math.abs(hChanged - this.getHeight()) > 0) {
 			wChanged = this.getWidth();
 			hChanged = this.getHeight();
 
@@ -1158,8 +1080,7 @@ public class PartialDifferential extends JFrame implements MouseListener,
 		aux.setMatrix(2, 1, cosT);
 		aux.setMatrix(3, 1, 0);
 
-		TriVector eye = new TriVector(raw * cosP * cosT + x.getX(), raw * cosP
-				* sinT + x.getY(), raw * sinP + x.getZ());
+		TriVector eye = new TriVector(raw * cosP * cosT + x.getX(), raw * cosP * sinT + x.getY(), raw * sinP + x.getZ());
 
 		graphics.setCamera(aux, eye);
 	}
@@ -1194,9 +1115,9 @@ public class PartialDifferential extends JFrame implements MouseListener,
 			graphics.removeAllElements();
 			drawFunction = true;
 		} else if (arg0.getKeyCode() == KeyEvent.VK_2) {
-				colorState = 1;
-				graphics.removeAllElements();
-				drawFunction = true;
+			colorState = 1;
+			graphics.removeAllElements();
+			drawFunction = true;
 		} else if (arg0.getKeyCode() == KeyEvent.VK_A) {
 			drawAxis = !drawAxis;
 			axisAlreadyBuild = false;

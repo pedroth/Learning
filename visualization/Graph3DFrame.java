@@ -603,6 +603,7 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 //		ObjParser obj = new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/Lara_Croft.obj?attredirects=0&d=1");
 //		ObjParser obj = new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/Sonic.obj?attredirects=0&d=1");
 		
+		
 		Composite c = obj.parse();
 		double scale = 1;
 		double[][] m = {{scale,0,0},{0,scale,0},{0,0,scale}};
@@ -610,7 +611,8 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 		frame.addElement(c);
 		frame.raw.setX(1.0);
 		frame.focalPoint = c.centroid();
-		frame.shader.setCullBack(false);
+		frame.shader.setCullBack(true);
+		frame.shader.addLightPoint(new TriVector(-3, 3, -3));
 	}
 	
 	private static void test7(Graph3DFrame frame) {
@@ -656,9 +658,9 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 //		
 //		test4(kakashi,frame);
 //		
-		test5(kakashi,frame);
+//		test5(kakashi,frame);
 //		
-//		test6(frame);
+		test6(frame);
 		
 //		test7(frame);
 		

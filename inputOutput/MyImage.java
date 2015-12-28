@@ -108,7 +108,7 @@ public class MyImage {
 
 	/**
 	 * 
-	 * @return matrix of RGB , x coord is red, y is green and z is blue. RGB are
+	 * @return matrix of HSV , x coord is hue, y is saturation and z is value. HSV are
 	 *         normalized values between [0,1]
 	 */
 	public TriVector[][] getHSVImageMatrix() {
@@ -137,8 +137,7 @@ public class MyImage {
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < collumns; j++) {
 				Color c = new Color(intRGB[i * collumns + j]);
-				float[] hsv = Color.RGBtoHSB(c.getRed(), c.getGreen(),
-						c.getBlue(), null);
+				float[] hsv = Color.RGBtoHSB(c.getRed(), c.getGreen(),c.getBlue(), null);
 				rgb[i * collumns + j] = new TriVector(hsv[0], hsv[1], hsv[2]);
 			}
 		}

@@ -389,10 +389,8 @@ public class Graph2DFrame extends JFrame {
 	}
 
 	public static void test1(Graph2DFrame frame) {
-		// MyImage kakashi = new
-		// MyImage("https://92c3cb5a-a-62cb3a1a-s-sites.googlegroups.com/site/ibplanalto2010/Home/kakashi46-3459488_50_50%5B1%5D.jpg?attachauth=ANoY7cp6kFZ2u7lOyL3KJqDYkzI_jmNGeoLsCE29u25IlE23i8Bgqx-4UsNUTkE4Mh7vBQpKPe107E_-PLAOywT34dv8cW9_r9WV0uOZ8p26uBT4rusztcGEh9wkuZ2QI0f-loBiB4pmzo_3NKMrC0CPbRvHHiwa_vT2wVEjZiWh7fZ9XlUjC6vrCVvNOtnmgsnSd-WjjbZqO-q6jSPBFw1zyyaa8uzcAKExLodMjCR40cjjmDComqp1JMNpKJoE1iTDgXQDWFzU&attredirects=0");
-
-		MyImage kakashi = new MyImage("http://ia.media-imdb.com/images/M/MV5BMTQ1MjQwMTE5OF5BMl5BanBnXkFtZTgwNjk3MTcyMDE@._V1_SX300.jpg");
+		 MyImage kakashi = new
+		 MyImage("https://92c3cb5a-a-62cb3a1a-s-sites.googlegroups.com/site/ibplanalto2010/Home/kakashi46-3459488_50_50%5B1%5D.jpg?attachauth=ANoY7cp6kFZ2u7lOyL3KJqDYkzI_jmNGeoLsCE29u25IlE23i8Bgqx-4UsNUTkE4Mh7vBQpKPe107E_-PLAOywT34dv8cW9_r9WV0uOZ8p26uBT4rusztcGEh9wkuZ2QI0f-loBiB4pmzo_3NKMrC0CPbRvHHiwa_vT2wVEjZiWh7fZ9XlUjC6vrCVvNOtnmgsnSd-WjjbZqO-q6jSPBFw1zyyaa8uzcAKExLodMjCR40cjjmDComqp1JMNpKJoE1iTDgXQDWFzU&attredirects=0");
 
 		// MyImage kakashi = new
 		// MyImage("http://static2.wikia.nocookie.net/__cb20130215214233/naruto/images/3/3b/KakashiMangeky%C5%8DSharinganAnime.jpg");
@@ -402,21 +400,12 @@ public class Graph2DFrame extends JFrame {
 		 */
 		Matrix v = new Matrix(kakashi.getGrayScale());
 
-		/**
-		 * hsv matrix
-		 */
-		// TriVector[][] k = kakashi.getHSVImageMatrix();
-		// Matrix v = new Matrix(k.length,k[0].length);
-		// for(int i = 1; i <= k.length; i++) {
-		// for(int j = 1; j <= k[0].length; j++) {
-		// v.setMatrix(i, j, k[i-1][j-1].getY());
-		// }
-		// }
+		
 
 		/**
 		 * add matrix
 		 */
-		frame.setGrayScale(false);
+		frame.setGrayScale(true);
 		frame.setSmooth(true);
 		frame.setRepainting(false);
 		frame.addMatrix(v.getMatrix(), -1, 1, -1, 1);
@@ -505,21 +494,47 @@ public class Graph2DFrame extends JFrame {
 		double step = 1.0 / (n - 1);
 		for (int i = 0; i < n; i++) {
 			x[i] = t;
-			y[i] = kernel(t,0.2,1000);
-			System.out.println(x[i] + "\t" + y[i]);
+			y[i] = kernel(t,0.02,0.1);
 			t += step;
 		}
 		frame.addCurve(x, y, Color.blue);
 		frame.plot();
 	}
+	
+	
+	private static void test5(Graph2DFrame frame) {
+			 MyImage kakashi = new
+			 MyImage("https://sites.google.com/site/ibplanalto2010/Home/bla.jpg?attredirects=0&d=1");
+			/**
+			 * hsv matrix
+			 */
+			TriVector[][] k = kakashi.getHSVImageMatrix();
+			Matrix v = new Matrix(k.length, k[0].length);
+			for (int i = 1; i <= k.length; i++) {
+				for (int j = 1; j <= k[0].length; j++) {
+					double x = k[i - 1][j - 1].getX();
+					x = x > 0.05 && x < 0.95 ? 0 : 1;
+					v.setMatrix(i, j, x);
+				}
+			}
+			/**
+			 * add matrix
+			 */
+			frame.setGrayScale(true);
+			frame.setSmooth(true);
+			frame.setRepainting(false);
+			frame.addMatrix(v.getMatrix(), -1, 1, -1, 1);
+			frame.plot();
+	}
 
 	public static void main(String args[]) {
 		Graph2DFrame frame = new Graph2DFrame("figure 1");
 		// test0(frame);
-		 test1(frame);
+//		 test1(frame);
 		// test2(frame);
 		// test3(frame);
 //		test4(frame);
+		test5(frame);
 	}
 
 }

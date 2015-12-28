@@ -214,10 +214,14 @@ public class BrownianMotion extends JFrame implements KeyListener {
 
 	public void updateOvalPos(double dt) {
 		for (int i = 0; i < numParticles; i++) {
-			if (x[i] > widthChanged || x[i] < 0)
+			if ((x[i] + r) > widthChanged || (x[i] - r) < 0) {
 				vx[i] = -vx[i];
-			if (y[i] < 0 || y[i] > heightChanged)
+				x[i] = (((x[i] - r) < 0) ? r  : 0) + (((x[i] + r) > widthChanged) ? widthChanged - r : 0);
+			}
+			if ((y[i] - r) < 0 || (y[i] + r) > heightChanged) {
 				vy[i] = -vy[i];
+				y[i] = (((y[i] - r) < 0) ? 2 * r : 0) + (((y[i] + r) > heightChanged) ? heightChanged - 2 * r : 0);
+			}
 			collisionHandle(i);
 			double ax = thrustx;
 			double ay = thrusty;
