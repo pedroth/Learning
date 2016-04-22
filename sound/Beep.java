@@ -67,8 +67,8 @@ class Beep {
 	}
 
 	public static void main(String[] args) throws Exception {
-		int frequency = 15700; // hz
-		int duration = 1000; // milliseconds
+		int frequency = 500; // hz
+		int duration = 10000; // milliseconds
 		beep(frequency, duration);
 	}
 }
