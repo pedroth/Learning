@@ -52,7 +52,7 @@ public class PolygonFill2 extends JFrame implements MouseListener, KeyListener {
 		// Make JFrame visible
 		setVisible(true);
 
-		nVertex = 3;
+		nVertex = 5;
 		bImg = new BufferedImage(this.getWidth(), this.getHeight(),
 				BufferedImage.TYPE_INT_RGB);
 		wChanged = this.getWidth();

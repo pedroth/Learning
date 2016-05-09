@@ -47,9 +47,8 @@ public class PolygonFill extends JFrame implements MouseListener, KeyListener {
 		// Make JFrame visible
 		setVisible(true);
 
-		nVertex = 10;
-		bImg = new BufferedImage(this.getWidth(), this.getHeight(),
-				BufferedImage.TYPE_INT_RGB);
+		nVertex = 4;
+		bImg = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB);
 		wChanged = this.getWidth();
 		hChanged = this.getHeight();
 		points = new int[nVertex][2];
@@ -67,16 +66,13 @@ public class PolygonFill extends JFrame implements MouseListener, KeyListener {
 	}
 
 	public void paint(Graphics g) {
-		if (Math.abs(wChanged - this.getWidth()) > 0
-				|| Math.abs(hChanged - this.getHeight()) > 0) {
-			bImg = new BufferedImage(this.getWidth(), this.getHeight(),
-					BufferedImage.TYPE_INT_RGB);
+		if (Math.abs(wChanged - this.getWidth()) > 0 || Math.abs(hChanged - this.getHeight()) > 0) {
+			bImg = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB);
 			Graphics gimg = bImg.getGraphics();
 			gimg.setColor(Color.white);
 			wChanged = this.getWidth();
 			hChanged = this.getHeight();
 			gimg.fillRect(0, 0, wChanged, hChanged);
-
 		}
 		update(g);
 	}
@@ -97,7 +93,7 @@ public class PolygonFill extends JFrame implements MouseListener, KeyListener {
 		boolean inOut = false;
 		int state = 0;
 		if (drawP) {
-			oldTime = System.currentTimeMillis()*1E-3;
+			oldTime = System.currentTimeMillis() * 1E-3;
 			box = generateBox();
 			calculateNormals();
 
@@ -108,8 +104,6 @@ public class PolygonFill extends JFrame implements MouseListener, KeyListener {
 						g.setColor(Color.blue);
 						if (isOnSet(i, j)) {
 							g.drawLine(i, j, i, j);
-//							this.getGraphics().drawImage(bImg, 0, 0, wChanged,
-//									hChanged, null);
 							state = 1;
 						} else {
 							if (state == 1) {
@@ -126,8 +120,6 @@ public class PolygonFill extends JFrame implements MouseListener, KeyListener {
 							else {
 								g.setColor(Color.green);
 								g.drawLine(i, j, i, j);
-//								this.getGraphics().drawImage(bImg, 0, 0,
-//										wChanged, hChanged, null);
 								j += step - 1;
 							}
 						}
@@ -135,8 +127,6 @@ public class PolygonFill extends JFrame implements MouseListener, KeyListener {
 							g.setColor(Color.blue);
 							if (isOnSet(i, j)) {
 								g.drawLine(i, j, i, j);
-//								this.getGraphics().drawImage(bImg, 0, 0,
-//										wChanged, hChanged, null);
 								inOut = true;
 							} else {
 								if (inOut)
@@ -147,10 +137,17 @@ public class PolygonFill extends JFrame implements MouseListener, KeyListener {
 						}
 					}
 				}
+				this.getGraphics().drawImage(bImg, 0, 0, wChanged, hChanged, null);
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				state = 0;
 				inOut = false;
 			}
-			double currentTime = System.currentTimeMillis()*1E-3;
+			double currentTime = System.currentTimeMillis() * 1E-3;
 			double timeElapse = currentTime - oldTime;
 			double oldTime = currentTime;
 			System.out.println("time :" + timeElapse);
@@ -165,8 +162,7 @@ public class PolygonFill extends JFrame implements MouseListener, KeyListener {
 		Graphics g = bImg.getGraphics();
 		int index = 0;
 		for (int i = 0; i < nVertex; i++) {
-			int f = -orientation * normals[i][0] * (x - points[i][0])
-					- orientation * normals[i][1] * (y - points[i][1]);
+			int f = -orientation * normals[i][0] * (x - points[i][0]) - orientation * normals[i][1] * (y - points[i][1]);
 			if (f > 0)
 				index = i;
 			else if (f == 0)
@@ -177,12 +173,10 @@ public class PolygonFill extends JFrame implements MouseListener, KeyListener {
 		// g.drawLine(points[index][0], points[index][1], points[index][0]
 		// - orientation * normals[index][0], points[index][1]
 		// - orientation * normals[index][1]);
-		double dist = Math.sqrt(normals[index][0] * normals[index][0]
-				+ normals[index][1] * normals[index][1]);
+		double dist = Math.sqrt(normals[index][0] * normals[index][0] + normals[index][1] * normals[index][1]);
 		double nx = normals[index][0] / dist;
 		double ny = normals[index][1] / dist;
-		double dot = -orientation * nx * (x - points[index][0]) - orientation
-				* ny * (y - points[index][1]);
+		double dot = -orientation * nx * (x - points[index][0]) - orientation * ny * (y - points[index][1]);
 		double boundaryStep = orientation * ny * dot;
 		int ret = (int) Math.floor(boundaryStep);
 		return ret;
@@ -191,9 +185,7 @@ public class PolygonFill extends JFrame implements MouseListener, KeyListener {
 	public boolean isOnSet(int x, int y) {
 		boolean result = true;
 		for (int i = 0; i < nVertex; i++) {
-			result = result
-					&& (orientation * normals[i][0] * (x - points[i][0])
-							+ orientation * normals[i][1] * (y - points[i][1]) >= 0);
+			result = result && (orientation * normals[i][0] * (x - points[i][0]) + orientation * normals[i][1] * (y - points[i][1]) >= 0);
 		}
 		return result;
 	}
@@ -264,27 +256,25 @@ public class PolygonFill extends JFrame implements MouseListener, KeyListener {
 		else
 			orientation = -1;
 
-//		for (int i = 0; i < nVertex; i++) {
-//			 g.setColor(Color.black);
-//			 g.drawLine(points[i][0], points[i][1],
-//			 (points[i][0] - orientation * normals[i][0]), (points[i][1] -
-//			 orientation * normals[i][1]));
-//		}
+		// for (int i = 0; i < nVertex; i++) {
+		// g.setColor(Color.black);
+		// g.drawLine(points[i][0], points[i][1],
+		// (points[i][0] - orientation * normals[i][0]), (points[i][1] -
+		// orientation * normals[i][1]));
+		// }
 	}
 
 	public void floodFill(BufferedImage img) {
 		Graphics g = img.getGraphics();
 		if (drawP) {
-			oldTime = System.currentTimeMillis()*1E-3;
+			oldTime = System.currentTimeMillis() * 1E-3;
 			int rx = 0;
 			int ry = 0;
 			Color c = new Color(0f, 0f, 1f);
 			g.setColor(c);
 			// draw frontier
 			for (int i = 0; i < nVertex; i++) {
-				g.drawLine(points[i][0], points[i][1],
-						points[(i + 1) % nVertex][0],
-						points[(i + 1) % nVertex][1]);
+				g.drawLine(points[i][0], points[i][1], points[(i + 1) % nVertex][0], points[(i + 1) % nVertex][1]);
 				// center of polygon
 				rx += points[i][0];
 				ry += points[i][1];
@@ -310,10 +300,9 @@ public class PolygonFill extends JFrame implements MouseListener, KeyListener {
 					sx.push(rx);
 					sy.push(ry - 1);
 				}
-				// this.getGraphics().drawImage(bImg, 0, 0, wChanged,
-				// hChanged,null);
+				this.getGraphics().drawImage(bImg, 0, 0, wChanged, hChanged, null);
 			}
-			double currentTime = System.currentTimeMillis()*1E-3;
+			double currentTime = System.currentTimeMillis() * 1E-3;
 			double timeElapse = currentTime - oldTime;
 			double oldTime = currentTime;
 			System.out.println("time :" + timeElapse);
@@ -346,7 +335,7 @@ public class PolygonFill extends JFrame implements MouseListener, KeyListener {
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		int[] x = { 100, 200, 300, 200};
+		int[] x = { 100, 200, 300, 200 };
 		int[] y = { 200, 300, 200, 100 };
 		points[nClicks % nVertex][0] = e.getX();
 		points[nClicks % nVertex][1] = e.getY();
