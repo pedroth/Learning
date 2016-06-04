@@ -17,9 +17,9 @@ import visualization.TextFrame;
  * 
  *         this is a simple demo for graphics in java.
  * 
- *         this may not be the best way to do it. is the best I know right now
+ *         this may not be the best way to do it.
  * 
- *         you may encapsulate some of these function in a class.
+ *         You may encapsulate some of these function in a class.
  * 
  */
 public class BrownianMotion extends JFrame implements KeyListener {
