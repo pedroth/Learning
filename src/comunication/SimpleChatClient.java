@@ -1,159 +1,215 @@
 package comunication;
 
-import java.awt.Graphics;
-import java.awt.TextArea;
-import java.awt.TextField;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.Inet4Address;
 import java.net.Socket;
-
-import javax.swing.JFrame;
+import java.net.UnknownHostException;
 
 public class SimpleChatClient extends JFrame {
 
-	private static final long serialVersionUID = 1L;
-	private int wChanged, hChanged;
-	private TextArea in, out;
-	private TextField userName;
-	private BufferedReader reader;
-	private PrintWriter writer;
-	private Socket sock;
+    private static final long serialVersionUID = 1L;
+    private int wChanged, hChanged;
+    private TextArea in, out;
+    private TextField userName;
+    private BufferedReader reader;
+    private PrintWriter writer;
+    private Socket sock;
+    private NetworkSetUp networkSetUp;
 
-	public SimpleChatClient() {
-		super("Client");
+    public SimpleChatClient() {
+        super("Client");
 
-		// Set default close operation for JFrame
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        // Set default close operation for JFrame
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		// Set JFrame size
-		setSize(500, 500);
+        // Set JFrame size
+        setSize(500, 500);
 
-		// Make JFrame visible
-		setVisible(true);
+        // Make JFrame visible
+        setVisible(true);
 
-		this.setLayout(null);
+        this.setLayout(null);
 
-		in = new TextArea();
-		out = new TextArea();
-		userName = new TextField();
+        in = new TextArea();
+        out = new TextArea();
+        userName = new TextField();
 
-		in.addKeyListener(new KeyListener() {
+        in.addKeyListener(new KeyListener() {
 
-			@Override
-			public void keyTyped(KeyEvent arg0) {
-				// TODO Auto-generated method stub
+            @Override
+            public void keyTyped(KeyEvent arg0) {
+                // TODO Auto-generated method stub
 
-			}
+            }
 
-			@Override
-			public void keyReleased(KeyEvent arg0) {
-				// TODO Auto-generated method stub
+            @Override
+            public void keyReleased(KeyEvent arg0) {
+                // TODO Auto-generated method stub
 
-			}
+            }
 
-			@Override
-			public void keyPressed(KeyEvent arg0) {
-				if (arg0.getKeyCode() == KeyEvent.VK_ENTER) {
-					writer.println(userName.getText() + " : " + in.getText());
-					writer.flush();
-					in.setText("");
-					in.requestFocus();
-				}
-			}
-		});
-		this.add(in);
-		this.add(out);
-		this.add(userName);
+            @Override
+            public void keyPressed(KeyEvent arg0) {
+                if (arg0.getKeyCode() == KeyEvent.VK_ENTER) {
+                    writer.println(userName.getText() + " : " + in.getText());
+                    writer.flush();
+                    in.setText("");
+                    in.requestFocus();
+                }
+            }
+        });
+        this.add(in);
+        this.add(out);
+        this.add(userName);
 
-		wChanged = this.getWidth();
-		hChanged = this.getHeight();
+        wChanged = this.getWidth();
+        hChanged = this.getHeight();
 
-		in.setBounds(wChanged / 10, (6 * hChanged) / 10, (7 * wChanged) / 10,
-				(3 * hChanged) / 10);
-		out.setBounds(wChanged / 10, (hChanged) / 10, (75 * wChanged) / 100,
-				(4 * hChanged) / 10);
-		userName.setBounds(7 * wChanged / 10, (3 * hChanged) / 100,
-				(15 * wChanged) / 100, (5 * hChanged) / 100);
+        in.setBounds(wChanged / 10, (6 * hChanged) / 10, (7 * wChanged) / 10,
+                (3 * hChanged) / 10);
+        out.setBounds(wChanged / 10, (hChanged) / 10, (75 * wChanged) / 100,
+                (4 * hChanged) / 10);
+        userName.setBounds(7 * wChanged / 10, (3 * hChanged) / 100,
+                (15 * wChanged) / 100, (5 * hChanged) / 100);
 
-		userName.setText("User Name X");
+        userName.setText("User Name X");
+    }
 
-		go();
-	}
+    public static void main(String args[]) {
+        String option = "";
+        if (args.length > 0) {
+            option += args[0];
+        }
+        NetworkSetUp networkSetUp;
+        SimpleChatClient chat = new SimpleChatClient();
+        switch (option) {
+            case "home":
+                networkSetUp = chat.new HomeSetUp();
+                break;
+            case "tecnico":
+                networkSetUp = chat.new TecnicoSetup();
+                break;
+            default:
+                networkSetUp = chat.new HomeSetUp();
+                break;
+        }
+        chat.go(networkSetUp);
+    }
 
-	public void paint(Graphics g) {
+    public void paint(Graphics g) {
 
-		if (Math.abs(wChanged - this.getWidth()) > 0
-				|| Math.abs(hChanged - this.getHeight()) > 0) {
-			wChanged = this.getWidth();
-			hChanged = this.getHeight();
+        if (Math.abs(wChanged - this.getWidth()) > 0
+                || Math.abs(hChanged - this.getHeight()) > 0) {
+            wChanged = this.getWidth();
+            hChanged = this.getHeight();
 
-			in.setBounds(wChanged / 10, (6 * hChanged) / 10,
-					(7 * wChanged) / 10, (3 * hChanged) / 10);
-			out.setBounds(wChanged / 10, (hChanged) / 10,
-					(75 * wChanged) / 100, (4 * hChanged) / 10);
-			userName.setBounds(7 * wChanged / 10, (3 * hChanged) / 100,
-					(15 * wChanged) / 100, (5 * hChanged) / 100);
+            in.setBounds(wChanged / 10, (6 * hChanged) / 10,
+                    (7 * wChanged) / 10, (3 * hChanged) / 10);
+            out.setBounds(wChanged / 10, (hChanged) / 10,
+                    (75 * wChanged) / 100, (4 * hChanged) / 10);
+            userName.setBounds(7 * wChanged / 10, (3 * hChanged) / 100,
+                    (15 * wChanged) / 100, (5 * hChanged) / 100);
 
-		}
-		update(g);
-	}
+        }
+        update(g);
+    }
 
-	public void update(Graphics g) {
-		g.clearRect(0, 0, wChanged, hChanged);
-		g.drawString("chat", wChanged / 10, (12 * hChanged) / 100);
-		g.drawString("input", wChanged / 10, (63 * hChanged) / 100);
-	}
+    public void update(Graphics g) {
+        g.clearRect(0, 0, wChanged, hChanged);
+        g.drawString("chat", wChanged / 10, (12 * hChanged) / 100);
+        g.drawString("input", wChanged / 10, (63 * hChanged) / 100);
+    }
 
-	public class ServerReader implements Runnable {
+    public void go(NetworkSetUp networkSetUp) {
+        networkSetUp.setUpNetwork();
+        Thread t = new Thread(new ServerReader());
+        t.start();
+    }
 
-		public ServerReader() {
-		}
+    private interface NetworkSetUp {
+        void setUpNetwork();
+    }
 
-		@Override
-		public void run() {
-			String message;
-			try {
-				while ((message = reader.readLine()) != null) {
-					out.append(message + "\n");
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+    public class ServerReader implements Runnable {
 
-	}
+        public ServerReader() {
+        }
 
-	public void go() {
-		setUpNetwork();
-		Thread t = new Thread(new ServerReader());
-		t.start();
-	}
+        @Override
+        public void run() {
+            String message;
+            try {
+                while ((message = reader.readLine()) != null) {
+                    out.append(message + "\n");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
-	public void setUpNetwork() {
-		boolean foundConnect = false;
-		int lastIPNumber = 100;
-		out.setText("loading connection\n");
-		while (!foundConnect) {
-			try {
-				String ip = "193.136.128."+lastIPNumber;
-				sock = new Socket(ip, 5000);
-				reader = new BufferedReader(new InputStreamReader(
-						sock.getInputStream()));
-				writer = new PrintWriter(sock.getOutputStream());
-				foundConnect = true;
-				out.setText("found connection\n");
+    }
 
-			} catch (Exception e) {
-				e.printStackTrace();
-				lastIPNumber++;
-			}
-		}
-	}
+    private class TecnicoSetup implements NetworkSetUp {
 
-	public static void main(String args[]) {
-		SimpleChatClient chat = new SimpleChatClient();
-	}
+        @Override
+        public void setUpNetwork() {
+            boolean foundConnect = false;
+            int lastIPNumber = 100;
+            out.setText("loading connection\n");
+            while (!foundConnect) {
+                try {
+                    String ip = "193.136.128." + lastIPNumber;
+                    sock = new Socket(ip, 5000);
+                    reader = new BufferedReader(new InputStreamReader(
+                            sock.getInputStream()));
+                    writer = new PrintWriter(sock.getOutputStream());
+                    foundConnect = true;
+                    out.setText("found connection\n");
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    lastIPNumber++;
+                }
+            }
+        }
+    }
+
+    private class HomeSetUp implements NetworkSetUp {
+
+        @Override
+        public void setUpNetwork() {
+            boolean foundConnect = false;
+            int lastIPNumber = 1;
+            String localHost = "";
+            try {
+                localHost += Inet4Address.getLocalHost().getHostAddress();
+            } catch (UnknownHostException e) {
+                System.out.println("LocalHost not found");
+                e.printStackTrace();
+            }
+            String[] ipNumbers = localHost.split("\\.");
+            out.setText("loading connection\n");
+            while (!foundConnect) {
+                try {
+                    String ip = ipNumbers[0] + "." + ipNumbers[1] + "." + ipNumbers[2] + "." + lastIPNumber;
+                    System.out.println(ip);
+                    sock = new Socket(ip, 5000);
+                    reader = new BufferedReader(new InputStreamReader(
+                            sock.getInputStream()));
+                    writer = new PrintWriter(sock.getOutputStream());
+                    foundConnect = true;
+                    out.setText("found connection\n");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    lastIPNumber++;
+                }
+            }
+        }
+    }
 }
