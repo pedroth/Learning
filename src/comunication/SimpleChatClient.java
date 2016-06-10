@@ -7,13 +7,12 @@ import java.awt.event.KeyListener;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.Inet4Address;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 public class SimpleChatClient extends JFrame {
 
     private static final long serialVersionUID = 1L;
+    private static final int PORT = 5000;
     private int wChanged, hChanged;
     private TextArea in, out;
     private TextField userName;
@@ -96,7 +95,7 @@ public class SimpleChatClient extends JFrame {
                 networkSetUp = chat.new TecnicoSetup();
                 break;
             default:
-                networkSetUp = chat.new HomeSetUp();
+                networkSetUp = chat.new WorldSetUp();
                 break;
         }
         chat.go(networkSetUp);
@@ -165,7 +164,7 @@ public class SimpleChatClient extends JFrame {
             while (!foundConnect) {
                 try {
                     String ip = "193.136.128." + lastIPNumber;
-                    sock = new Socket(ip, 5000);
+                    sock = new Socket(ip, PORT);
                     reader = new BufferedReader(new InputStreamReader(
                             sock.getInputStream()));
                     writer = new PrintWriter(sock.getOutputStream());
@@ -180,34 +179,45 @@ public class SimpleChatClient extends JFrame {
         }
     }
 
+    private class WorldSetUp implements NetworkSetUp {
+
+        @Override
+        public void setUpNetwork() {
+            out.setText("loading connection\n");
+            try {
+                String ip = "pedroth.ddns.net";
+                System.out.println(ip);
+                sock = new Socket(ip, PORT);
+                reader = new BufferedReader(new InputStreamReader(
+                        sock.getInputStream()));
+                writer = new PrintWriter(sock.getOutputStream());
+                out.setText("found connection\n");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private class HomeSetUp implements NetworkSetUp {
 
         @Override
         public void setUpNetwork() {
             boolean foundConnect = false;
-            int lastIPNumber = 1;
-            String localHost = "";
-            try {
-                localHost += Inet4Address.getLocalHost().getHostAddress();
-            } catch (UnknownHostException e) {
-                System.out.println("LocalHost not found");
-                e.printStackTrace();
-            }
-            String[] ipNumbers = localHost.split("\\.");
             out.setText("loading connection\n");
+            int lastIP = 1;
             while (!foundConnect) {
                 try {
-                    String ip = ipNumbers[0] + "." + ipNumbers[1] + "." + ipNumbers[2] + "." + lastIPNumber;
+                    String ip = "192.168.1." + lastIP;
                     System.out.println(ip);
-                    sock = new Socket(ip, 5000);
+                    sock = new Socket(ip, PORT);
                     reader = new BufferedReader(new InputStreamReader(
                             sock.getInputStream()));
                     writer = new PrintWriter(sock.getOutputStream());
                     foundConnect = true;
                     out.setText("found connection\n");
                 } catch (Exception e) {
+                    lastIP++;
                     e.printStackTrace();
-                    lastIPNumber++;
                 }
             }
         }
