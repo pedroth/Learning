@@ -159,7 +159,7 @@ public class SimpleWebServer {
 
                 if (split.length > 1 && "GET".equals(split[0])) {
                     String address = split[1].substring(1);
-                    File file = new File("C:/pedro/visualExperiments/other/" + address);
+                    File file = new File(address);
 
                     String fileName = file.getName();
                     System.out.println("Out:\t" + fileName);
