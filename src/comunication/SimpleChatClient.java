@@ -199,15 +199,21 @@ public class SimpleChatClient extends JFrame {
     }
 
     private class HomeSetUp implements NetworkSetUp {
+        private static final int MAX_IP = 255;
+        private static final int MAX_IP_SQUARE = 65025;
 
         @Override
         public void setUpNetwork() {
             boolean foundConnect = false;
             out.setText("loading connection\n");
             int lastIP = 1;
+            int lastLastIP = 1;
             while (!foundConnect) {
                 try {
-                    String ip = "192.168.1." + lastIP;
+                    int maxIpPlusOne = MAX_IP + 1;
+                    int llStr = (lastLastIP % maxIpPlusOne) == 0 ? 1 : lastLastIP % maxIpPlusOne;
+                    int lStr = (lastIP % maxIpPlusOne) == 0 ? 1 : lastIP % maxIpPlusOne;
+                    String ip = "192.168." + llStr + "." + lStr;
                     System.out.println(ip);
                     sock = new Socket(ip, PORT);
                     reader = new BufferedReader(new InputStreamReader(
@@ -216,7 +222,13 @@ public class SimpleChatClient extends JFrame {
                     foundConnect = true;
                     out.setText("found connection\n");
                 } catch (Exception e) {
+                    if (lastIP > MAX_IP_SQUARE) {
+                        out.setText("No Ip found");
+                        break;
+                    }
                     lastIP++;
+                    int ratio = lastIP / MAX_IP;
+                    lastLastIP = ratio == 0 ? 1 : ratio;
                     e.printStackTrace();
                 }
             }
