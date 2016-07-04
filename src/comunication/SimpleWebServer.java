@@ -155,6 +155,7 @@ public class SimpleWebServer {
         public void action(String message) {
             try {
                 String[] split = message.split(" ");
+                clientSocket.setSoTimeout(30000);
                 BufferedOutputStream out = new BufferedOutputStream(clientSocket.getOutputStream());
 
                 if (split.length > 1 && "GET".equals(split[0])) {
