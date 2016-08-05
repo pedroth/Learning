@@ -38,8 +38,6 @@ public abstract class Element {
 		this.color = color;
 		if(colorPoint == null) {
 			colorPoint = new Color[nPoints];
-		}else {
-			return;
 		}
 		for (int i = 0; i < colorPoint.length; i++) {
 			colorPoint[i] = color;

@@ -599,11 +599,12 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 	
 	private static void test6(Graph3DFrame frame) {
 //		ObjParser obj = new ObjParser("http://graphics.stanford.edu/~mdfisher/Data/Meshes/bunny.obj");
-//		ObjParser obj = new ObjParser("C:/Users/pedro/Desktop/Line.obj");
+		ObjParser obj = new ObjParser("C:/Users/Pedroth/Desktop/Kakashi.obj");
 //		ObjParser obj = new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/Lara_Croft.obj?attredirects=0&d=1");
 //		ObjParser obj = new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/Sonic.obj?attredirects=0&d=1");
-		ObjParser obj = new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/bunny.texture.obj?attredirects=0&d=1");
-		
+//		ObjParser obj = new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/bunny.texture.obj?attredirects=0&d=1");
+//		ObjParser obj = new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/bunny.texture.obj?attredirects=0&d=1");
+
 		Composite c = obj.parse();
 		double scale = 1;
 		double[][] m = {{scale,0,0},{0,scale,0},{0,0,scale}};
@@ -647,9 +648,9 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 	public static void main(String[] args) {
 		Graph3DFrame frame = new Graph3DFrame("figure 1");
 
-		MyImage kakashi = new MyImage(
-				"https://92c3cb5a-a-62cb3a1a-s-sites.googlegroups.com/site/ibplanalto2010/Home/kakashi46-3459488_50_50%5B1%5D.jpg?attachauth=ANoY7cp6kFZ2u7lOyL3KJqDYkzI_jmNGeoLsCE29u25IlE23i8Bgqx-4UsNUTkE4Mh7vBQpKPe107E_-PLAOywT34dv8cW9_r9WV0uOZ8p26uBT4rusztcGEh9wkuZ2QI0f-loBiB4pmzo_3NKMrC0CPbRvHHiwa_vT2wVEjZiWh7fZ9XlUjC6vrCVvNOtnmgsnSd-WjjbZqO-q6jSPBFw1zyyaa8uzcAKExLodMjCR40cjjmDComqp1JMNpKJoE1iTDgXQDWFzU&attredirects=0");
-		
+//		MyImage kakashi = new MyImage("https://92c3cb5a-a-62cb3a1a-s-sites.googlegroups.com/site/ibplanalto2010/Home/kakashi46-3459488_50_50%5B1%5D.jpg?attachauth=ANoY7cp6kFZ2u7lOyL3KJqDYkzI_jmNGeoLsCE29u25IlE23i8Bgqx-4UsNUTkE4Mh7vBQpKPe107E_-PLAOywT34dv8cW9_r9WV0uOZ8p26uBT4rusztcGEh9wkuZ2QI0f-loBiB4pmzo_3NKMrC0CPbRvHHiwa_vT2wVEjZiWh7fZ9XlUjC6vrCVvNOtnmgsnSd-WjjbZqO-q6jSPBFw1zyyaa8uzcAKExLodMjCR40cjjmDComqp1JMNpKJoE1iTDgXQDWFzU&attredirects=0");
+		MyImage kakashi = new MyImage("C:/Users/Pedroth/Downloads/debug.png");
+
 //		test1(kakashi,frame);
 		
 //		test2(kakashi,frame);
