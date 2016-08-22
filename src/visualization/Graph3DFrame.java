@@ -74,7 +74,7 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 	/**
 	 * shader
 	 */
-	private FlatShader shader;
+	private PaintMethod shader;
 	private WiredPrespective wiredShader;
 	/**
 	 * time variables
@@ -119,10 +119,11 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 		graphics = new TriWin();
 		wd = graphics.getBuffer();
 		wiredShader = new WiredPrespective();
-		shader = new FlatShader();
-		shader.setAmbientLightParameter(0.5);
-		shader.setShininess(25);
-		shader.addLightPoint(new TriVector(3, 3, 3));
+		FlatShader flatShader = new FlatShader();
+		flatShader.setAmbientLightParameter(0.5);
+		flatShader.setShininess(25);
+		flatShader.addLightPoint(new TriVector(3, 3, 3));
+		shader = flatShader;
 		graphics.setMethod(shader);
 		wd.setBackGroundColor(Color.black);
 
@@ -599,11 +600,10 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 	
 	private static void test6(Graph3DFrame frame) {
 //		ObjParser obj = new ObjParser("http://graphics.stanford.edu/~mdfisher/Data/Meshes/bunny.obj");
-		ObjParser obj = new ObjParser("C:/Users/Pedroth/Desktop/Kakashi.obj");
+//		ObjParser obj = new ObjParser("C:/Users/Pedroth/Desktop/Kakashi.obj");
 //		ObjParser obj = new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/Lara_Croft.obj?attredirects=0&d=1");
 //		ObjParser obj = new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/Sonic.obj?attredirects=0&d=1");
-//		ObjParser obj = new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/bunny.texture.obj?attredirects=0&d=1");
-//		ObjParser obj = new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/bunny.texture.obj?attredirects=0&d=1");
+		ObjParser obj = new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/bunny.texture.obj?attredirects=0&d=1");
 
 		Composite c = obj.parse();
 		double scale = 1;
@@ -612,8 +612,9 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 		frame.addElement(c);
 		frame.raw.setX(1.0);
 		frame.focalPoint = c.centroid();
-		frame.shader.setCullBack(true);
-		frame.shader.addLightPoint(new TriVector(-3, 3, -3));
+//		frame.shader.setCullBack(true);
+		frame.setShader(new ZbufferShader());
+//		frame.shader.addLightPoint(new TriVector(-3, 3, -3));
 	}
 	
 	private static void test7(Graph3DFrame frame) {
