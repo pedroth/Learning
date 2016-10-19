@@ -197,7 +197,6 @@ public class Cube extends JFrame implements MouseListener, MouseMotionListener,
 		@Override
 		public void run() {
 			computeParticlesPosition(dt);
-			;
 		}
 
 		private void computeParticlesPosition(double dt) {

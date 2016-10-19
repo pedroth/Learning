@@ -34,31 +34,29 @@ public class nthDerivative {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-		Double x;
-		
-		while (true) {
-			System.out.println("derivada de ?");
-			try {
-				x = Double.parseDouble(in.readLine());
-				break;
-			} catch (NumberFormatException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				continue;
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				continue;
-			}
-		}
-		
-		Double y =((((f(x + dx + dx) - f(x + dx)) / dx ) - ((f(x + dx) - f(x)) / dx )) / dx );
-		for(int i = 1; i < 11 ; i++) {
-			System.out.println(nthDerivativeFunction(x,i));
-			System.out.println(nthDerivativeFunctionString("x",i));
-		}
+//		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+//		Double x;
+//
+//		while (true) {
+//			System.out.println("derivada de ?");
+//			try {
+//				x = Double.parseDouble(in.readLine());
+//				break;
+//			} catch (NumberFormatException e) {
+//				e.printStackTrace();
+//				continue;
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//				continue;
+//			}
+//		}
+//
+//		Double y =((((f(x + dx + dx) - f(x + dx)) / dx ) - ((f(x + dx) - f(x)) / dx )) / dx );
+//		for(int i = 1; i < 11 ; i++) {
+//			System.out.println(nthDerivativeFunction(x,i));
+//			System.out.println(nthDerivativeFunctionString("x",i));
+//		}
+		System.out.println(nthDerivativeFunctionString("X", 3));
 	}
 
 }

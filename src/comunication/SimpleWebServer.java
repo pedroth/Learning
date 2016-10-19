@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SimpleWebServer {
-    public static final int PORT = 80;
+    public static final int PORT = 8000;
     private static int nextID = 0;
     private Map<Integer, Socket> clientById;
 
@@ -41,7 +41,7 @@ public class SimpleWebServer {
                 clientHandler.setClientSocket(clientSocket);
                 Thread t = new Thread(clientHandler);
                 t.start();
-                System.out.println("got connection");
+                System.out.println("got connection: " + clientSocket.getInetAddress().toString());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -153,12 +153,13 @@ public class SimpleWebServer {
 
         @Override
         public void action(String message) {
+            boolean somethingWrongFlag = false;
             try {
                 String[] split = message.split(" ");
                 clientSocket.setSoTimeout(30000);
                 BufferedOutputStream out = new BufferedOutputStream(clientSocket.getOutputStream());
 
-                if (split.length > 1 && "GET".equals(split[0])) {
+                if (split.length > 1 && "GET".equals(split[0]) && !split[1].substring(1).isEmpty()) {
                     String address = split[1].substring(1);
                     File file = new File(address);
 
