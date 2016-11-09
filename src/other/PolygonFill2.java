@@ -97,8 +97,8 @@ public class PolygonFill2 extends JFrame implements MouseListener, KeyListener {
 			int root =(int) Math.floor(Math.sqrt(area));
 			for(int i = 0; i < area;  i++) { 
 				g.setColor(Color.blue);
-//				int[] v = RandomPointOnPoly2();
-				int[] v = RandomPointOnPoly();
+				int[] v = RandomPointOnPoly2();
+//				int[] v = RandomPointOnPoly();
 //				int[] v = pointOnDistribution(i % root,i / root, root);
 //				int[] v = RandomPointOnPoly3();
 				g.drawLine(v[0], v[1], v[0], v[1]);
