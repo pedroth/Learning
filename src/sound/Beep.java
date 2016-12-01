@@ -12,7 +12,7 @@ class Beep {
 		int nChannel = 1; // number of channel : 1 or 2
 
 		// samples per second
-		float sampleRate = 16000; // valid:8000,11025,16000,22050,44100
+		float sampleRate = 44100; // valid:8000,11025,16000,22050,44100
 		int nBit = 16; // 8 bit or 16 bit sample
 
 		int bytesPerSample = nChannel * nBit / 8;
@@ -67,8 +67,8 @@ class Beep {
 	}
 
 	public static void main(String[] args) throws Exception {
-		int frequency = 500; // hz
-		int duration = 10000; // milliseconds
+		int frequency = 16000; // hz
+		int duration = 100000; // milliseconds
 		beep(frequency, duration);
 	}
 }
