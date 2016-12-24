@@ -8,7 +8,7 @@ public class InterpolativeShader extends ZBufferPrespective {
 		/**
 		 * very ugly code but it is faster unfortunately
 		 */
-		
+
 		int vx = (int) (intBuffer[1].getX() - intBuffer[0].getX());
 		int vy = (int) (intBuffer[1].getY() - intBuffer[0].getY());
 		int ux = (int) (intBuffer[2].getX() - intBuffer[0].getX());
@@ -23,49 +23,21 @@ public class InterpolativeShader extends ZBufferPrespective {
 		float alfa = 1.0f * (uy * px - py * ux) / det;
 		float beta = 1.0f * (-vy * px + vx * py) / det;
 		float gama = 1.0f - alfa - beta;
-		
+
 		barycentric[0] = gama;
 		barycentric[1] = alfa;
 		barycentric[2] = beta;
-		
-		float[] rgb;
-		float[] ans = new float[3];
-		
-		Color colorPoint = e.getColorPoint(0);
-		rgb = colorPoint.getRGBComponents(null);
-		rgb[0] = barycentric[0] * rgb[0];
-		rgb[1] = barycentric[0] * rgb[1];
-		rgb[2] = barycentric[0] * rgb[2];
-		ans[0] += rgb[0];
-		ans[1] += rgb[1];
-		ans[2] += rgb[2];
-		
-		colorPoint = e.getColorPoint(1);
-		rgb = colorPoint.getRGBComponents(null);
-		rgb[0] = barycentric[1] * rgb[0];
-		rgb[1] = barycentric[1] * rgb[1];
-		rgb[2] = barycentric[1] * rgb[2];
-		ans[0] += rgb[0];
-		ans[1] += rgb[1];
-		ans[2] += rgb[2];
-		
-		colorPoint = e.getColorPoint(2);
-		rgb = colorPoint.getRGBComponents(null);
-		rgb[0] = barycentric[2] * rgb[0];
-		rgb[1] = barycentric[2] * rgb[1];
-		rgb[2] = barycentric[2] * rgb[2];
-		ans[0] += rgb[0];
-		ans[1] += rgb[1];
-		ans[2] += rgb[2];
-		
-		ans[0] = Math.min(ans[0], 1.0f);
-		ans[1] = Math.min(ans[1], 1.0f);
-		ans[2] = Math.min(ans[2], 1.0f);
-		
-		ans[0] = Math.max(ans[0], 0.0f);
-		ans[1] = Math.max(ans[1], 0.0f);
-		ans[2] = Math.max(ans[2], 0.0f);
-		
-		return new Color(ans[0],ans[1],ans[2]);
+
+		float[] acc = new float[3];
+		float[] colorPoint0 = e.getColorPoint(0).getRGBColorComponents(null);
+		float[] colorPoint1 = e.getColorPoint(1).getRGBColorComponents(null);
+		float[] colorPoint2 = e.getColorPoint(2).getRGBColorComponents(null);
+
+		acc[0] += Math.max(0.0, Math.min(1.0, colorPoint0[0] * barycentric[0] + colorPoint1[0] * barycentric[1] + colorPoint2[0] * barycentric[2]));
+		acc[1] += Math.max(0.0, Math.min(1.0, colorPoint0[1] * barycentric[0] + colorPoint1[1] * barycentric[1] + colorPoint2[1] * barycentric[2]));
+		acc[2] += Math.max(0.0, Math.min(1.0, colorPoint0[2] * barycentric[0] + colorPoint1[2] * barycentric[1] + colorPoint2[2] * barycentric[2]));
+
+
+		return new Color(acc[0],acc[1],acc[2]);
 	}
 }

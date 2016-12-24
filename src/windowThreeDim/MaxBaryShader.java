@@ -37,9 +37,9 @@ public class MaxBaryShader extends ZBufferPrespective {
 			}
 		} else {
 			if(barycentric[1] >= barycentric[2]) {
-				ans = e.getColorPoint(1).getColorComponents(null);
+				ans = e.getColorPoint(1).getRGBColorComponents(null);
 			}else {
-				ans = e.getColorPoint(2).getColorComponents(null);
+				ans = e.getColorPoint(2).getRGBColorComponents(null);
 			}
 		}
 		

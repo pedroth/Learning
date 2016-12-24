@@ -2,13 +2,7 @@ package apps;
 
 import inputOutput.MyImage;
 
-import java.awt.Button;
-import java.awt.Choice;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.GridLayout;
-import java.awt.Label;
-import java.awt.TextField;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -79,7 +73,7 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
 	private TextField functionAcc;
 	private Button animate;
 	private Button zoomFit;
-	private JPanel panel;
+	private Panel panel;
 	private Label accVelTextLabel;
 	/**
 	 * to check the need to add UI on the JFrame
@@ -227,7 +221,7 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
 		/*
 		 * UI crap initialization.
 		 */
-		panel = new JPanel();
+		panel = new Panel();
 		functionString = new TextField();
 		xMinTxt = new TextField();
 		xMaxTxt = new TextField();
@@ -332,56 +326,54 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
 	 */
 	public void processLayout() {
 		int border = 70;
-		if (panel.getGraphics() != null)
-			panel.getGraphics().clearRect(0, 0, panel.getWidth(), panel.getHeight());
-		
+
 		if (init) {
 			panel.setLayout(new GridLayout(20, 1));
-			JPanel functionPanel = new JPanel();
+			Panel functionPanel = new Panel();
 			functionPanel.setLayout(new GridLayout(1, 2));
 			functionPanel.add(new Label("F(x,y)"));
 			functionPanel.add(functionString);
 			panel.add(functionPanel);
-			JPanel intervalPanelX = new JPanel();
+			Panel intervalPanelX = new Panel();
 			intervalPanelX.setLayout(new GridLayout(1, 2));
 			intervalPanelX.add(new Label("xmin"));
 			intervalPanelX.add(new Label("xmax"));
 			panel.add(intervalPanelX);
-			JPanel intervalPanelXValue = new JPanel();
+			Panel intervalPanelXValue = new Panel();
 			intervalPanelXValue.setLayout(new GridLayout(1, 2));
 			intervalPanelXValue.add(xMinTxt);
 			intervalPanelXValue.add(xMaxTxt);
 			panel.add(intervalPanelXValue);
-			JPanel intervalPanelY = new JPanel();
+			Panel intervalPanelY = new Panel();
 			intervalPanelY.setLayout(new GridLayout(1, 2));
 			intervalPanelY.add(new Label("ymin"));
 			intervalPanelY.add(new Label("ymax"));
 			panel.add(intervalPanelY);
-			JPanel intervalPanelYValue = new JPanel();
+			Panel intervalPanelYValue = new Panel();
 			intervalPanelYValue.setLayout(new GridLayout(1, 2));
 			intervalPanelYValue.add(yMinTxt);
 			intervalPanelYValue.add(yMaxTxt);
 			panel.add(intervalPanelYValue);
-			JPanel stepPanel = new JPanel();
+			Panel stepPanel = new Panel();
 			stepPanel.setLayout(new GridLayout(1, 2));
 			stepPanel.add(new Label("X\\Y step"));
 			stepPanel.add(stepTxt);
 			panel.add(stepPanel);
-			JPanel drawButtonPanel = new JPanel();
+			Panel drawButtonPanel = new Panel();
 			drawButtonPanel.setLayout(new GridLayout(1, 2));
 			drawButtonPanel.add(new Label(""));
 			drawButtonPanel.add(drawButton);
 			panel.add(drawButtonPanel);
-			JPanel comboBoxPanel = new JPanel();
+			Panel comboBoxPanel = new Panel();
 			comboBoxPanel.setLayout(new GridLayout(1, 2));
 			comboBoxPanel.add(comboBox);
 			comboBoxPanel.add(new Label(""));
 			panel.add(comboBoxPanel);
-			JPanel paux = new JPanel();
+			Panel paux = new Panel();
 			panel.add(paux.add(accVelTextLabel));
 			panel.add(functionAcc);
 			panel.add(functionVel);
-			JPanel animationButtonPanel = new JPanel();
+			Panel animationButtonPanel = new Panel();
 			animationButtonPanel.setLayout(new GridLayout(1, 2));
 			animationButtonPanel.add(animate);
 			animationButtonPanel.add(zoomFit);
@@ -421,6 +413,12 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
 		} else {
 			accVelTextLabel.setText("dF/dt = G(f(x,y),dx(x,y),dy(x,y),d2x(x,y),d2y(x,y),d2xy(x,y),t,x,y)");
 		}
+
+		if (panel.getGraphics() != null) {
+			panel.getGraphics().clearRect(0, 0, panel.getWidth(), panel.getHeight());
+			panel.repaint();
+		}
+
 	}
 
 	class Euler {
@@ -557,7 +555,7 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
 		try {
 			exprFunction.init();
 		} catch (SyntaxErrorException e) {
-			JOptionPane.showMessageDialog(null, "there is a syntax error in the formula, pls change the formula." + String.format("%n") + " try to use more brackets, try not to cocatenate 2*x^2 as 2x2." + String.format("%n") + "check also for simple errors like 1/*2.");
+			JOptionPane.showMessageDialog(null, "there is a syntax error in the formula, pls change the formula." + String.format("%n") + " try to use more brackets, try not to concatenate 2*x^2 as 2x2." + String.format("%n") + "check also for simple errors like 1/*2.");
 		}
 		nx = Math.abs(xmax - xmin) / (step);
 		ny = Math.abs(ymax - ymin) / (step);
@@ -805,7 +803,7 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
 		try {
 			velEquation.init();
 		} catch (SyntaxErrorException e) {
-			JOptionPane.showMessageDialog(null, "there is a syntax error in the formula, pls change the formula." + String.format("%n") + " try to use more brackets, try not to cocatenate 2*x^2 as 2x2." + String.format("%n") + "check also for simple errors like 1/*2.");
+			JOptionPane.showMessageDialog(null, "there is a syntax error in the formula, pls change the formula." + String.format("%n") + " try to use more brackets, try not to concatenate 2*x^2 as 2x2." + String.format("%n") + "check also for simple errors like 1/*2.");
 		}
 		double nx = Math.abs(xmax - xmin) / (step);
 		double ny = Math.abs(ymax - ymin) / (step);

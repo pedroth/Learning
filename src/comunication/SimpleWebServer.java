@@ -28,7 +28,7 @@ public class SimpleWebServer {
 
     public static void main(String[] args) {
         SimpleWebServer simpleWebServer = new SimpleWebServer();
-        simpleWebServer.go(simpleWebServer.new SimpleHttpHandler());
+        simpleWebServer.go(simpleWebServer.new ComplexHttpHandler());
     }
 
     public void go(ClientHandler clientHandler) {

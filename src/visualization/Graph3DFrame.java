@@ -180,7 +180,7 @@ public class Graph3DFrame extends JFrame implements MouseListener,
         /**
          * tests
          */
-        frame.setShader(new MaxBaryShader());
+        frame.setShader(new InterpolativeShader());
         Triangle tri = new Triangle(new TriVector(1, 0, 0), new TriVector(0, 1, 0), new TriVector(0, 0, 1));
         tri.setColorPoint(Color.red, 0);
         tri.setColorPoint(Color.green, 1);
@@ -203,9 +203,9 @@ public class Graph3DFrame extends JFrame implements MouseListener,
         frame.addElement(c);
         frame.raw.setX(1.0);
         frame.focalPoint = c.centroid();
-        FlatShader shader = new FlatShader();
+        ZbufferShader shader = new ZbufferShader();
         shader.setCullBack(true);
-        shader.addLightPoint(new TriVector(-3, 3, -3));
+//        shader.addLightPoint(new TriVector(-3, 3, -3));
         frame.setShader(shader);
     }
 
@@ -241,8 +241,7 @@ public class Graph3DFrame extends JFrame implements MouseListener,
     public static void main(String[] args) {
         Graph3DFrame frame = new Graph3DFrame("figure 1");
 
-//		MyImage kakashi = new MyImage("https://92c3cb5a-a-62cb3a1a-s-sites.googlegroups.com/site/ibplanalto2010/Home/kakashi46-3459488_50_50%5B1%5D.jpg?attachauth=ANoY7cp6kFZ2u7lOyL3KJqDYkzI_jmNGeoLsCE29u25IlE23i8Bgqx-4UsNUTkE4Mh7vBQpKPe107E_-PLAOywT34dv8cW9_r9WV0uOZ8p26uBT4rusztcGEh9wkuZ2QI0f-loBiB4pmzo_3NKMrC0CPbRvHHiwa_vT2wVEjZiWh7fZ9XlUjC6vrCVvNOtnmgsnSd-WjjbZqO-q6jSPBFw1zyyaa8uzcAKExLodMjCR40cjjmDComqp1JMNpKJoE1iTDgXQDWFzU&attredirects=0");
-//		MyImage kakashi = new MyImage("C:/Users/Pedroth/Downloads/debug.png");
+		MyImage kakashi = new MyImage("https://92c3cb5a-a-62cb3a1a-s-sites.googlegroups.com/site/ibplanalto2010/Home/kakashi46-3459488_50_50%5B1%5D.jpg?attachauth=ANoY7cp6kFZ2u7lOyL3KJqDYkzI_jmNGeoLsCE29u25IlE23i8Bgqx-4UsNUTkE4Mh7vBQpKPe107E_-PLAOywT34dv8cW9_r9WV0uOZ8p26uBT4rusztcGEh9wkuZ2QI0f-loBiB4pmzo_3NKMrC0CPbRvHHiwa_vT2wVEjZiWh7fZ9XlUjC6vrCVvNOtnmgsnSd-WjjbZqO-q6jSPBFw1zyyaa8uzcAKExLodMjCR40cjjmDComqp1JMNpKJoE1iTDgXQDWFzU&attredirects=0");
 
 //		test1(kakashi,frame);
 
@@ -252,9 +251,9 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 //
 //		test4(kakashi,frame);
 //
-//		test5(kakashi,frame);
+		test5(kakashi,frame);
 //
-        test6(frame);
+//        test6(frame);
 
 //		test7(frame);
 
