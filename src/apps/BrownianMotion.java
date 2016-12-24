@@ -24,7 +24,7 @@ public class BrownianMotion extends JFrame implements KeyListener {
      * diameter of circles
      */
     int r = 20;
-    double dumping = 0.25;
+    double damping = 0.25;
     double reflecDump = 0.25;
     /**
      * record the size of the window
@@ -190,7 +190,9 @@ public class BrownianMotion extends JFrame implements KeyListener {
 
         updateHistory();
         updateOvalPos(dt);
-        canvasGraphics.drawString("time(s) : " + time, 50, 70);
+        canvasGraphics.drawString("time(s) : " + time, 50, 80);
+        canvasGraphics.drawString("damping : " + damping, 50, 65);
+        
         /**
          * draw canvas on the window/JFrame
          *
@@ -277,8 +279,8 @@ public class BrownianMotion extends JFrame implements KeyListener {
         ny = ny / d;
         double dot = nx * vx[i] + ny * vy[i];
         double dot2 = -nx * vx[j] - ny * vy[j];
-        vx[i] = vx[i] - (2 - reflecDump) * dot * nx - dumping * dot2 * nx;
-        vy[i] = vy[i] - (2 - reflecDump) * dot * ny - dumping * dot2 * ny;
+        vx[i] = vx[i] - (2 - reflecDump) * dot * nx - damping * dot2 * nx;
+        vy[i] = vy[i] - (2 - reflecDump) * dot * ny - damping * dot2 * ny;
     }
 
     public double distance(int i, int j) {
@@ -313,17 +315,15 @@ public class BrownianMotion extends JFrame implements KeyListener {
         }
         if (e.getKeyCode() == KeyEvent.VK_W) {
             reflecDump += 0.01;
-            dumping += 0.01;
+            damping += 0.01;
             reflecDump = Math.min(1.0, reflecDump);
-            dumping = Math.min(1.0, dumping);
-            System.out.println(reflecDump);
+            damping = Math.min(1.0, damping);
         }
         if (e.getKeyCode() == KeyEvent.VK_S) {
             reflecDump -= 0.01;
-            dumping -= 0.01;
+            damping -= 0.01;
             reflecDump = Math.max(0.0, reflecDump);
-            dumping = Math.max(0.0, dumping);
-            System.out.println(reflecDump);
+            damping = Math.max(0.0, damping);
         }
 
         repaint();
