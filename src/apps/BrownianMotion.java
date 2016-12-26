@@ -19,7 +19,7 @@ import java.util.Random;
  *         You may encapsulate some of these function in a class.
  */
 public class BrownianMotion extends JFrame implements KeyListener {
-    private static String helpText = "< w > : increase collision damping \n\n < s > : decrease collision damping" + "< arrows > : add force to all particles \n\n" + "< + > : increase radius of particles \n\n" + "< - > : decrease radius of particles\n\n" + "Made by Pedroth";
+    private static String helpText = "< q > : add particle \n\n < a > : remove particle \n\n < w > : increase collision damping \n\n < s > : decrease collision damping" + "< arrows > : add force to all particles \n\n" + "< + > : increase radius of particles \n\n" + "< - > : decrease radius of particles\n\n" + "Made by Pedroth";
     /**
      * diameter of circles
      */
@@ -91,6 +91,10 @@ public class BrownianMotion extends JFrame implements KeyListener {
         oldTime = (System.currentTimeMillis()) * 1E-03;
         clearCanvasWithBackground();
         numParticles = 200;
+        initPositions();
+    }
+
+    private void initPositions() {
         /**
          * init position of oval
          */
@@ -316,14 +320,22 @@ public class BrownianMotion extends JFrame implements KeyListener {
         if (e.getKeyCode() == KeyEvent.VK_W) {
             reflecDump += 0.01;
             damping += 0.01;
-            reflecDump = Math.min(1.0, reflecDump);
-            damping = Math.min(1.0, damping);
+            reflecDump = Math.min(0.98, reflecDump);
+            damping = Math.min(0.98, damping);
         }
         if (e.getKeyCode() == KeyEvent.VK_S) {
             reflecDump -= 0.01;
             damping -= 0.01;
             reflecDump = Math.max(0.0, reflecDump);
             damping = Math.max(0.0, damping);
+        }
+        if (e.getKeyCode() == KeyEvent.VK_Q) {
+            numParticles++;
+            initPositions();
+        }
+        if (e.getKeyCode() == KeyEvent.VK_A) {
+            numParticles--;
+            initPositions();
         }
 
         repaint();
