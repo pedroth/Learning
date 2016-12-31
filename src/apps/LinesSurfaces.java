@@ -283,7 +283,7 @@ public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionL
 
 	/**
 	 * order does matter
-	 * 
+	 *
 	 * for instance you must draw background ,text, other stuff after the Jframe
 	 * components such as buttons textAreas, textFields, checkBoxs, etc...
 	 */
@@ -635,7 +635,7 @@ public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionL
 
 	/**
 	 * warning does not accept variables
-	 * 
+	 *
 	 * @param s
 	 *            string to be read.
 	 * @return computation of the expression in s
@@ -989,7 +989,7 @@ public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionL
 		                    null,
 		                    null,
 		                    null);
-		
+
 
 		if(!(s == null)) {
 			double step = numericRead(s);
@@ -1015,7 +1015,7 @@ public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionL
 		}
 		String objFile = "";
 		for (int i = 0; i < curve.length; i++) {
-			objFile += "v" + " " + curve[i].getX() + " " + curve[i].getY() + " " + curve[i].getZ() + "\n"; 
+			objFile += "v" + " " + curve[i].getX() + " " + curve[i].getY() + " " + curve[i].getZ() + "\n";
 		}
 		for (int i = 0; i < curve.length - 1; i++) {
 			objFile += "l" + " " + (i+1) + " " + (i+2) + "\n";
@@ -1040,7 +1040,7 @@ public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionL
 				surf[i][j] = new TriVector(x, y, z);
 			}
 		}
-		
+
 		String objFile = "";
 		for (int i = 0; i < numSamplesU; i++) {
 			for (int j = 0; j < numSamplesV; j++) {

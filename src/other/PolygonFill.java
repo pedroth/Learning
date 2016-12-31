@@ -79,7 +79,6 @@ public class PolygonFill extends JFrame implements MouseListener, KeyListener {
 
 	public void update(Graphics g) {
 		if (recursive) {
-			System.out.print("recursive");
 			floodFill(bImg);
 		} else {
 			paintComponent(bImg.getGraphics());
@@ -350,6 +349,7 @@ public class PolygonFill extends JFrame implements MouseListener, KeyListener {
 		g.fillOval(e.getX(), e.getY(), 6, 6);
 		if (SwingUtilities.isRightMouseButton(e)) {
 			recursive = !recursive;
+			System.out.println("isRecursive: " + recursive);
 		}
 		repaint();
 	}
@@ -362,7 +362,7 @@ public class PolygonFill extends JFrame implements MouseListener, KeyListener {
 	@Override
 	public void keyPressed(KeyEvent e) {
 		isBruteForce = !isBruteForce;
-
+		System.out.println("isBruteForce :" + isBruteForce);
 	}
 
 	@Override

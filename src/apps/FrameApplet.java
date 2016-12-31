@@ -1,13 +1,11 @@
 package apps;
 
-import java.applet.Applet;
-import java.awt.Graphics;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 
-import javax.swing.JFrame;
-
-public class FrameApplet extends Applet implements ComponentListener {
+public class FrameApplet extends JApplet implements ComponentListener {
 	/**
 	 * 
 	 */
