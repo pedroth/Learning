@@ -20,8 +20,8 @@ public class InterpolativeShader extends ZBufferPrespective {
 		 */
 		int det = vx * uy - vy * ux;
 		float[] barycentric = new float[e.nPoints];
-		float alfa = 1.0f * (uy * px - py * ux) / det;
-		float beta = 1.0f * (-vy * px + vx * py) / det;
+		float alfa = (1.0f * (uy * px - py * ux)) / det;
+		float beta = (1.0f * (-vy * px + vx * py)) / det;
 		float gama = 1.0f - alfa - beta;
 
 		barycentric[0] = gama;
