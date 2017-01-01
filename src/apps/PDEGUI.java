@@ -203,6 +203,7 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
             @Override
             public void itemStateChanged(ItemEvent arg0) {
                 processLayout();
+                comboBox.paint(comboBox.getGraphics());
             }
         });
         drawButton = new JButton("Draw");
@@ -219,14 +220,14 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
 
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                if (animate.getName() == "Animate") {
+                if (animate.getText() == "Animate") {
                     drawFunction = true;
                     graphics.removeAllElements();
                     isAnimating = true;
-                    animate.setName("Stop Animation");
+                    animate.setText("Stop Animation");
                 } else {
                     isAnimating = false;
-                    animate.setName("Animate");
+                    animate.setText("Animate");
                     time = 0;
                 }
             }
@@ -353,6 +354,7 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
 		 */
         wd.setWindowSize(border * wChanged / 100, hChanged);
         panel.setBounds(border * wChanged / 100, 0, (100 - border) * wChanged / 100, hChanged);
+
 		/*
 		 * Acceleration/Velocity
 		 */
@@ -765,7 +767,7 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
             hChanged = this.getHeight();
             processLayout();
         }
-        panel.update(g);
+        panel.paintAll(panel.getGraphics());
         update(g);
         //System.out.println(1.0 /((System.currentTimeMillis() - timeElapse) * 1E-3));
     }
