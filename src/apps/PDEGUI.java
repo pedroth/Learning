@@ -153,10 +153,9 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
          * Set JFrame title.
 		 */
         super("PDE");
-        /*
-         * set JFrame layout.
-		 */
+
         this.setLayout(null);
+
         /*
          * Begin Engine.
 		 */
@@ -168,12 +167,14 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
         isZBuffer = true;
         colorState = 0;
         drawAxis = false;
+
 		/*
 		 * Set default close operation for JFrame.
 		 */
         if (!isApplet) {
             setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         }
+
 		/*
 		 * Set JFrame size.
 		 */
@@ -203,7 +204,6 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
             @Override
             public void itemStateChanged(ItemEvent arg0) {
                 processLayout();
-                comboBox.paint(comboBox.getGraphics());
             }
         });
         drawButton = new JButton("Draw");
@@ -243,6 +243,9 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
         isZoomFit = false;
         init = true;
 
+        /*
+         * init camera values
+         */
         raw = 3;
         velocity = 0;
         acceleration = 0;
@@ -256,10 +259,12 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
 
         mRotation = 0;
         processLayout();
+
 		/*
 		 * Make JFrame visible.
 		 */
         setVisible(true);
+
 		/*
 		 * Add listeners.
 		 */
@@ -761,15 +766,13 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
     }
 
     public void paint(Graphics g) {
-        double timeElapse = System.currentTimeMillis();
         if (Math.abs(wChanged - this.getWidth()) > 0 || Math.abs(hChanged - this.getHeight()) > 0) {
             wChanged = this.getWidth();
             hChanged = this.getHeight();
             processLayout();
         }
-        panel.paintAll(panel.getGraphics());
+        panel.update(panel.getGraphics());
         update(g);
-        //System.out.println(1.0 /((System.currentTimeMillis() - timeElapse) * 1E-3));
     }
 
     public void update(Graphics g) {
