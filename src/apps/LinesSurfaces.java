@@ -1,18 +1,45 @@
 package apps;
 
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
+import java.util.Random;
+
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
 import algebra.Matrix;
 import algebra.TriVector;
 import functions.ExpressionFunction;
 import functions.SyntaxErrorException;
-import sun.java2d.Surface;
 import visualization.TextFrame;
 import window.ImageWindow;
-import windowThreeDim.*;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.Random;
+import windowThreeDim.Element;
+import windowThreeDim.FlatShader;
+import windowThreeDim.InterpolativeShader;
+import windowThreeDim.LevelSetShader;
+import windowThreeDim.Line;
+import windowThreeDim.Quad;
+import windowThreeDim.SquareZBuffer;
+import windowThreeDim.StringElement;
+import windowThreeDim.TriWin;
+import windowThreeDim.WiredPrespective;
 
 public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionListener, KeyListener, MouseWheelListener {
     private static String helpText = "< w > : Camera move foward / zoom in \n\n" + "< s > : Camera move backward /zoom out \n\n" + "< z > : Toggle wireframe / zbuffer \n\n" + "< n > : Toggle flat shading \n\n" + "< [1-3] > : change color of surface \n\n" + "< [4 - 7] > : various surfaces examples \n\n" + "< l > : rotating light mode \n\n" + "< 8 > : interpolative colors \n\n" + "< 9 > : level set shader\n\n" + "< Available functions > : sin ,cos, exp, ln, tan, acos, asin, atan, min, adding more \n\n" + "< operators > : +, - , *, ^ \n\n" + "< Available constants > : pi\n\n" + "< a > : draw Axis \n\n" + "< mouse > : rotate camera\n" + "---------------------------------------------------\n\n" + "< g > : generate obj file!!!\n\n" + "----------------------------------------------------\n\n" + "Made by Pedroth";

@@ -337,8 +337,6 @@ public class BrownianMotion extends JFrame implements KeyListener {
             numParticles--;
             initPositions();
         }
-
-        repaint();
     }
 
     @Override

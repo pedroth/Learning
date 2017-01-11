@@ -619,7 +619,6 @@ public class Robot extends JFrame implements MouseListener, MouseMotionListener,
 		}
 
 		orbit(theta, phi, focalPoint);
-		repaint();
 
 		mx = newMx;
 		my = newMy;

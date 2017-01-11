@@ -351,7 +351,6 @@ public class SimplePhysics extends JFrame implements MouseListener, KeyListener,
         wd.setWindowSize(wChanged, hChanged);
         wd.setBackGroundColor(Color.white);
         wd.clearImageWithBackGround();
-        repaint();
     }
 
     public class Euler extends TimerTask {

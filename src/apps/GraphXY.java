@@ -931,8 +931,6 @@ public class GraphXY extends JFrame implements MouseListener,
         phi += 2 * Math.PI * (dy / hChanged);
 
         orbit(theta, phi, focalPoint);
-        repaint();
-
         mx = newMx;
         my = newMy;
 

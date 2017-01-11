@@ -438,7 +438,6 @@ public class Cube extends JFrame implements MouseListener, MouseMotionListener,
 		phi += 2 * Math.PI * (dy / hChanged);
 
 		orbit(theta, phi);
-		repaint();
 
 		mx = newMx;
 		my = newMy;

@@ -928,7 +928,6 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
         phi += 2 * Math.PI * (dy / hChanged);
 
         orbit(theta, phi, focalPoint);
-        repaint();
 
         mx = newMx;
         my = newMy;

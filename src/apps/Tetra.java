@@ -11,7 +11,6 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.management.timer.TimerMBean;
 import javax.swing.JFrame;
 
 import visualization.TextFrame;
@@ -19,9 +18,6 @@ import window.ImageWindow;
 import windowThreeDim.Element;
 import windowThreeDim.PaintMethod;
 import windowThreeDim.Quad;
-import windowThreeDim.SamplingZbuffer;
-import windowThreeDim.FlatShader;
-import windowThreeDim.SquareZBuffer;
 import windowThreeDim.TriWin;
 import windowThreeDim.Triangle;
 import windowThreeDim.WiredPrespective;
@@ -33,7 +29,7 @@ import algebra.TriVector;
 public class Tetra extends JFrame implements MouseListener,
 		MouseMotionListener, KeyListener {
 	/**
-* 
+*
 */
 	private static final long serialVersionUID = 1L;
 	private int wChanged, hChanged;
@@ -43,7 +39,7 @@ public class Tetra extends JFrame implements MouseListener,
 	private int mx, my, newMx, newMy;
 	private double raw;
 	private double velocity;
-	private double accelaration;
+	private double acceleration;
 	private double oldTime;
 	private double currentTime;
 	private Timer timer;
@@ -51,7 +47,7 @@ public class Tetra extends JFrame implements MouseListener,
 	private boolean zBufferOn;
 	private PaintMethod paint;
 	private FrameCounter fps;
-	
+
 	private static final String helpText = "< w > : Camera move foward / zoom in \n\n" +
 			"< s > : Camera move backward /zoom out \n\n" +
 			"< z > : Toggle wireframe / zbuffer \n\n" +
@@ -96,7 +92,7 @@ public class Tetra extends JFrame implements MouseListener,
 		this.addKeyListener(this);
 		raw = 3;
 		velocity = 0;
-		accelaration = 0;
+		acceleration = 0;
 		oldTime = (System.currentTimeMillis()) * 1E-03;
 		timer = new Timer();
 		thrust = 0;
@@ -105,7 +101,7 @@ public class Tetra extends JFrame implements MouseListener,
 		timer.schedule(fps, 0,1000);
 		orbit(theta, phi);
 	}
-	
+
 	public class FrameCounter extends TimerTask {
 		private int nFrames;
 		public FrameCounter() {
@@ -117,11 +113,11 @@ public class Tetra extends JFrame implements MouseListener,
 			Tetra.this.setTitle(s);
 			nFrames = 0;
 		}
-		
+
 		public void count(){
 			nFrames++;
 		}
-		
+
 	}
 
 	private void buildTetra() {
@@ -225,8 +221,8 @@ public class Tetra extends JFrame implements MouseListener,
 			currentTime = (System.currentTimeMillis()) * 1E-03;
 			double dt = currentTime - oldTime;
 			oldTime = currentTime;
-			accelaration = -velocity + thrust;
-			velocity += accelaration * dt;
+			acceleration = -velocity + thrust;
+			velocity += acceleration * dt;
 			raw += velocity * dt;
 			orbit(theta, phi);
 			repaint();
@@ -286,8 +282,6 @@ public class Tetra extends JFrame implements MouseListener,
 		phi += 2 * Math.PI * (dy / hChanged);
 
 		orbit(theta, phi);
-		repaint();
-
 		mx = newMx;
 		my = newMy;
 	}

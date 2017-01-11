@@ -263,7 +263,6 @@ public class ParallelCellularAutomaton extends JFrame implements MouseMotionList
 		if (!timerStarted) {
 			gimg.setColor(Color.green);
 			gimg.drawLine(k, l, k, l);
-			repaint();
 		}
 	}
 
@@ -282,7 +281,6 @@ public class ParallelCellularAutomaton extends JFrame implements MouseMotionList
 			myInit();
 		} else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
 			timerStarted = true;
-			repaint();
 		}
 	}
 
