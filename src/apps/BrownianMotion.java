@@ -94,6 +94,10 @@ public class BrownianMotion extends JFrame implements KeyListener {
         initPositions();
     }
 
+    public static void main(String[] args) {
+        new BrownianMotion(false);
+    }
+
     private void initPositions() {
         /**
          * init position of oval
@@ -117,10 +121,6 @@ public class BrownianMotion extends JFrame implements KeyListener {
             historyX[i] = x[0];
             historyY[i] = y[0];
         }
-    }
-
-    public static void main(String[] args) {
-        new BrownianMotion(false);
     }
 
     private void clearCanvasWithBackground() {
@@ -196,7 +196,7 @@ public class BrownianMotion extends JFrame implements KeyListener {
         updateOvalPos(dt);
         canvasGraphics.drawString("time(s) : " + time, 50, 80);
         canvasGraphics.drawString("damping : " + damping, 50, 65);
-        
+
         /**
          * draw canvas on the window/JFrame
          *

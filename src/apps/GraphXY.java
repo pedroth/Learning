@@ -196,7 +196,7 @@ public class GraphXY extends JFrame implements MouseListener,
         }
 
         /*
-		 * Set JFrame size.
+         * Set JFrame size.
 		 */
         setSize(800, 600);
 
@@ -206,7 +206,7 @@ public class GraphXY extends JFrame implements MouseListener,
         wd.setWindowSize(7 * wChanged / 10, hChanged);
 
         /*
-		 * UI crap initialization.
+         * UI crap initialization.
 		 */
         panel = new JPanel();
         functionString = new JTextField();
@@ -316,7 +316,7 @@ public class GraphXY extends JFrame implements MouseListener,
 
         if (init) {
             panel.setLayout(new GridLayout(2, 1));
-            JPanel upperPanel = new JPanel(new GridLayout(8,1));
+            JPanel upperPanel = new JPanel(new GridLayout(8, 1));
             JPanel functionPanel = new JPanel();
             functionPanel.setLayout(new GridLayout(1, 2));
             functionPanel.add(new JLabel("F(x,y)"));
@@ -357,7 +357,7 @@ public class GraphXY extends JFrame implements MouseListener,
             minMaxPanel.add(maxButton);
             upperPanel.add(minMaxPanel);
             panel.add(upperPanel);
-            JPanel lowerPane = new JPanel(new GridLayout(2,1));
+            JPanel lowerPane = new JPanel(new GridLayout(2, 1));
             JScrollPane areaScrollPane = new JScrollPane(minMaxTxt);
             areaScrollPane.setVerticalScrollBarPolicy(
                     JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -366,7 +366,7 @@ public class GraphXY extends JFrame implements MouseListener,
             JPanel clearZoomPanel = new JPanel(new GridLayout(1, 2));
             clearZoomPanel.add(clearButton);
             clearZoomPanel.add(zoomFit);
-            JPanel dummyPanel = new JPanel(new GridLayout(2,1));
+            JPanel dummyPanel = new JPanel(new GridLayout(2, 1));
             dummyPanel.add(clearZoomPanel);
             dummyPanel.add(new JLabel());
             lowerPane.add(dummyPanel);

@@ -169,14 +169,14 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
         drawAxis = false;
 
 		/*
-		 * Set default close operation for JFrame.
+         * Set default close operation for JFrame.
 		 */
         if (!isApplet) {
             setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         }
 
 		/*
-		 * Set JFrame size.
+         * Set JFrame size.
 		 */
         setSize(800, 600);
 

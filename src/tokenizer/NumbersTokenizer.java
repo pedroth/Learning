@@ -84,12 +84,8 @@ public class NumbersTokenizer extends SufixTreeTokenizer {
                     return j - i;
                 }
             }
-            if (state == 1) {
-                if (Character.isDigit(c)) {
-                    continue;
-                } else {
-                    return j - i;
-                }
+            if (!Character.isDigit(c)) {
+                return j - i;
             }
         }
         return j - i;

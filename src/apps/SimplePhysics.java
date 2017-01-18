@@ -359,21 +359,21 @@ public class SimplePhysics extends JFrame implements MouseListener, KeyListener,
 
         @Override
         public void run() {
-            double contactXForce = 0.0;
-            double contactYForce = 0.0;
-            double r1 = 0.0;
-            double r2 = 0.0;
-            double ax = 0.0;
-            double ay = 0.0;
+            double contactXForce;
+            double contactYForce;
+            double r1;
+            double r2;
+            double ax;
+            double ay;
             double torque = 0.0;
-            double omega = 0.0;
+            double omega;
             double dx;
             double dy;
             double ds;
             double dot;
             double minGetOut = 0;
             double dt;
-            double dfdt = 0;
+            double dfdt;
             double currentTimeSec;
             boolean logic = false;
             double epsilon = 10;
