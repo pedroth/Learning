@@ -1,6 +1,11 @@
 package visualization;
 
-import java.awt.Color;
+import algebra.TriVector;
+import windowThreeDim.Composite;
+import windowThreeDim.Line;
+import windowThreeDim.Triangle;
+
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -9,96 +14,91 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
-import windowThreeDim.Composite;
-import windowThreeDim.Line;
-import windowThreeDim.Triangle;
-import algebra.TriVector;
-
 public class ObjParser {
-	private ArrayList<TriVector> vertex;
-	private Composite obj;
-	private String adress;
+    private ArrayList<TriVector> vertex;
+    private Composite obj;
+    private String adress;
 
-	public ObjParser(String s) {
-		adress = s;
-		obj = new Composite();
-		vertex = new ArrayList<TriVector>();
-	}
+    public ObjParser(String s) {
+        adress = s;
+        obj = new Composite();
+        vertex = new ArrayList<TriVector>();
+    }
 
-	public Composite parse() {
-		BufferedReader in;
-		try {
-			if (isUrl(adress)) {
-				URL url;
-				url = new URL(adress);
-				in = new BufferedReader(new InputStreamReader(url.openStream()));
+    public static void main(String[] args) {
+        ObjParser obj = new ObjParser("http://graphics.stanford.edu/~mdfisher/Data/Meshes/bunny.obj");
+        Composite c = obj.parse();
+        System.out.println("hello");
+    }
 
-			} else {
-				in = new BufferedReader(new FileReader(adress));
-			}
+    public Composite parse() {
+        BufferedReader in;
+        try {
+            if (isUrl(adress)) {
+                URL url;
+                url = new URL(adress);
+                in = new BufferedReader(new InputStreamReader(url.openStream()));
 
-			String line;
+            } else {
+                in = new BufferedReader(new FileReader(adress));
+            }
 
-			while ((line = in.readLine()) != null) {
-				String[] letter = line.split(" ");
-				if (letter[0].equals("v")) {
-					addVertex(line);
-				} else if (letter[0].equals("f")) {
-					addFace(line);
-				} else if (letter[0].equals("l")) {
-					addLine(line);
-				} else {
-					// do nothing
-				}
-			}
+            String line;
 
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return obj;
-	}
+            while ((line = in.readLine()) != null) {
+                String[] letter = line.split(" ");
+                if (letter[0].equals("v")) {
+                    addVertex(line);
+                } else if (letter[0].equals("f")) {
+                    addFace(line);
+                } else if (letter[0].equals("l")) {
+                    addLine(line);
+                } else {
+                    // do nothing
+                }
+            }
 
-	private int parseFaceNumber(String s) {
-		return Math.abs(Integer.parseInt(s.split("/")[0]));
-	}
+        } catch (MalformedURLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return obj;
+    }
 
-	private void addFace(String line) {
-		String[] numbers = line.split("\\s+");
+    private int parseFaceNumber(String s) {
+        return Math.abs(Integer.parseInt(s.split("/")[0]));
+    }
 
-		Triangle t = new Triangle(vertex.get(parseFaceNumber(numbers[1]) - 1), vertex.get(parseFaceNumber(numbers[2]) - 1), vertex.get(parseFaceNumber(numbers[3]) - 1));
-		t.setColor(Color.gray);
-		obj.add(t);
-	}
+    private void addFace(String line) {
+        String[] numbers = line.split("\\s+");
 
-	private void addVertex(String line) {
-		String[] numbers = line.split("\\s+");
-		TriVector v = new TriVector(Double.parseDouble(numbers[1]), Double.parseDouble(numbers[2]), Double.parseDouble(numbers[3]));
-		vertex.add(v);
-	}
-	
-	private void addLine(String line) {
-		String[] numbers = line.split("\\s+");
-		Line l = new Line(vertex.get(parseFaceNumber(numbers[1]) - 1), vertex.get(parseFaceNumber(numbers[2]) - 1));
-		l.setColor(Color.gray);
-		obj.add(l);
-	}
+        Triangle t = new Triangle(vertex.get(parseFaceNumber(numbers[1]) - 1), vertex.get(parseFaceNumber(numbers[2]) - 1), vertex.get(parseFaceNumber(numbers[3]) - 1));
+        t.setColor(Color.gray);
+        obj.add(t);
+    }
 
-	private boolean isUrl(String adress) {
-		String[] aux = adress.split("http");
-		if (aux.length > 1)
-			return true;
-		else
-			return false;
-	}
+    private void addVertex(String line) {
+        String[] numbers = line.split("\\s+");
+        TriVector v = new TriVector(Double.parseDouble(numbers[1]), Double.parseDouble(numbers[2]), Double.parseDouble(numbers[3]));
+        vertex.add(v);
+    }
 
-	public static void main(String[] args) {
-		ObjParser obj = new ObjParser("http://graphics.stanford.edu/~mdfisher/Data/Meshes/bunny.obj");
-		Composite c = obj.parse();
-		System.out.println("hello");
-	}
+    private void addLine(String line) {
+        String[] numbers = line.split("\\s+");
+        Line l = new Line(vertex.get(parseFaceNumber(numbers[1]) - 1), vertex.get(parseFaceNumber(numbers[2]) - 1));
+        l.setColor(Color.gray);
+        obj.add(l);
+    }
+
+    private boolean isUrl(String adress) {
+        String[] aux = adress.split("http");
+        if (aux.length > 1)
+            return true;
+        else
+            return false;
+    }
 
 }

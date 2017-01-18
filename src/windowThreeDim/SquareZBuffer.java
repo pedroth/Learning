@@ -1,63 +1,63 @@
 package windowThreeDim;
 
-import java.awt.Graphics;
-
 import algebra.TriVector;
+
+import java.awt.*;
 
 public class SquareZBuffer extends ZBufferPrespective {
 
-	@Override
-	protected void drawZ(TriVector[] intBuffer, int nPoints, TriVector normal,
-			Element element) {
-		
-		if(isCullBack && normal.getZ() > 0)
-			return;
-		
-		int[][] box;
-		double z;
-		/**
-		 * [0][0] xmin, [0][1] ymin, [1][0] xmax, [1][1] ymax;
-		 * 
-		 * calculation of the box containing the polygon in integer coordinates
-		 */
-		box = generateBox(intBuffer);
+    @Override
+    protected void drawZ(TriVector[] intBuffer, int nPoints, TriVector normal,
+                         Element element) {
 
-		/**
-		 * z = -(n1/n3 * (x - x0) + n2/n3 * (y - y0)) + z0
-		 * 
-		 * we can use at (x0,y0,z0) a random point in the polygon
-		 */
+        if (isCullBack && normal.getZ() > 0)
+            return;
 
-		double nx = normal.getX() / normal.getZ();
+        int[][] box;
+        double z;
+        /**
+         * [0][0] xmin, [0][1] ymin, [1][0] xmax, [1][1] ymax;
+         *
+         * calculation of the box containing the polygon in integer coordinates
+         */
+        box = generateBox(intBuffer);
 
-		double ny = normal.getY() / normal.getZ();
+        /**
+         * z = -(n1/n3 * (x - x0) + n2/n3 * (y - y0)) + z0
+         *
+         * we can use at (x0,y0,z0) a random point in the polygon
+         */
 
-		wd.setDrawColor(element.color);
-		/**
-		 * z = -nx * dx -ny * dy;
-		 * 
-		 * painting polygon with z-buffer algorithm
-		 */
-		int w = box[1][0] - box[0][0];
-		int h = box[1][1] - box[0][1];
+        double nx = normal.getX() / normal.getZ();
 
-		double dx = box[0][0] + w/2 - intBuffer[0].getX();
+        double ny = normal.getY() / normal.getZ();
 
-		double dy = box[0][1] + h/2 - intBuffer[0].getY();
-		
-		z = -nx * dx - ny * dy + intBuffer[0].getZ();
-		
-		int i = Math.min(box[0][0] + w/2, wd.getWindowWidth()-1);
-		int j = Math.min(box[0][1] + h/2, wd.getWindowHeight()-1);
-		
-		i = Math.max(0, i);
-		j = Math.max(0,j);
-		
-		fillZBuffer(box[0][0]+ w/4, box[0][1]+h/4, 3*w/2, 3*h/2, z);
-	}
-	
-	public void fillZBuffer(int x,int y, int w, int h, double z) {
-		Graphics g = wd.getGraphics();
+        wd.setDrawColor(element.color);
+        /**
+         * z = -nx * dx -ny * dy;
+         *
+         * painting polygon with z-buffer algorithm
+         */
+        int w = box[1][0] - box[0][0];
+        int h = box[1][1] - box[0][1];
+
+        double dx = box[0][0] + w / 2 - intBuffer[0].getX();
+
+        double dy = box[0][1] + h / 2 - intBuffer[0].getY();
+
+        z = -nx * dx - ny * dy + intBuffer[0].getZ();
+
+        int i = Math.min(box[0][0] + w / 2, wd.getWindowWidth() - 1);
+        int j = Math.min(box[0][1] + h / 2, wd.getWindowHeight() - 1);
+
+        i = Math.max(0, i);
+        j = Math.max(0, j);
+
+        fillZBuffer(box[0][0] + w / 4, box[0][1] + h / 4, 3 * w / 2, 3 * h / 2, z);
+    }
+
+    public void fillZBuffer(int x, int y, int w, int h, double z) {
+        Graphics g = wd.getGraphics();
 //		int k = Math.min(x + w, wd.getWindowWidth()-1);
 //		int l = Math.min(y + h, wd.getWindowHeight()-1);
 //		for(int i = x ; i < k; i++){
@@ -68,7 +68,7 @@ public class SquareZBuffer extends ZBufferPrespective {
 //				}
 //			}
 //		}
-		g.fillRect(x, y, w, h);
-	}
+        g.fillRect(x, y, w, h);
+    }
 
 }

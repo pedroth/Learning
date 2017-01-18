@@ -1,21 +1,21 @@
 package tokenizer;
 
 public abstract class TokenRecognizer {
-	private String[] patterns;
-	
-	public String[] getPatterns() {
-		return patterns;
-	}
+    private String[] patterns;
 
-	public void setPatterns(String[] patterns) {
-		this.patterns = patterns;
-	}
+    TokenRecognizer(String[] patterns) {
+        this.patterns = patterns;
+    }
 
-	TokenRecognizer(String[] patterns){
-		this.patterns = patterns ;
-	}
-	
-	public abstract String[] tokenize(String s);
+    public String[] getPatterns() {
+        return patterns;
+    }
 
-	public abstract void init();
+    public void setPatterns(String[] patterns) {
+        this.patterns = patterns;
+    }
+
+    public abstract String[] tokenize(String s);
+
+    public abstract void init();
 }
