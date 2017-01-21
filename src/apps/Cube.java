@@ -57,7 +57,7 @@ public class Cube extends JFrame implements MouseListener, MouseMotionListener,
 
     public Cube(boolean isApplet) {
         // Set JFrame title
-        super("Draw Cube");
+        super("Draw Cube - Press h for Help");
 
         // init
 

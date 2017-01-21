@@ -164,7 +164,7 @@ public class GraphXY extends JFrame implements MouseListener,
         /*
          * Set JFrame title.
 		 */
-        super("Draw Graph XY");
+        super("Draw Graph XY - Press h for Help");
 
         this.setLayout(null);
 

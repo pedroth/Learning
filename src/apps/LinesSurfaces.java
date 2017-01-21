@@ -173,7 +173,7 @@ public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionL
         /*
          * Set JFrame title.
 		 */
-        super("Draw Lines {x(t),y(t),z(t)} and Surfaces {x(u,v),y(u,v),z(u,v)}");
+        super("Draw Lines {x(t),y(t),z(t)} and Surfaces {x(u,v),y(u,v),z(u,v)} - Press h for Help");
 
         this.setLayout(null);
 

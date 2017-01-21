@@ -45,7 +45,7 @@ public class RandomCurve extends JFrame implements MouseListener, KeyListener {
     public RandomCurve(boolean isApplet) {
 
         // Set JFrame title
-        super("Draw A PolygonFill In JFrame");
+        super("Random Curve - Press h for Help");
 
         // init
         lineVector = new double[2][2];

@@ -325,7 +325,7 @@ public class Tetra extends JFrame implements MouseListener,
 
         @Override
         public void run() {
-            String s = "Tetra FPS : " + nFrames;
+            String s = "Tetra FPS : " + nFrames  +" - Press h for Help";
             Tetra.this.setTitle(s);
             nFrames = 0;
         }

@@ -42,6 +42,7 @@ public class SimplePhysics extends JFrame implements MouseListener, KeyListener,
     private boolean camera;
 
     public SimplePhysics(boolean isApplet) {
+        super("Simple Physics - Press h for Help");
         wd = new ImageWindow(-5, 5, -5, 5);
         this.setSize(500, 500);
         wChanged = this.getWidth();

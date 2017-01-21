@@ -82,7 +82,7 @@ public class Robot extends JFrame implements MouseListener, MouseMotionListener,
 
     public Robot(boolean isApplet) {
         // Set JFrame title
-        super("Robot");
+        super("Robot - Press h for Help");
 
         // init
         this.setLayout(null);

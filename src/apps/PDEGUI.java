@@ -152,7 +152,7 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
         /*
          * Set JFrame title.
 		 */
-        super("PDE");
+        super("PDE - Press h for Help");
 
         this.setLayout(null);
 

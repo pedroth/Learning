@@ -61,7 +61,7 @@ public class BrownianMotion extends JFrame implements KeyListener {
 
     public BrownianMotion(boolean isApplet) {
         // Set JFrame title
-        super("Pseudo - Brownian Motion");
+        super("Pseudo - Brownian Motion - Press h for Help");
 
         // Set default close operation for JFrame
         if (!isApplet) {

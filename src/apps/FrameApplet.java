@@ -11,14 +11,8 @@ public class FrameApplet extends JApplet implements ComponentListener {
      */
     private static final long serialVersionUID = 1L;
     JFrame frame;
+    JLabel text = new JLabel();
     boolean started = false;
-
-    void destroyFrame() {
-        if (frame != null)
-            frame.dispose();
-        frame = null;
-        repaint();
-    }
 
     public void init() {
         addComponentListener(this);
@@ -27,7 +21,8 @@ public class FrameApplet extends JApplet implements ComponentListener {
     void showFrame() {
         if (frame == null) {
             started = true;
-            frame = new PDEGUI(true);
+            frame = new Tetra(true);
+            this.add(text);
             repaint();
         }
     }
@@ -40,7 +35,7 @@ public class FrameApplet extends JApplet implements ComponentListener {
             s = "Applet is finished.";
         else
             frame.repaint();
-        g.drawString(s, 10, 30);
+        text.setText(s);
     }
 
     public void componentHidden(ComponentEvent e) {

@@ -34,6 +34,7 @@ public class ParallelCellularAutomaton extends JFrame implements MouseMotionList
     private ThreadManager threadManager;
 
     public ParallelCellularAutomaton(boolean isApplet) {
+        super("Cellular Automaton - Press h for Help");
         this.setLayout(null);
         // Set default close operation for JFrame
         if (!isApplet) {
