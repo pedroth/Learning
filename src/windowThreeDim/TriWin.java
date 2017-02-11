@@ -4,7 +4,6 @@ import algebra.Matrix;
 import algebra.TriVector;
 import window.ImageWindow;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,17 +13,16 @@ public class TriWin {
     private ImageWindow buffer;
     private PaintMethod method;
 
-    public TriWin(PaintMethod method) {
-        setMethod(method);
-        buffer = new ImageWindow(-1, 1, -1, 1);
-        l = new ArrayList<Element>();
-    }
-
     public TriWin() {
         buffer = new ImageWindow(-1, 1, -1, 1);
-        l = new LinkedList<Element>();
+        l = new LinkedList<>();
     }
 
+    public TriWin(double alpha) {
+        double windowSize = Math.tan(alpha / 2);
+        buffer = new ImageWindow(-windowSize, windowSize, -windowSize, windowSize);
+        l = new LinkedList<>();
+    }
 
     public void addtoList(Element e) {
         l.add(e);

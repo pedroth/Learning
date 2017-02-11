@@ -2,7 +2,7 @@ package windowThreeDim;
 
 import java.awt.*;
 
-public class MaxBaryShader extends ZBufferPrespective {
+public class MaxBaryShader extends ZBufferPerspective {
     public Color getFragmentColor(Element e, int x, int y) {
         /**
          * very ugly code but it is faster unfortunately

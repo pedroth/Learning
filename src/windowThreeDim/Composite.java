@@ -11,8 +11,8 @@ public class Composite extends Element {
     private List<Element> elementList;
 
     public Composite() {
+        super(0);
         elementList = new ArrayList<Element>();
-        nPoints = 0;
     }
 
     public void add(Element element) {

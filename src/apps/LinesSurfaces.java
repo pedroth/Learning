@@ -180,7 +180,7 @@ public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionL
         /*
          * Begin the engine
          */
-        graphics = new TriWin();
+        graphics = new TriWin(Math.PI/2);
         wd = graphics.getBuffer();
         shader = new FlatShader();
         shader.addLightPoint(new TriVector(1, 0, 0));

@@ -7,7 +7,7 @@ import java.awt.*;
 public class Line extends Element {
 
     public Line(TriVector p1, TriVector p2) {
-        nPoints = 2;
+        super(2);
         p = new TriVector[nPoints];
         p[0] = p1;
         p[1] = p2;

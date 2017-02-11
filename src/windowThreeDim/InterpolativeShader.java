@@ -2,7 +2,7 @@ package windowThreeDim;
 
 import java.awt.*;
 
-public class InterpolativeShader extends ZBufferPrespective {
+public class InterpolativeShader extends ZBufferPerspective {
 
     public Color getFragmentColor(Element e, int x, int y) {
         /**

@@ -161,7 +161,7 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
 		 */
         graphics = new TriWin();
         wd = graphics.getBuffer();
-        ZBufferPrespective painter = new ZBufferPrespective();
+        ZBufferPerspective painter = new ZBufferPerspective();
         graphics.setMethod(painter);
         wd.setBackGroundColor(Color.black);
         isZBuffer = true;
@@ -820,14 +820,14 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
             if (isfastShading) {
                 graphics.setMethod(new SamplingZbuffer(3));
             } else {
-                graphics.setMethod(new ZBufferPrespective());
+                graphics.setMethod(new ZBufferPerspective());
             }
             drawFunction = true;
             graphics.removeAllElements();
         } else if (arg0.getKeyCode() == KeyEvent.VK_Z) {
             isZBuffer = !isZBuffer;
             if (isZBuffer) {
-                graphics.setMethod(new ZBufferPrespective());
+                graphics.setMethod(new ZBufferPerspective());
             } else {
                 graphics.setMethod(new WiredPrespective());
             }
@@ -855,7 +855,7 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
                 graphics.removeAllElements();
                 drawFunction = true;
             } else {
-                graphics.setMethod(new ZBufferPrespective());
+                graphics.setMethod(new ZBufferPerspective());
             }
         } else if (arg0.getKeyCode() == KeyEvent.VK_E) {
             Random r = new Random();

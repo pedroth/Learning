@@ -2,7 +2,7 @@ package windowThreeDim;
 
 import java.awt.*;
 
-public class YShader extends ZBufferPrespective {
+public class YShader extends ZBufferPerspective {
 
     public YShader() {
         super();

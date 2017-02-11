@@ -49,7 +49,7 @@ public class Tetra extends JFrame implements MouseListener,
         zBufferOn = true;
         graphics = new TriWin();
         wd = graphics.getBuffer();
-        paint = new ZBufferPrespective();
+        paint = new ZBufferPerspective();
         graphics.setMethod(paint);
         buildTetra();
         wd.setBackGroundColor(Color.white);
@@ -295,7 +295,7 @@ public class Tetra extends JFrame implements MouseListener,
         } else if (arg0.getKeyCode() == KeyEvent.VK_Z) {
             zBufferOn = !zBufferOn;
             if (zBufferOn) {
-                graphics.setMethod(new ZBufferPrespective());
+                graphics.setMethod(new ZBufferPerspective());
             } else {
                 graphics.setMethod(new WiredPrespective());
             }

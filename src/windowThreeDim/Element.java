@@ -14,8 +14,10 @@ public abstract class Element {
      */
     protected Color colorPoint[];
 
-    public Element() {
+    public Element(int nPoints) {
+        this.nPoints = nPoints;
     }
+
 
     public abstract void draw(PaintMethod visitor);
 

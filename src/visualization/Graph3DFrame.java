@@ -92,13 +92,14 @@ public class Graph3DFrame extends JFrame implements MouseListener,
         /**
          * begin the engine
          */
-        graphics = new TriWin();
+        graphics = new TriWin(Math.PI/3);
         wd = graphics.getBuffer();
         wiredShader = new WiredPrespective();
         FlatShader flatShader = new FlatShader();
         flatShader.setAmbientLightParameter(0.5);
         flatShader.setShininess(25);
         flatShader.addLightPoint(new TriVector(3, 3, 3));
+        flatShader.setCullBack(true);
         shader = flatShader;
         graphics.setMethod(shader);
         wd.setBackGroundColor(Color.black);
@@ -203,10 +204,10 @@ public class Graph3DFrame extends JFrame implements MouseListener,
         frame.addElement(c);
         frame.raw.setX(1.0);
         frame.focalPoint = c.centroid();
-        ZbufferShader shader = new ZbufferShader();
-        shader.setCullBack(true);
+//        ZbufferShader shader = new ZbufferShader();
+//        shader.setCullBack(true);
 //        shader.addLightPoint(new TriVector(-3, 3, -3));
-        frame.setShader(shader);
+//        frame.setShader(shader);
     }
 
     private static void test7(Graph3DFrame frame) {
@@ -251,9 +252,9 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 //
 //		test4(kakashi,frame);
 //
-        test5(kakashi, frame);
+//        test5(kakashi, frame);
 //
-//        test6(frame);
+        test6(frame);
 
 //		test7(frame);
 
@@ -539,7 +540,7 @@ public class Graph3DFrame extends JFrame implements MouseListener,
             axisAlreadyBuild = false;
         }
         if (arg0.getKeyCode() == KeyEvent.VK_S) {
-            ZBufferPrespective s = new InterpolativeShader();
+            ZBufferPerspective s = new InterpolativeShader();
             s.setCullBack(true);
             graphics.setMethod(s);
         }

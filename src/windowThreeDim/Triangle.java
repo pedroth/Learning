@@ -8,7 +8,7 @@ import java.awt.*;
 public class Triangle extends Element {
 
     public Triangle(TriVector p1, TriVector p2, TriVector p3) {
-        nPoints = 3;
+        super(3);
         p = new TriVector[nPoints];
         p[0] = p1;
         p[1] = p2;
@@ -50,5 +50,9 @@ public class Triangle extends Element {
         Element ret = new Triangle(pCopy[0], pCopy[1], pCopy[2]);
         ret.setColor(this.getColor());
         return ret;
+    }
+
+    public void setPoints(TriVector vertex1, TriVector vertex2, TriVector vertex3) {
+        this.p = new TriVector[]{vertex1, vertex2, vertex3};
     }
 }

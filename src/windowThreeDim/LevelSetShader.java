@@ -2,7 +2,7 @@ package windowThreeDim;
 
 import java.awt.*;
 
-public class LevelSetShader extends ZBufferPrespective {
+public class LevelSetShader extends ZBufferPerspective {
 
     public Color getFragmentColor(Element e, int x, int y) {
         /**

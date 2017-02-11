@@ -173,7 +173,7 @@ public class GraphXY extends JFrame implements MouseListener,
          */
         graphics = new TriWin();
         wd = graphics.getBuffer();
-        ZBufferPrespective painter = new ZBufferPrespective();
+        ZBufferPerspective painter = new ZBufferPerspective();
         graphics.setMethod(painter);
         wd.setBackGroundColor(Color.black);
         isZBuffer = true;
@@ -833,7 +833,7 @@ public class GraphXY extends JFrame implements MouseListener,
         } else if (arg0.getKeyCode() == KeyEvent.VK_Z) {
             isZBuffer = !isZBuffer;
             if (isZBuffer) {
-                graphics.setMethod(new ZBufferPrespective());
+                graphics.setMethod(new ZBufferPerspective());
             } else {
                 graphics.setMethod(new WiredPrespective());
             }
@@ -861,7 +861,7 @@ public class GraphXY extends JFrame implements MouseListener,
                 graphics.setMethod(shader);
                 shader.changeNthLight(0, new TriVector(raw, raw, raw));
             } else {
-                graphics.setMethod(new ZBufferPrespective());
+                graphics.setMethod(new ZBufferPerspective());
             }
         } else if (arg0.getKeyCode() == KeyEvent.VK_E) {
             Random r = new Random();

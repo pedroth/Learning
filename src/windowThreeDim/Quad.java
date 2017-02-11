@@ -7,7 +7,7 @@ import java.awt.*;
 public class Quad extends Element {
 
     public Quad(TriVector p1, TriVector p2, TriVector p3, TriVector p4) {
-        nPoints = 4;
+        super(4);
         p = new TriVector[nPoints];
         p[0] = p1;
         p[1] = p2;

@@ -8,11 +8,11 @@ public class StringElement extends Element {
     private String str;
 
     public StringElement(TriVector point, String str) {
+        super(1);
         this.p = new TriVector[1];
         colorPoint = new Color[1];
         this.p[0] = point;
         this.str = str;
-        nPoints = 1;
     }
 
     public String getString() {

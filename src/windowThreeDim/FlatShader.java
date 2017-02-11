@@ -6,7 +6,7 @@ import java.awt.*;
 import java.util.LinkedList;
 import java.util.List;
 
-public class FlatShader extends ZBufferPrespective {
+public class FlatShader extends ZBufferPerspective {
     protected Color shade;
     protected double shininess;
     protected double ambientLightParameter;

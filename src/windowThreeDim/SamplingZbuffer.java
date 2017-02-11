@@ -4,7 +4,7 @@ import algebra.TriVector;
 
 import java.awt.*;
 
-public class SamplingZbuffer extends ZBufferPrespective {
+public class SamplingZbuffer extends ZBufferPerspective {
     protected int radius;
 
     public SamplingZbuffer(int radius) {

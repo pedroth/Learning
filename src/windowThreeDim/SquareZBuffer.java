@@ -4,7 +4,7 @@ import algebra.TriVector;
 
 import java.awt.*;
 
-public class SquareZBuffer extends ZBufferPrespective {
+public class SquareZBuffer extends ZBufferPerspective {
 
     @Override
     protected void drawZ(TriVector[] intBuffer, int nPoints, TriVector normal,

@@ -8,11 +8,11 @@ public class Point extends Element {
     private int radius;
 
     public Point(TriVector point) {
+        super(1);
         this.p = new TriVector[1];
         colorPoint = new Color[1];
         this.p[0] = point;
         radius = 1;
-        nPoints = 1;
     }
 
     public int getRadius() {
