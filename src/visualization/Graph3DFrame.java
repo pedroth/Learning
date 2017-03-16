@@ -3,6 +3,7 @@ package visualization;
 import algebra.Matrix;
 import algebra.TriVector;
 import inputOutput.MyImage;
+import inputOutput.TextIO;
 import window.ImageWindow;
 import windowThreeDim.Composite;
 import windowThreeDim.*;
@@ -11,9 +12,9 @@ import windowThreeDim.Point;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Random;
+import java.util.*;
+import java.util.List;
 import java.util.Timer;
-import java.util.TimerTask;
 
 public class Graph3DFrame extends JFrame implements MouseListener,
         MouseMotionListener, KeyListener {
@@ -92,14 +93,14 @@ public class Graph3DFrame extends JFrame implements MouseListener,
         /**
          * begin the engine
          */
-        graphics = new TriWin(Math.PI/3);
+        graphics = new TriWin(Math.PI / 64);
         wd = graphics.getBuffer();
         wiredShader = new WiredPrespective();
         FlatShader flatShader = new FlatShader();
         flatShader.setAmbientLightParameter(0.5);
         flatShader.setShininess(25);
         flatShader.addLightPoint(new TriVector(3, 3, 3));
-        flatShader.setCullBack(true);
+        flatShader.setCullBack(false);
         shader = flatShader;
         graphics.setMethod(shader);
         wd.setBackGroundColor(Color.black);
@@ -194,8 +195,8 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 //		ObjParser obj = new ObjParser("http://graphics.stanford.edu/~mdfisher/Data/Meshes/bunny.obj");
 //		ObjParser obj = new ObjParser("C:/Users/Pedroth/Desktop/Kakashi.obj");
 //		ObjParser obj = new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/Lara_Croft.obj?attredirects=0&d=1");
-//		ObjParser obj = new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/Sonic.obj?attredirects=0&d=1");
-        ObjParser obj = new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/bunny.texture.obj?attredirects=0&d=1");
+        ObjParser obj = new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/Sonic.obj?attredirects=0&d=1");
+//        ObjParser obj = new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/bunny.texture.obj?attredirects=0&d=1");
 
         Composite c = obj.parse();
         double scale = 1;
@@ -204,10 +205,10 @@ public class Graph3DFrame extends JFrame implements MouseListener,
         frame.addElement(c);
         frame.raw.setX(1.0);
         frame.focalPoint = c.centroid();
-//        ZbufferShader shader = new ZbufferShader();
-//        shader.setCullBack(true);
-//        shader.addLightPoint(new TriVector(-3, 3, -3));
-//        frame.setShader(shader);
+        FlatShader shader = new FlatShader();
+        shader.setCullBack(true);
+        shader.addLightPoint(new TriVector(-3, 3, -3));
+        frame.setShader(shader);
     }
 
     private static void test7(Graph3DFrame frame) {
@@ -239,13 +240,29 @@ public class Graph3DFrame extends JFrame implements MouseListener,
         frame.addScatterData(r, Color.green, 0.01);
     }
 
+
+    public static void test8(Graph3DFrame frame) {
+        TextIO textIO = new TextIO("src/visualization/resource/data.txt");
+        String text = textIO.getText();
+        String[] split = text.split("\n");
+        List<String[]> points = new ArrayList<>();
+        for (int i = 0; i < split.length; i++) {
+            points.add(split[i].split("\t"));
+        }
+        TriVector[] points3D = new TriVector[points.get(0).length];
+        for (int i = 0; i < points.get(0).length; i++) {
+            points3D[i] = new TriVector(Double.valueOf(points.get(0)[i]), Double.valueOf(points.get(1)[i]), Double.valueOf(points.get(2)[i]));
+        }
+        frame.addScatterData(points3D, Color.BLUE, 0.001);
+    }
+
     public static void main(String[] args) {
         Graph3DFrame frame = new Graph3DFrame("figure 1");
 
         MyImage kakashi = new MyImage("https://92c3cb5a-a-62cb3a1a-s-sites.googlegroups.com/site/ibplanalto2010/Home/kakashi46-3459488_50_50%5B1%5D.jpg?attachauth=ANoY7cp6kFZ2u7lOyL3KJqDYkzI_jmNGeoLsCE29u25IlE23i8Bgqx-4UsNUTkE4Mh7vBQpKPe107E_-PLAOywT34dv8cW9_r9WV0uOZ8p26uBT4rusztcGEh9wkuZ2QI0f-loBiB4pmzo_3NKMrC0CPbRvHHiwa_vT2wVEjZiWh7fZ9XlUjC6vrCVvNOtnmgsnSd-WjjbZqO-q6jSPBFw1zyyaa8uzcAKExLodMjCR40cjjmDComqp1JMNpKJoE1iTDgXQDWFzU&attredirects=0");
 
 //		test1(kakashi,frame);
-
+//
 //		test2(kakashi,frame);
 //
 //		test3(kakashi,frame);
@@ -254,9 +271,11 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 //
 //        test5(kakashi, frame);
 //
-        test6(frame);
-
+//        test6(frame);
+//
 //		test7(frame);
+
+        test8(frame);
 
         frame.plot();
     }
@@ -491,7 +510,6 @@ public class Graph3DFrame extends JFrame implements MouseListener,
         raw.setX(raw.getX() + velRaw.getX() * dt + 0.5 * accX * dt * dt);
         raw.setY(raw.getY() + velRaw.getY() * dt + 0.5 * accY * dt * dt);
         raw.setZ(raw.getZ() + velRaw.getZ() * dt + 0.5 * accZ * dt * dt);
-        // System.out.println(dt);
         orbit();
         repaint();
     }

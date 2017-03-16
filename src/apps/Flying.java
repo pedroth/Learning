@@ -53,7 +53,7 @@ public class Flying extends JFrame implements MouseListener, MouseMotionListener
         /**
          * begin the engine
          */
-        graphics = new TriWin();
+        graphics = new TriWin(Math.PI/3);
         wd = graphics.getBuffer();
         shader = new FlatShader();
         graphics.setMethod(shader);
@@ -89,7 +89,7 @@ public class Flying extends JFrame implements MouseListener, MouseMotionListener
         Composite composite = buildUnitaryCube(Color.RED);
         Matrix matrix = new Matrix(3, 3);
         matrix.identity();
-        matrix.setMatrix(3,3, 25);
+        matrix.setMatrix(3, 3, 25);
         composite.transform(matrix, new TriVector());
         graphics.addtoList(composite);
 

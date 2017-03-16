@@ -191,8 +191,7 @@ public class Graph2DFrame extends JFrame {
     }
 
     private static void test5(Graph2DFrame frame) {
-//		MyImage kakashi = new MyImage("https://sites.google.com/site/ibplanalto2010/Home/bla.jpg?attredirects=0&d=1");
-        MyImage kakashi = new MyImage("C:/Users/Pedroth/Downloads/debug.png");
+        MyImage kakashi = new MyImage("https://sites.google.com/site/ibplanalto2010/Home/bla.jpg?attredirects=0&d=1");
         /**
          * hsv matrix
          */
@@ -215,14 +214,19 @@ public class Graph2DFrame extends JFrame {
         frame.plot();
     }
 
+    private static void test6(Graph2DFrame frame) {
+
+    }
+
     public static void main(String args[]) {
         Graph2DFrame frame = new Graph2DFrame("figure 1");
-        // test0(frame);
+//         test0(frame);
 //		 test1(frame);
-        // test2(frame);
-        // test3(frame);
-        // test4(frame);
-        test5(frame);
+//         test2(frame);
+//         test3(frame);
+//         test4(frame);
+//        test5(frame);
+        test6(frame);
     }
 
     public boolean isRepainting() {

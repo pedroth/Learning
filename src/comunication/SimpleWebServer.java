@@ -9,15 +9,28 @@ import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class SimpleWebServer {
-    public static final int PORT = 8000;
+    private int port = 8080;
     private static int nextID = 0;
     private Map<Integer, Socket> clientById;
 
     public SimpleWebServer() {
         try {
-            System.out.println(Inet4Address.getLocalHost().getHostAddress() + ":" + PORT);
+            System.out.println(Inet4Address.getLocalHost().getHostAddress() + ":" + port);
+            clientById = new HashMap<>(1);
+        } catch (UnknownHostException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    public SimpleWebServer(int port) {
+        this.port = port;
+        try {
+            System.out.println(Inet4Address.getLocalHost().getHostAddress() + ":" + port);
             clientById = new HashMap<>(1);
         } catch (UnknownHostException e) {
             // TODO Auto-generated catch block
@@ -26,13 +39,21 @@ public class SimpleWebServer {
     }
 
     public static void main(String[] args) {
-        SimpleWebServer simpleWebServer = new SimpleWebServer();
-        simpleWebServer.go(simpleWebServer.new ComplexHttpHandler());
+        if (args.length > 0) {
+            final String regex = "[0-9]*";
+            final Pattern pattern = Pattern.compile(regex);
+            final Matcher matcher = pattern.matcher(args[0]);
+            SimpleWebServer simpleWebServer = new SimpleWebServer( matcher.find() ? Integer.valueOf(args[0]) : 8080);
+            simpleWebServer.go(simpleWebServer.new ComplexHttpHandler());
+        } else {
+            SimpleWebServer simpleWebServer = new SimpleWebServer();
+            simpleWebServer.go(simpleWebServer.new ComplexHttpHandler());
+        }
     }
 
     public void go(ClientHandler clientHandler) {
         try {
-            ServerSocket serverSocket = new ServerSocket(PORT);
+            ServerSocket serverSocket = new ServerSocket(port);
 
             while (true) {
                 Socket clientSocket = serverSocket.accept();

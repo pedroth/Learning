@@ -330,9 +330,8 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
             drawButtonPanel.add(drawButton);
             panel.add(drawButtonPanel);
             JPanel comboBoxPanel = new JPanel();
-            comboBoxPanel.setLayout(new GridLayout(1, 2));
+            comboBoxPanel.setLayout(new GridLayout(1, 1));
             comboBoxPanel.add(comboBox);
-            comboBoxPanel.add(new JLabel(""));
             panel.add(comboBoxPanel);
             JPanel paux = new JPanel();
             panel.add(paux.add(accVelTextLabel));
