@@ -217,53 +217,31 @@ public class GraphXY extends JFrame implements MouseListener,
         minMaxTxt = new JTextArea();
         stepTxt = new JTextField();
         drawButton = new JButton("Draw");
-        drawButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                drawFunction = true;
-                graphics.removeAllElements();
-            }
+        drawButton.addActionListener(e -> {
+            drawFunction = true;
+            graphics.removeAllElements();
         });
         minButton = new JButton("Min");
-        minButton.addActionListener(new ActionListener() {
+        minButton.addActionListener(arg0 -> {
+            gradientFlow = -1.0;
+            initGradientFlow();
+            gradientTime = 0;
 
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                gradientFlow = -1.0;
-                initGradientFlow();
-                gradientTime = 0;
-
-            }
         });
         maxButton = new JButton("Max");
-        maxButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                gradientFlow = 1.0;
-                initGradientFlow();
-                gradientTime = 0;
-            }
+        maxButton.addActionListener(e -> {
+            gradientFlow = 1.0;
+            initGradientFlow();
+            gradientTime = 0;
         });
 
         clearButton = new JButton("Clear Table");
-        clearButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                txtAreaStr = "\tx \t y \t z\n";
-                processLayout();
-            }
+        clearButton.addActionListener(arg0 -> {
+            txtAreaStr = "\tx \t y \t z\n";
+            processLayout();
         });
         zoomFit = new JButton("Zoom fit");
-        zoomFit.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                isZoomFit = true;
-            }
-        });
+        zoomFit.addActionListener(arg0 -> isZoomFit = true);
         isZoomFit = false;
         init = true;
 
@@ -311,7 +289,7 @@ public class GraphXY extends JFrame implements MouseListener,
         new GraphXY(false);
     }
 
-    public void processLayout() {
+    private void processLayout() {
         int border = 70;
 
         if (init) {
@@ -381,15 +359,15 @@ public class GraphXY extends JFrame implements MouseListener,
             this.add(panel);
             init = false;
         }
-        /**
-         * pseudo - canvas
+        /*
+          pseudo - canvas
          */
         wd.setWindowSize(border * wChanged / 100, hChanged);
         panel.setBounds(border * wChanged / 100, 0, (100 - border) * wChanged / 100, hChanged);
         minMaxTxt.setText(txtAreaStr);
     }
 
-    public void cameraFindGraph() {
+    private void cameraFindGraph() {
         Double v[] = new Double[3];
         v[0] = (xmax + xmin) / 2;
         v[1] = (ymax + ymin) / 2;
@@ -405,7 +383,7 @@ public class GraphXY extends JFrame implements MouseListener,
      * @param s string to be read.
      * @return computation of the expression in s
      */
-    public double numericRead(String s) {
+    private double numericRead(String s) {
         if ("".equals(s))
             return 0;
         ExpressionFunction in;
@@ -414,7 +392,7 @@ public class GraphXY extends JFrame implements MouseListener,
         return in.compute(new Double[]{});
     }
 
-    public void buildFunction() {
+    private void buildFunction() {
         double nx, ny, x, y, z, colorHSB;
         int inx, iny;
         int MaxPoly = 25600;
@@ -517,7 +495,7 @@ public class GraphXY extends JFrame implements MouseListener,
         }
     }
 
-    public void setElementColor(Element e, double colorHSB) {
+    private void setElementColor(Element e, double colorHSB) {
         double red = 0;
         double blue = 240.0 / 360.0;
         double green = 120.0 / 360.0;
@@ -528,8 +506,8 @@ public class GraphXY extends JFrame implements MouseListener,
                     / (maxHeightColor - minHeightColor);
 
             if (colorState == 0) {
-                /**
-                 * linear interpolation between blue color and red
+                /*
+                  linear interpolation between blue color and red
                  */
                 colorHSB = blue + (red - blue) * 0.5 * (x + 1);
                 e.setColorPoint(Color.getHSBColor((float) colorHSB, 1f, 1f), i);
@@ -539,11 +517,11 @@ public class GraphXY extends JFrame implements MouseListener,
                         Color.getHSBColor((float) colorHSB, r.nextFloat(), 1f),
                         i);
             } else if (colorState == 2) {
-                /**
-                 * see discrete/finite calculus or Newton series to understand
-                 *
-                 * magically it is equal to color state 1 so there is no need
-                 * for it just here for fun.
+                /*
+                  see discrete/finite calculus or Newton series to understand
+
+                  magically it is equal to color state 1 so there is no need
+                  for it just here for fun.
                  */
                 double d2s = ((red - green) - (green - blue));
                 double ds = (green - blue);
@@ -553,7 +531,7 @@ public class GraphXY extends JFrame implements MouseListener,
         }
     }
 
-    public void buildAxis() {
+    private void buildAxis() {
         if (!axisAlreadyBuild) {
             Element e = new Line(new TriVector(0, 0, 0), new TriVector(1, 0, 0));
             e.setColor(Color.white);
@@ -577,7 +555,7 @@ public class GraphXY extends JFrame implements MouseListener,
         }
     }
 
-    public void infoColor() {
+    private void infoColor() {
         double red = 0;
         double blue = 240.0 / 360.0;
         double a, x, colorHSB, divN;
@@ -596,7 +574,7 @@ public class GraphXY extends JFrame implements MouseListener,
 
     }
 
-    public void maxPolyConstraint(double delta) {
+    private void maxPolyConstraint(double delta) {
         double nextStep = Math.sqrt(delta / 10E3);
 
         if (!isZBuffer) {
@@ -609,13 +587,13 @@ public class GraphXY extends JFrame implements MouseListener,
 
     }
 
-    public double randomPointInInterval(double xmin, double xmax) {
+    private double randomPointInInterval(double xmin, double xmax) {
         Random r = new Random();
 
         return xmin + (xmax - xmin) * r.nextDouble();
     }
 
-    public void initGradientFlow() {
+    private void initGradientFlow() {
 
         for (int i = 0; i < numGradPoints; i++) {
             optimalPoints[i] = new TriVector(randomPointInInterval(xmin, xmax),
@@ -623,7 +601,7 @@ public class GraphXY extends JFrame implements MouseListener,
         }
     }
 
-    public double dfdx(double x, double y) {
+    private double dfdx(double x, double y) {
         Double[] vh, v;
         double h = 1E-09;
         v = new Double[2];
@@ -636,7 +614,7 @@ public class GraphXY extends JFrame implements MouseListener,
         return df / h;
     }
 
-    public double dfdy(double x, double y) {
+    private double dfdy(double x, double y) {
         Double[] vh, v;
         double h = 1E-09;
         v = new Double[2];
@@ -649,7 +627,7 @@ public class GraphXY extends JFrame implements MouseListener,
         return df / h;
     }
 
-    public void gradientFlow(double dt) {
+    private void gradientFlow(double dt) {
         double x, y, z;
         Color c;
         boolean logic = false;
@@ -688,8 +666,8 @@ public class GraphXY extends JFrame implements MouseListener,
             }
         }
 
-        /**
-         * bad programming
+        /*
+          bad programming
          */
         if (logic || gradientTime >= maxGradientTime) {
             double zMinMaz;
@@ -735,7 +713,7 @@ public class GraphXY extends JFrame implements MouseListener,
 
     }
 
-    public void buildSphere(double radius) {
+    private void buildSphere(double radius) {
         double pi = Math.PI;
         double step = pi / 2;
         double n = 2 * pi / step;
@@ -755,7 +733,7 @@ public class GraphXY extends JFrame implements MouseListener,
         }
     }
 
-    public void drawSphere(TriVector p, Color c) {
+    private void drawSphere(TriVector p, Color c) {
         double pi = Math.PI;
         double step = pi / 2;
         double n = 2 * pi / step;
@@ -797,7 +775,7 @@ public class GraphXY extends JFrame implements MouseListener,
         wd.paint(g);
     }
 
-    public void orbit(double t, double p, TriVector x) {
+    private void orbit(double t, double p, TriVector x) {
 
         Matrix aux = new Matrix(3, 3);
         double cosP = Math.cos(p);
@@ -913,7 +891,7 @@ public class GraphXY extends JFrame implements MouseListener,
 
     }
 
-    public void canvasFocus() {
+    private void canvasFocus() {
         xMinTxt.transferFocusUpCycle();
         xMaxTxt.transferFocusUpCycle();
         functionString.transferFocusUpCycle();
