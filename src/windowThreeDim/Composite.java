@@ -6,6 +6,8 @@ import algebra.TriVector;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class Composite extends Element {
     private List<Element> elementList;
@@ -36,6 +38,10 @@ public class Composite extends Element {
             Element e = ite.next();
             e.transform(m, v);
         }
+    }
+
+    public void forEach(Consumer<Element> lambda) {
+        elementList.forEach(lambda);
     }
 
     @Override

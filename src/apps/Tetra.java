@@ -2,13 +2,16 @@ package apps;
 
 import algebra.Matrix;
 import algebra.TriVector;
+import visualization.ObjParser;
 import visualization.TextFrame;
 import window.ImageWindow;
+import windowThreeDim.Composite;
 import windowThreeDim.*;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -22,7 +25,9 @@ public class Tetra extends JFrame implements MouseListener,
     private static final String helpText = "< w > : Camera move foward / zoom in \n\n" +
             "< s > : Camera move backward /zoom out \n\n" +
             "< z > : Toggle wireframe / zbuffer \n\n" +
-            "< [1-3] > : various geometries \n\n" +
+            "< [1-6] > : various geometries \n\n" +
+            "< 7 > : sphere flow\n\n" +
+            "< 8 > : distance to camera shader\n\n" +
             "< mouse > : rotate camera\n\n" +
             "Made by Pedroth";
     private int wChanged, hChanged;
@@ -40,6 +45,8 @@ public class Tetra extends JFrame implements MouseListener,
     private boolean zBufferOn;
     private PaintMethod paint;
     private FrameCounter fps;
+    private Optional<Composite> figure = Optional.empty();
+    private boolean isSphereFlow = false;
 
     public Tetra(boolean isApplet) {
         // Set JFrame title
@@ -93,88 +100,97 @@ public class Tetra extends JFrame implements MouseListener,
     }
 
     private void buildTetra() {
+        Composite composite = new Composite();
         TriVector p1 = new TriVector(0.5, -0.5, -0.5);
         TriVector p2 = new TriVector(0.5, 0.5, -0.5);
         TriVector p3 = new TriVector(0, 0, 1);
         Element e = new Triangle(p1, p2, p3);
         e.setColor(Color.black);
-        graphics.addtoList(e);
+        composite.add(e);
         p1 = new TriVector(0.5, 0.5, -0.5);
         p2 = new TriVector(-0.5, 0.5, -0.5);
         p3 = new TriVector(0, 0, 1);
         e = new Triangle(p1, p2, p3);
         e.setColor(Color.blue);
-        graphics.addtoList(e);
+        composite.add(e);
         p1 = new TriVector(-0.5, 0.5, -0.5);
         p2 = new TriVector(-0.5, -0.5, -0.5);
         p3 = new TriVector(0, 0, 1);
         e = new Triangle(p1, p2, p3);
         e.setColor(Color.red);
-        graphics.addtoList(e);
+        composite.add(e);
         p1 = new TriVector(-0.5, -0.5, -0.5);
         p2 = new TriVector(0.5, -0.5, -0.5);
         p3 = new TriVector(0, 0, 1);
         e = new Triangle(p1, p2, p3);
         e.setColor(Color.green);
-        graphics.addtoList(e);
+        composite.add(e);
+        graphics.addtoList(composite);
+        figure = Optional.of(composite);
     }
 
     private void buildTri() {
         Random r = new Random();
         int n = 10;
+        Composite composite = new Composite();
         for (int i = 0; i < n; i++) {
             TriVector p1 = RandomPointInCube();
             TriVector p2 = RandomPointInCube();
             TriVector p3 = RandomPointInCube();
             Element e = new Triangle(p1, p2, p3);
             e.setColor(new Color(r.nextInt(255), r.nextInt(255), r.nextInt(255)));
-            graphics.addtoList(e);
+            composite.add(e);
         }
+        graphics.addtoList(composite);
+        figure = Optional.of(composite);
     }
 
     private void buildCube() {
+        Composite composite = new Composite();
         TriVector p1 = new TriVector(0.5, -0.5, -0.5);
         TriVector p2 = new TriVector(0.5, 0.5, -0.5);
         TriVector p3 = new TriVector(0.5, 0.5, 0.5);
         TriVector p4 = new TriVector(0.5, -0.5, 0.5);
         Element e = new Quad(p1, p2, p3, p4);
         e.setColor(Color.black);
-        graphics.addtoList(e);
+        composite.add(e);
         p1 = new TriVector(0.5, 0.5, -0.5);
         p2 = new TriVector(-0.5, 0.5, -0.5);
         p3 = new TriVector(-0.5, 0.5, 0.5);
         p4 = new TriVector(0.5, 0.5, 0.5);
         e = new Quad(p1, p2, p3, p4);
         e.setColor(Color.blue);
-        graphics.addtoList(e);
+        composite.add(e);
         p1 = new TriVector(-0.5, 0.5, -0.5);
         p2 = new TriVector(-0.5, 0.5, 0.5);
         p3 = new TriVector(-0.5, -0.5, 0.5);
         p4 = new TriVector(-0.5, -0.5, -0.5);
         e = new Quad(p1, p2, p3, p4);
         e.setColor(Color.red);
-        graphics.addtoList(e);
+        composite.add(e);
         p1 = new TriVector(-0.5, -0.5, -0.5);
         p2 = new TriVector(-0.5, -0.5, 0.5);
         p3 = new TriVector(0.5, -0.5, 0.5);
         p4 = new TriVector(0.5, -0.5, -0.5);
         e = new Quad(p1, p2, p3, p4);
         e.setColor(Color.green);
-        graphics.addtoList(e);
+        composite.add(e);
         p1 = new TriVector(0.5, -0.5, -0.5);
         p2 = new TriVector(0.5, 0.5, -0.5);
         p3 = new TriVector(-0.5, 0.5, -0.5);
         p4 = new TriVector(-0.5, -0.5, -0.5);
         e = new Quad(p1, p2, p3, p4);
         e.setColor(Color.gray);
-        graphics.addtoList(e);
+        composite.add(e);
         p1 = new TriVector(0.5, -0.5, 0.5);
         p2 = new TriVector(0.5, 0.5, 0.5);
         p3 = new TriVector(-0.5, 0.5, 0.5);
         p4 = new TriVector(-0.5, -0.5, 0.5);
         e = new Quad(p1, p2, p3, p4);
         e.setColor(Color.orange);
-        graphics.addtoList(e);
+        composite.add(e);
+        graphics.addtoList(composite);
+        figure = Optional.of(composite);
     }
 
     private TriVector RandomPointInCube() {
@@ -277,6 +293,7 @@ public class Tetra extends JFrame implements MouseListener,
 
     @Override
     public void keyPressed(KeyEvent arg0) {
+        isSphereFlow = false;
         if (arg0.getKeyCode() == KeyEvent.VK_W) {
             thrust = -5;
         } else if (arg0.getKeyCode() == KeyEvent.VK_S) {
@@ -290,6 +307,17 @@ public class Tetra extends JFrame implements MouseListener,
         } else if (arg0.getKeyCode() == KeyEvent.VK_3) {
             graphics.removeAllElements();
             buildCube();
+        } else if (arg0.getKeyCode() == KeyEvent.VK_4) {
+            graphics.removeAllElements();
+            buildBunny();
+        } else if (arg0.getKeyCode() == KeyEvent.VK_5) {
+            graphics.removeAllElements();
+            buildKakashi();
+        } else if (arg0.getKeyCode() == KeyEvent.VK_6) {
+            graphics.removeAllElements();
+            buildSonic();
+        } else if (arg0.getKeyCode() == KeyEvent.VK_7) {
+            isSphereFlow = true;
         } else if (arg0.getKeyCode() == KeyEvent.VK_8) {
             graphics.setMethod(new ZbufferShader());
         } else if (arg0.getKeyCode() == KeyEvent.VK_Z) {
@@ -300,6 +328,49 @@ public class Tetra extends JFrame implements MouseListener,
                 graphics.setMethod(new WiredPrespective());
             }
         }
+    }
+
+    private void buildSonic() {
+        ObjParser obj = new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/Sonic.obj?attredirects=0&d=1");
+        final Composite composite = obj.parse();
+        figure = Optional.of(composite);
+        double scale = 1;
+        double[][] m = {{scale, 0, 0}, {0, scale, 0}, {0, 0, scale}};
+        composite.transform(new Matrix(m), TriVector.multConst(-1, composite.centroid()));
+        graphics.addtoList(composite);
+        FlatShader shader = new FlatShader();
+        shader.setCullBack(true);
+        shader.addLightPoint(new TriVector(-3, 3, -3));
+        graphics.setMethod(shader);
+    }
+
+    private void buildKakashi() {
+        ObjParser obj = new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/Kakashi.obj?attredirects=0&d=1");
+        final Composite composite = obj.parse();
+        figure = Optional.of(composite);
+        double scale = 1;
+        double[][] m = {{scale, 0, 0}, {0, scale, 0}, {0, 0, scale}};
+        composite.transform(new Matrix(m), TriVector.multConst(-1, composite.centroid()));
+        graphics.addtoList(composite);
+        FlatShader shader = new FlatShader();
+        shader.setCullBack(true);
+        shader.addLightPoint(new TriVector(-3, 3, -3));
+        graphics.setMethod(shader);
+    }
+
+    private void buildBunny() {
+        ObjParser obj = new ObjParser("http://graphics.stanford.edu/~mdfisher/Data/Meshes/bunny.obj");
+        final Composite composite = obj.parse();
+        figure = Optional.of(composite);
+        composite.forEach(x -> x.setColor(Color.getHSBColor((float) Math.random(), 1.0f, 1.0f)));
+        double scale = 10;
+        double[][] m = {{scale, 0, 0}, {0, scale, 0}, {0, 0, scale}};
+        composite.transform(new Matrix(m), TriVector.multConst(-1, composite.centroid()));
+        graphics.addtoList(composite);
+        FlatShader shader = new FlatShader();
+        shader.setCullBack(true);
+        shader.addLightPoint(new TriVector(-3, 3, -3));
+        graphics.setMethod(shader);
     }
 
     @Override
@@ -325,7 +396,7 @@ public class Tetra extends JFrame implements MouseListener,
 
         @Override
         public void run() {
-            String s = "Tetra FPS : " + nFrames  +" - Press h for Help";
+            String s = "Tetra FPS : " + nFrames + " - Press h for Help";
             Tetra.this.setTitle(s);
             nFrames = 0;
         }
@@ -346,6 +417,18 @@ public class Tetra extends JFrame implements MouseListener,
             acceleration = -velocity + thrust;
             velocity += acceleration * dt;
             raw += velocity * dt;
+            if (figure.isPresent() && isSphereFlow) {
+                final Composite composite = figure.get();
+                final TriVector centroid = composite.centroid();
+                composite.forEach(x -> {
+                    for (int i = 0; i < 3; i++) {
+                        TriVector nPoint = x.getNPoint(i);
+                        final TriVector sub = TriVector.sub(centroid, nPoint);
+                        final TriVector sum = TriVector.sum(nPoint, TriVector.multConst(dt * (sub.getLength() - 1), sub));
+                        nPoint.setXYZMat(sum);
+                    }
+                });
+            }
             orbit(theta, phi);
             repaint();
         }
