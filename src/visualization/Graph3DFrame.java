@@ -103,7 +103,7 @@ public class Graph3DFrame extends JFrame implements MouseListener,
         flatShader.setCullBack(false);
         shader = flatShader;
         graphics.setMethod(shader);
-        wd.setBackGroundColor(Color.black);
+        wd.setBackGroundColor(Color.white);
 
         // Set default close operation for JFrame
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -271,11 +271,11 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 //
 //        test5(kakashi, frame);
 //
-//        test6(frame);
+        test6(frame);
 //
 //		test7(frame);
 
-        test8(frame);
+//        test8(frame);
 
         frame.plot();
     }

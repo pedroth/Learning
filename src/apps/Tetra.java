@@ -89,7 +89,6 @@ public class Tetra extends JFrame implements MouseListener,
         oldTime = (System.currentTimeMillis()) * 1E-03;
         timer = new Timer();
         thrust = 0;
-        timer.schedule(new Euler(), 0, 1);
         fps = new FrameCounter();
         timer.schedule(fps, 0, 1000);
         orbit(theta, phi);
@@ -215,7 +214,7 @@ public class Tetra extends JFrame implements MouseListener,
     public void update(Graphics g) {
         wd.clearImageWithBackGround();
         graphics.drawElements();
-//		System.out.println("" + raw);
+        run();
         wd.paint(g);
         fps.count();
     }
@@ -328,6 +327,7 @@ public class Tetra extends JFrame implements MouseListener,
                 graphics.setMethod(new WiredPrespective());
             }
         }
+        orbit(theta, phi);
     }
 
     private void buildSonic() {
@@ -387,6 +387,31 @@ public class Tetra extends JFrame implements MouseListener,
 
     }
 
+    public void run() {
+        currentTime = (System.currentTimeMillis()) * 1E-03;
+        double dt = currentTime - oldTime;
+        oldTime = currentTime;
+        acceleration = -velocity + thrust;
+        velocity += acceleration * dt;
+        raw += velocity * dt;
+        if (figure.isPresent() && isSphereFlow) {
+            final Composite composite = figure.get();
+            final TriVector centroid = composite.centroid();
+            composite.forEach(x -> {
+                for (int i = 0; i < 3; i++) {
+                    TriVector nPoint = x.getNPoint(i);
+                    final TriVector sub = TriVector.sub(centroid, nPoint);
+                    final double length = sub.getLength();
+                    sub.normalize();
+                    final TriVector sum = TriVector.sum(nPoint, TriVector.multConst(dt * (length - 1), sub));
+                    nPoint.setXYZMat(sum);
+                }
+            });
+        }
+        orbit(theta, phi);
+        repaint();
+    }
+
     public class FrameCounter extends TimerTask {
         private int nFrames;
 
@@ -405,32 +430,5 @@ public class Tetra extends JFrame implements MouseListener,
             nFrames++;
         }
 
-    }
-
-    class Euler extends TimerTask {
-
-        @Override
-        public void run() {
-            currentTime = (System.currentTimeMillis()) * 1E-03;
-            double dt = currentTime - oldTime;
-            oldTime = currentTime;
-            acceleration = -velocity + thrust;
-            velocity += acceleration * dt;
-            raw += velocity * dt;
-            if (figure.isPresent() && isSphereFlow) {
-                final Composite composite = figure.get();
-                final TriVector centroid = composite.centroid();
-                composite.forEach(x -> {
-                    for (int i = 0; i < 3; i++) {
-                        TriVector nPoint = x.getNPoint(i);
-                        final TriVector sub = TriVector.sub(centroid, nPoint);
-                        final TriVector sum = TriVector.sum(nPoint, TriVector.multConst(dt * (sub.getLength() - 1), sub));
-                        nPoint.setXYZMat(sum);
-                    }
-                });
-            }
-            orbit(theta, phi);
-            repaint();
-        }
     }
 }
