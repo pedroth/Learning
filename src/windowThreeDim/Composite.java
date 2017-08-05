@@ -4,10 +4,11 @@ import algebra.Matrix;
 import algebra.TriVector;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.stream.Stream;
 
 public class Composite extends Element {
     private List<Element> elementList;
@@ -44,6 +45,10 @@ public class Composite extends Element {
         elementList.forEach(lambda);
     }
 
+    public Stream<Element> stream() {
+        return elementList.stream();
+    }
+
     @Override
     public Element copy() {
         Composite ret = new Composite();
@@ -68,4 +73,13 @@ public class Composite extends Element {
         return acm;
     }
 
+    public double getDistanceStandardDeviation() {
+        final TriVector centroid = this.centroid();
+        final double reduce = this.stream().flatMap(x -> Arrays.stream(x.getPointsArray())).mapToDouble(x -> TriVector.sub(x, centroid).norm()).reduce(0, (a, b) -> a + b);
+        return reduce / this.getNumOfPoints();
+    }
+
+    public List<Element> getElementList() {
+        return elementList;
+    }
 }

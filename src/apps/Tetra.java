@@ -124,8 +124,13 @@ public class Tetra extends JFrame implements MouseListener,
         e = new Triangle(p1, p2, p3);
         e.setColor(Color.green);
         composite.add(e);
+        e = new Quad(new TriVector(-0.5, -0.5,-0.5), new TriVector(0.5,-0.5,-0.5), new TriVector(0.5,0.5,-0.5),new TriVector(-0.5,0.5,-0.5));
+        e.setColor(Color.YELLOW);
+        composite.add(e);
         graphics.addtoList(composite);
+        graphics.setMethod(new ZBufferPerspective());
         figure = Optional.of(composite);
+        raw = 3.0;
     }
 
     private void buildTri() {
@@ -141,7 +146,9 @@ public class Tetra extends JFrame implements MouseListener,
             composite.add(e);
         }
         graphics.addtoList(composite);
+        graphics.setMethod(new ZBufferPerspective());
         figure = Optional.of(composite);
+        raw = 3;
     }
 
     private void buildCube() {
@@ -190,6 +197,8 @@ public class Tetra extends JFrame implements MouseListener,
         composite.add(e);
         graphics.addtoList(composite);
         figure = Optional.of(composite);
+        graphics.setMethod(new ZBufferPerspective());
+        raw = 3.0;
     }
 
     private TriVector RandomPointInCube() {
@@ -338,9 +347,14 @@ public class Tetra extends JFrame implements MouseListener,
         double[][] m = {{scale, 0, 0}, {0, scale, 0}, {0, 0, scale}};
         composite.transform(new Matrix(m), TriVector.multConst(-1, composite.centroid()));
         graphics.addtoList(composite);
+        addFlatShader();
+        raw = 20;
+    }
+
+    private void addFlatShader() {
         FlatShader shader = new FlatShader();
         shader.setCullBack(true);
-        shader.addLightPoint(new TriVector(-3, 3, -3));
+        shader.addLightPoint(new TriVector(3, 3, 3));
         graphics.setMethod(shader);
     }
 
@@ -352,10 +366,8 @@ public class Tetra extends JFrame implements MouseListener,
         double[][] m = {{scale, 0, 0}, {0, scale, 0}, {0, 0, scale}};
         composite.transform(new Matrix(m), TriVector.multConst(-1, composite.centroid()));
         graphics.addtoList(composite);
-        FlatShader shader = new FlatShader();
-        shader.setCullBack(true);
-        shader.addLightPoint(new TriVector(-3, 3, -3));
-        graphics.setMethod(shader);
+        addFlatShader();
+        raw = 3.0;
     }
 
     private void buildBunny() {
@@ -367,10 +379,8 @@ public class Tetra extends JFrame implements MouseListener,
         double[][] m = {{scale, 0, 0}, {0, scale, 0}, {0, 0, scale}};
         composite.transform(new Matrix(m), TriVector.multConst(-1, composite.centroid()));
         graphics.addtoList(composite);
-        FlatShader shader = new FlatShader();
-        shader.setCullBack(true);
-        shader.addLightPoint(new TriVector(-3, 3, -3));
-        graphics.setMethod(shader);
+        addFlatShader();
+        raw = 3.0;
     }
 
     @Override
@@ -397,13 +407,14 @@ public class Tetra extends JFrame implements MouseListener,
         if (figure.isPresent() && isSphereFlow) {
             final Composite composite = figure.get();
             final TriVector centroid = composite.centroid();
+            final double std = composite.getDistanceStandardDeviation();
             composite.forEach(x -> {
                 for (int i = 0; i < 3; i++) {
                     TriVector nPoint = x.getNPoint(i);
                     final TriVector sub = TriVector.sub(centroid, nPoint);
                     final double length = sub.getLength();
                     sub.normalize();
-                    final TriVector sum = TriVector.sum(nPoint, TriVector.multConst(dt * (length - 1), sub));
+                    final TriVector sum = TriVector.sum(nPoint, TriVector.multConst(dt * (length - std), sub));
                     nPoint.setXYZMat(sum);
                 }
             });

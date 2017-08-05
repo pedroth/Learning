@@ -112,4 +112,8 @@ public class TriVector extends Matrix {
         Matrix aux = TriVector.multiConsMatrix(x, this);
         this.setXYZMat(aux);
     }
+
+    public double norm() {
+        return Math.sqrt(Matrix.vInnerProduct(this, this));
+    }
 }

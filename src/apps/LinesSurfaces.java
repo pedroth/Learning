@@ -14,7 +14,7 @@ import java.awt.event.*;
 import java.util.Random;
 
 public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionListener, KeyListener, MouseWheelListener {
-    private static String helpText = "< w > : Camera move foward / zoom in \n\n" + "< s > : Camera move backward /zoom out \n\n" + "< z > : Toggle wireframe / zbuffer \n\n" + "< n > : Toggle flat shading \n\n" + "< [1-3] > : change color of surface \n\n" + "< [4 - 7] > : various surfaces examples \n\n" + "< l > : rotating light mode \n\n" + "< 8 > : interpolative colors \n\n" + "< 9 > : level set shader\n\n" + "< Available functions > : sin ,cos, exp, ln, tan, acos, asin, atan, min, adding more \n\n" + "< operators > : +, - , *, ^ \n\n" + "< Available constants > : pi\n\n" + "< a > : draw Axis \n\n" + "< mouse > : rotate camera\n" + "---------------------------------------------------\n\n" + "< g > : generate obj file!!!\n\n" + "----------------------------------------------------\n\n" + "Made by Pedroth";
+    private static String helpText = "< w > : Camera move foward / zoom in \n\n" + "< s > : Camera move backward /zoom out \n\n" + "< z > : Toggle wireframe / zbuffer \n\n" + "< n > : Toggle flat shading \n\n" + "< [1-3] > : change color of surface \n\n" + "< [4 - 7] > : various surfaces examples \n\n" + "< l > : rotating light mode \n\n" + "< 8 > : interpolative colors \n\n" + "< 9 > : level set shader\n\n" + "< 0 > : Z-buffer shader\n\n" + "< Available functions > : sin ,cos, exp, ln, tan, acos, asin, atan, min, adding more \n\n" + "< operators > : +, - , *, ^ \n\n" + "< Available constants > : pi\n\n" + "< a > : draw Axis \n\n" + "< mouse > : rotate camera\n" + "---------------------------------------------------\n\n" + "< g > : generate obj file!!!\n\n" + "----------------------------------------------------\n\n" + "Made by Pedroth";
 
     /*
      * size of the screen
@@ -180,7 +180,7 @@ public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionL
         /*
          * Begin the engine
          */
-        graphics = new TriWin(Math.PI/2);
+        graphics = new TriWin(Math.PI / 2);
         wd = graphics.getBuffer();
         shader = new FlatShader();
         shader.addLightPoint(new TriVector(1, 0, 0));
@@ -827,6 +827,8 @@ public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionL
             graphics.setMethod(new InterpolativeShader());
         } else if (arg0.getKeyCode() == KeyEvent.VK_9) {
             graphics.setMethod(new LevelSetShader());
+        } else if (arg0.getKeyCode() == KeyEvent.VK_0) {
+            graphics.setMethod(new ZbufferShader());
         } else if (arg0.getKeyCode() == KeyEvent.VK_G) {
             generateMesh();
         }
