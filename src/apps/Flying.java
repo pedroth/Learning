@@ -20,7 +20,6 @@ public class Flying extends JFrame implements MouseListener, MouseMotionListener
     /**
      * 3D Engine
      */
-    private ImageWindow wd;
     private TriWin graphics;
     /**
      * spherical coordinates of the camera
@@ -45,19 +44,15 @@ public class Flying extends JFrame implements MouseListener, MouseMotionListener
 
 
     public Flying(boolean isApplet) {
-        // Set JFrame title
-        super("Robot - Press h for Help");
-
         // init
         this.setLayout(null);
         /**
          * begin the engine
          */
-        graphics = new TriWin(Math.PI/3);
-        wd = graphics.getBuffer();
+        graphics = new TriWin(Math.PI / 2);
         shader = new FlatShader();
         graphics.setMethod(shader);
-        wd.setBackGroundColor(new Color(0.9f, 0.9f, 0.9f));
+        graphics.getBuffer().setBackGroundColor(new Color(0.9f, 0.9f, 0.9f));
 
         //Set default close operation for JFrame
         if (!isApplet) {
@@ -65,14 +60,14 @@ public class Flying extends JFrame implements MouseListener, MouseMotionListener
         }
 
         // Set JFrame size
-        setSize(800, 600);
+        this.setSize(800, 600);
 
         wChanged = this.getWidth();
         hChanged = this.getHeight();
 
         oldTime = (System.currentTimeMillis()) * 1E-03;
 
-        wd.setWindowSize(wChanged, hChanged);
+        graphics.getBuffer().setWindowSize(wChanged, hChanged);
 
         this.addKeyListener(this);
         this.addMouseListener(this);
@@ -197,30 +192,21 @@ public class Flying extends JFrame implements MouseListener, MouseMotionListener
         if (Math.abs(wChanged - this.getWidth()) > 0 || Math.abs(hChanged - this.getHeight()) > 0) {
             wChanged = this.getWidth();
             hChanged = this.getHeight();
-            wd.setWindowSize(this.getWidth(), this.getHeight());
+            graphics.setWindowSize(this.getWidth(), this.getHeight());
         }
         update(g);
     }
 
     public void update(Graphics g) {
-        wd.clearImageWithBackGround();
+        graphics.getBuffer().clearImageWithBackGround();
         currentTime = (System.currentTimeMillis()) * 1E-03;
         double dt = currentTime - oldTime;
         oldTime = currentTime;
         orbit(theta, phi, dt);
         graphics.drawElements();
-        wd.paint(g);
+        graphics.getBuffer().paint(g);
+        setTitle("FPS " + Math.floor(1.0 / Math.max(dt, 1E-12)));
         repaint();
-    }
-
-    public double clamp(double x, double xmin, double xmax) {
-        double ans = x;
-        if (x < xmin) {
-            ans = xmin;
-        } else if (x > xmax) {
-            ans = xmax;
-        }
-        return ans;
     }
 
     public void orbit(double t, double p, double dt) {
@@ -274,6 +260,12 @@ public class Flying extends JFrame implements MouseListener, MouseMotionListener
         if (keyCode == KeyEvent.VK_D) {
             ans = TriVector.sum(ans, new TriVector(thrust, 0, 0));
         }
+        if (keyCode == KeyEvent.VK_PLUS) {
+            graphics.setAlpha(graphics.getAlpha() + Math.PI / 32);
+        }
+        if (keyCode == KeyEvent.VK_MINUS) {
+            graphics.setAlpha(graphics.getAlpha() - Math.PI / 32);
+        }
         eyeThrust = ans;
     }
 
@@ -297,12 +289,10 @@ public class Flying extends JFrame implements MouseListener, MouseMotionListener
         newMy = arg0.getY();
         double dx = newMx - mx;
         double dy = newMy - my;
-
         if (SwingUtilities.isLeftMouseButton(arg0)) {
             theta = theta - 2 * Math.PI * (dx / wChanged);
             phi = phi + 2 * Math.PI * (dy / hChanged);
         }
-
         mx = newMx;
         my = newMy;
     }
@@ -340,6 +330,5 @@ public class Flying extends JFrame implements MouseListener, MouseMotionListener
     @Override
     public void mouseReleased(MouseEvent arg0) {
         // TODO Auto-generated method stub
-
     }
 }

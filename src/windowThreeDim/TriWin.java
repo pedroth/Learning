@@ -19,9 +19,33 @@ public class TriWin {
     }
 
     public TriWin(double alpha) {
-        double windowSize = Math.tan(alpha / 2);
-        buffer = new ImageWindow(-windowSize, windowSize, -windowSize, windowSize);
+        setAlpha(alpha);
         l = new LinkedList<>();
+    }
+
+    public double getAlpha() {
+        final double dy = buffer.getYMax() - buffer.getYMin();
+        return 2 * Math.atan(dy / 2);
+    }
+
+    /**
+     * @param alpha field of view angle for both width and height
+     */
+    public void setAlpha(double alpha) {
+        double windowSize = Math.tan(alpha / 2);
+        int windowWidth, windowHeight;
+        if (buffer != null) {
+            windowWidth  = buffer.getWindowWidth();
+            windowHeight = buffer.getWindowHeight();
+        } else {
+            windowWidth  = 100;
+            windowHeight = 100;
+        }
+        buffer = new ImageWindow(-windowSize, windowSize, -windowSize, windowSize);
+        buffer.setWindowSize(windowWidth, windowHeight);
+        if (method != null) {
+            method.setWindow(buffer);
+        }
     }
 
     public void addtoList(Element e) {

@@ -341,7 +341,7 @@ public class ZBufferPerspective implements PaintMethod {
         aux[1][0] = Math.min(xmax, wd.getWindowWidth());
         aux[1][1] = Math.min(ymax, wd.getWindowHeight());
 
-        // wd.getGraphics().drawRect(xmin, ymin, xmax - xmin, ymax - ymin);
+//        wd.getGraphics().drawRect(xmin, ymin, xmax - xmin, ymax - ymin);
         return aux;
     }
 

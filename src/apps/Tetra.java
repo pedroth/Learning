@@ -4,7 +4,6 @@ import algebra.Matrix;
 import algebra.TriVector;
 import visualization.ObjParser;
 import visualization.TextFrame;
-import window.ImageWindow;
 import windowThreeDim.Composite;
 import windowThreeDim.*;
 
@@ -32,7 +31,6 @@ public class Tetra extends JFrame implements MouseListener,
             "Made by Pedroth";
     private int wChanged, hChanged;
     private TriWin graphics;
-    private ImageWindow wd;
     private double theta, phi;
     private int mx, my, newMx, newMy;
     private double raw;
@@ -55,18 +53,14 @@ public class Tetra extends JFrame implements MouseListener,
         // init
         zBufferOn = true;
         graphics = new TriWin();
-        wd = graphics.getBuffer();
         paint = new ZBufferPerspective();
         graphics.setMethod(paint);
         buildTetra();
-        wd.setBackGroundColor(Color.white);
+        graphics.getBuffer().setBackGroundColor(Color.white);
         theta = 0;
         phi = 0;
 
-        /**
-         * there is no need for the instruction below
-         */
-        // // Set default close operation for JFrame
+        // Set default close operation for JFrame
         if (!isApplet) {
             setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         }
@@ -76,7 +70,7 @@ public class Tetra extends JFrame implements MouseListener,
         wChanged = this.getWidth();
         hChanged = this.getHeight();
 
-        wd.setWindowSize(wChanged, hChanged);
+        graphics.getBuffer().setWindowSize(wChanged, hChanged);
 
         // Make JFrame visible
         setVisible(true);
@@ -124,7 +118,7 @@ public class Tetra extends JFrame implements MouseListener,
         e = new Triangle(p1, p2, p3);
         e.setColor(Color.green);
         composite.add(e);
-        e = new Quad(new TriVector(-0.5, -0.5,-0.5), new TriVector(0.5,-0.5,-0.5), new TriVector(0.5,0.5,-0.5),new TriVector(-0.5,0.5,-0.5));
+        e = new Quad(new TriVector(-0.5, -0.5, -0.5), new TriVector(0.5, -0.5, -0.5), new TriVector(0.5, 0.5, -0.5), new TriVector(-0.5, 0.5, -0.5));
         e.setColor(Color.YELLOW);
         composite.add(e);
         graphics.addtoList(composite);
@@ -213,7 +207,7 @@ public class Tetra extends JFrame implements MouseListener,
     public void paint(Graphics g) {
         if (Math.abs(wChanged - this.getWidth()) > 0
                 || Math.abs(hChanged - this.getHeight()) > 0) {
-            wd.setWindowSize(this.getWidth(), this.getHeight());
+            graphics.setWindowSize(this.getWidth(), this.getHeight());
             wChanged = this.getWidth();
             hChanged = this.getHeight();
         }
@@ -221,10 +215,10 @@ public class Tetra extends JFrame implements MouseListener,
     }
 
     public void update(Graphics g) {
-        wd.clearImageWithBackGround();
+        graphics.getBuffer().clearImageWithBackGround();
         graphics.drawElements();
         run();
-        wd.paint(g);
+        graphics.getBuffer().paint(g);
         fps.count();
     }
 
@@ -326,8 +320,14 @@ public class Tetra extends JFrame implements MouseListener,
             buildSonic();
         } else if (arg0.getKeyCode() == KeyEvent.VK_7) {
             isSphereFlow = true;
+        } else if (arg0.getKeyCode() == KeyEvent.VK_PLUS) {
+            graphics.setAlpha(graphics.getAlpha() + Math.PI / 32);
+        } else if (arg0.getKeyCode() == KeyEvent.VK_MINUS) {
+            graphics.setAlpha(graphics.getAlpha() - Math.PI / 32);
         } else if (arg0.getKeyCode() == KeyEvent.VK_8) {
-            graphics.setMethod(new ZbufferShader());
+            final ZbufferShader method = new ZbufferShader();
+            method.setCullBack(true);
+            graphics.setMethod(method);
         } else if (arg0.getKeyCode() == KeyEvent.VK_Z) {
             zBufferOn = !zBufferOn;
             if (zBufferOn) {

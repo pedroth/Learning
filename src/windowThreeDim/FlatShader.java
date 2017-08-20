@@ -138,8 +138,7 @@ public class FlatShader extends ZBufferPerspective {
         color[2] = Math.max(color[2], 0.0f);
 
 
-        shade = new Color((float) color[0], (float) color[1],
-                (float) color[2]);
+        shade = new Color(color[0], color[1], color[2]);
         super.paintTriangle(element);
     }
 
