@@ -54,7 +54,7 @@ public class SufixTreeTokenizer extends TokenRecognizer {
         for (int i = 0; i < psize; i++)
             ConstructDSM(p[i], root);
         ConstructFailFunction();
-        // printStateMachine(root);
+        //printStateMachine(root);
     }
 
     private void ConstructDSM(String pattern, Node n) {
@@ -125,6 +125,8 @@ public class SufixTreeTokenizer extends TokenRecognizer {
                 state = root;
             } else if (state.hasNextFail(c)) {
                 state = state.getFail(c);
+            } else {
+                state = root;
             }
         }
         if (state.isFinalState())
