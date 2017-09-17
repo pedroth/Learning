@@ -142,7 +142,7 @@ public class FlatShader extends ZBufferPerspective {
         super.paintTriangle(element);
     }
 
-    public void threasholdColor(TriVector c) {
+    public void boundColor(TriVector c) {
         c.setX(Math.min(c.getX(), 1));
         c.setY(Math.min(c.getY(), 1));
         c.setZ(Math.min(c.getZ(), 1));

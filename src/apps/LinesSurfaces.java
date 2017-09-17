@@ -187,7 +187,7 @@ public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionL
         shader.setShininess(15);
         shader.setAmbientLightParameter(0.5);
         graphics.setMethod(shader);
-        // shader.setCullBack(true);
+        shader.setCullBack(true);
         wd.setBackGroundColor(Color.black);
         isZBuffer = true;
         colorState = 0;
@@ -333,15 +333,6 @@ public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionL
 
     public static void main(String[] args) {
         new LinesSurfaces(false);
-    }
-
-    public static boolean isNumeric(String str) {
-        try {
-            double d = Double.parseDouble(str);
-        } catch (NumberFormatException nfe) {
-            return false;
-        }
-        return true;
     }
 
     /**

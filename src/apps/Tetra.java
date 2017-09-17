@@ -335,8 +335,15 @@ public class Tetra extends JFrame implements MouseListener,
             } else {
                 graphics.setMethod(new WiredPrespective());
             }
+        } else if (arg0.getKeyCode() == KeyEvent.VK_9) {
+            graphics.removeAllElements();
+            BuildWorld();
         }
         orbit(theta, phi);
+    }
+
+    private void BuildWorld() {
+
     }
 
     private void buildSonic() {

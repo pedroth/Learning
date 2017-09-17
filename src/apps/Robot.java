@@ -3,6 +3,7 @@ package apps;
 import algebra.Matrix;
 import algebra.TriVector;
 import visualization.TextFrame;
+import visualization.ThreeUtils;
 import window.ImageWindow;
 import windowThreeDim.Composite;
 import windowThreeDim.*;
@@ -20,7 +21,7 @@ import java.util.Stack;
  * @author pedro
  */
 public class Robot extends JFrame implements MouseListener, MouseMotionListener, KeyListener, MouseWheelListener {
-    private static String helpText = "< left mouse button > : change orientation of camera \n\n" + "< right mouse button > : zoom in / zoom out \n\n" + "< [w, s] ans arrows > : move ball \n\n" + "< t > : toggle space state \n\n" + "Made by Pedroth";
+    private static String helpText = "< left mouse button > : change orientation of camera \n\n" + "< right mouse button > : zoom in / zoom out \n\n" + "< [w, s] and arrows > : move ball \n\n" + "< t > : toggle space state \n\n" + "Made by Pedroth";
     Transformation ballTransform;
     /**
      * size of the screen
@@ -143,33 +144,7 @@ public class Robot extends JFrame implements MouseListener, MouseMotionListener,
     }
 
     public void buildSphere(double radius) {
-        double pi = Math.PI;
-        double step = pi / 16;
-        double nV = 2 * pi / step;
-        double nU = pi / step;
-        int numIteV = (int) Math.floor(nV);
-        int numIteU = (int) Math.floor(nU);
-        TriVector[][] sphere = new TriVector[numIteU][numIteV];
-        ball = new Composite();
-        for (int j = 0; j < numIteV; j++) {
-            for (int i = 0; i < numIteU; i++) {
-                double u = step * i;
-                double v = step * j;
-                double sinU = Math.sin(u);
-                double cosU = Math.cos(u);
-                double sinV = Math.sin(v);
-                double cosV = Math.cos(v);
-                sphere[i][j] = new TriVector(radius * sinU * cosV, radius * sinU * sinV, radius * cosU);
-            }
-        }
-        TriVector p = new TriVector();
-        for (int j = 0; j < numIteV - 1; j++) {
-            for (int i = 0; i < numIteU - 1; i++) {
-                Quad e = new Quad(TriVector.sum(p, sphere[i][j]), TriVector.sum(p, sphere[i + 1][j]), TriVector.sum(p, sphere[i + 1][j + 1]), TriVector.sum(p, sphere[i][j + 1]));
-                e.setColor(Color.red);
-                ball.add(e);
-            }
-        }
+        ball = ThreeUtils.buildSphere(radius, 16, Color.red);
     }
 
     private void createRobot() {
@@ -177,7 +152,7 @@ public class Robot extends JFrame implements MouseListener, MouseMotionListener,
         Composite[] box = new Composite[numberDOF];
         for (int i = 0; i < box.length; i++) {
             float c = 0.1f + (0.4f / box.length) * i;
-            box[i] = buildUnitaryCube(new Color(c, c, c));
+            box[i] = ThreeUtils.buildUnitaryCube(new Color(c, c, c));
         }
         /**
          * initial transformation of the cube
@@ -223,37 +198,6 @@ public class Robot extends JFrame implements MouseListener, MouseMotionListener,
         originFrame.addNode(transform[0]);
 
         dOF = transform;
-    }
-
-    private Composite buildUnitaryCube(Color c) {
-        Composite compositeCube = new Composite();
-        TriVector[][][] cube = new TriVector[2][2][2];
-        for (int i = 0; i < cube.length; i++) {
-            for (int j = 0; j < cube.length; j++) {
-                for (int k = 0; k < cube.length; k++) {
-                    double x = i - 0.5;
-                    double y = j - 0.5;
-                    double z = k - 0.5;
-                    cube[i][j][k] = new TriVector(x, y, z);
-                }
-            }
-        }
-        for (int i = 0; i < cube.length; i++) {
-            Element e = new Quad(cube[i][0][0], cube[i][1][0], cube[i][1][1], cube[i][0][1]);
-            e.setColor(c);
-            compositeCube.add(e);
-        }
-        for (int i = 0; i < cube.length; i++) {
-            Element e = new Quad(cube[0][i][0], cube[1][i][0], cube[1][i][1], cube[0][i][1]);
-            e.setColor(c);
-            compositeCube.add(e);
-        }
-        for (int i = 0; i < cube.length; i++) {
-            Element e = new Quad(cube[0][0][i], cube[1][0][i], cube[1][1][i], cube[0][1][i]);
-            e.setColor(c);
-            compositeCube.add(e);
-        }
-        return compositeCube;
     }
 
     public void paint(Graphics g) {

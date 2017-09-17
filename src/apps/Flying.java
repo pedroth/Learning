@@ -3,9 +3,10 @@ package apps;
 import algebra.Matrix;
 import algebra.TriVector;
 import visualization.TextFrame;
-import window.ImageWindow;
+import visualization.ThreeUtils;
 import windowThreeDim.Composite;
-import windowThreeDim.*;
+import windowThreeDim.FlatShader;
+import windowThreeDim.TriWin;
 
 import javax.swing.*;
 import java.awt.*;
@@ -51,6 +52,7 @@ public class Flying extends JFrame implements MouseListener, MouseMotionListener
          */
         graphics = new TriWin(Math.PI / 2);
         shader = new FlatShader();
+        shader.setCullBack(false);
         graphics.setMethod(shader);
         graphics.getBuffer().setBackGroundColor(new Color(0.9f, 0.9f, 0.9f));
 
@@ -76,12 +78,12 @@ public class Flying extends JFrame implements MouseListener, MouseMotionListener
 
         shader.setAmbientLightParameter(0.5);
         shader.setShininess(25);
-        shader.addLightPoint(new TriVector(10, 3, 3));
+        shader.addLightPoint(new TriVector(3, 3, 3));
         orbit(theta, phi, 0);
 
         buildWorld();
 
-        Composite composite = buildUnitaryCube(Color.RED);
+        Composite composite = ThreeUtils.buildUnitaryCube(Color.RED);
         Matrix matrix = new Matrix(3, 3);
         matrix.identity();
         matrix.setMatrix(3, 3, 25);
@@ -104,7 +106,7 @@ public class Flying extends JFrame implements MouseListener, MouseMotionListener
     private void buildWorld() {
         double xmin = -7;
         double xmax = 7;
-        int samples = 20;
+        int samples = 10;
         for (int i = 0; i < samples; i++) {
             for (int j = 0; j < samples; j++) {
                 for (int k = 0; k < samples; k++) {
@@ -113,7 +115,12 @@ public class Flying extends JFrame implements MouseListener, MouseMotionListener
                     double x3 = xmin + (xmax - xmin) * (1.0 * k / (samples - 1));
                     if (Math.random() < 0.1) {
                         TriVector x = new TriVector(x1, x2, x3);
-                        Composite composite = buildUnitaryCube(Color.RED);
+                        Composite composite = null;
+                        if (Math.random() < 0.5) {
+                            composite = ThreeUtils.buildUnitaryCube(Color.RED);
+                        } else {
+                            composite = ThreeUtils.buildSphere(1.0, 10, Color.RED);
+                        }
                         Matrix matrix = new Matrix(3, 3);
                         matrix.identity();
                         matrix.multiConstMatrix(0.5);
@@ -123,69 +130,6 @@ public class Flying extends JFrame implements MouseListener, MouseMotionListener
                 }
             }
         }
-    }
-
-    public Composite buildSphere(double radius) {
-        double pi = Math.PI;
-        double step = pi / 16;
-        double nV = 2 * pi / step;
-        double nU = pi / step;
-        int numIteV = (int) Math.floor(nV);
-        int numIteU = (int) Math.floor(nU);
-        TriVector[][] sphere = new TriVector[numIteU][numIteV];
-        Composite ball = new Composite();
-        for (int j = 0; j < numIteV; j++) {
-            for (int i = 0; i < numIteU; i++) {
-                double u = step * i;
-                double v = step * j;
-                double sinU = Math.sin(u);
-                double cosU = Math.cos(u);
-                double sinV = Math.sin(v);
-                double cosV = Math.cos(v);
-                sphere[i][j] = new TriVector(radius * sinU * cosV, radius * sinU * sinV, radius * cosU);
-            }
-        }
-        TriVector p = new TriVector();
-        for (int j = 0; j < numIteV - 1; j++) {
-            for (int i = 0; i < numIteU - 1; i++) {
-                Quad e = new Quad(TriVector.sum(p, sphere[i][j]), TriVector.sum(p, sphere[i + 1][j]), TriVector.sum(p, sphere[i + 1][j + 1]), TriVector.sum(p, sphere[i][j + 1]));
-                e.setColor(Color.red);
-                ball.add(e);
-            }
-        }
-        return ball;
-    }
-
-
-    private Composite buildUnitaryCube(Color c) {
-        Composite compositeCube = new Composite();
-        TriVector[][][] cube = new TriVector[2][2][2];
-        for (int i = 0; i < cube.length; i++) {
-            for (int j = 0; j < cube.length; j++) {
-                for (int k = 0; k < cube.length; k++) {
-                    double x = i - 0.5;
-                    double y = j - 0.5;
-                    double z = k - 0.5;
-                    cube[i][j][k] = new TriVector(x, y, z);
-                }
-            }
-        }
-        for (int i = 0; i < cube.length; i++) {
-            Element e = new Quad(cube[i][0][0], cube[i][1][0], cube[i][1][1], cube[i][0][1]);
-            e.setColor(c);
-            compositeCube.add(e);
-        }
-        for (int i = 0; i < cube.length; i++) {
-            Element e = new Quad(cube[0][i][0], cube[1][i][0], cube[1][i][1], cube[0][i][1]);
-            e.setColor(c);
-            compositeCube.add(e);
-        }
-        for (int i = 0; i < cube.length; i++) {
-            Element e = new Quad(cube[0][0][i], cube[1][0][i], cube[1][1][i], cube[0][1][i]);
-            e.setColor(c);
-            compositeCube.add(e);
-        }
-        return compositeCube;
     }
 
     public void paint(Graphics g) {
