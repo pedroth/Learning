@@ -187,7 +187,6 @@ public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionL
         shader.setShininess(15);
         shader.setAmbientLightParameter(0.5);
         graphics.setMethod(shader);
-        shader.setCullBack(true);
         wd.setBackGroundColor(Color.black);
         isZBuffer = true;
         colorState = 0;

@@ -4,6 +4,7 @@ import algebra.Matrix;
 import algebra.TriVector;
 import visualization.ObjParser;
 import visualization.TextFrame;
+import visualization.ThreeUtils;
 import windowThreeDim.Composite;
 import windowThreeDim.*;
 
@@ -27,7 +28,9 @@ public class Tetra extends JFrame implements MouseListener,
             "< [1-6] > : various geometries \n\n" +
             "< 7 > : sphere flow\n\n" +
             "< 8 > : distance to camera shader\n\n" +
+            "< 9 > : random planet\n\n" +
             "< mouse > : rotate camera\n\n" +
+            "< +,- > : increase angle of view , decrease angle of view\n\n" +
             "Made by Pedroth";
     private int wChanged, hChanged;
     private TriWin graphics;
@@ -342,8 +345,115 @@ public class Tetra extends JFrame implements MouseListener,
         orbit(theta, phi);
     }
 
-    private void BuildWorld() {
+    double powInt(double x, int n) {
+        if (n == 0) {
+            return 1;
+        } else if (n == 1) {
+            return x;
+        } else {
+            if (n % 2 == 0) {
+                return powInt(x * x, n / 2);
+            } else {
+                return x * powInt(x * x, n / 2);
+            }
+        }
+    }
 
+
+    double fourier3D(TriVector x, double[] fourierCoeff) {
+        int n = (int) Math.floor(Math.sqrt(fourierCoeff.length));
+        double acc = 0;
+        final double y = x.getY();
+        final double xx = x.getX();
+        double theta = Math.atan2(y, xx);
+        double alpha = Math.atan2(y * y + xx * xx, x.getZ());
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                final int p = n * i + j;
+                double w = i + j;
+                acc += powInt(0.85, p) * fourierCoeff[p] * Math.sin(w * theta) * Math.sin(w * alpha);
+            }
+        }
+        return acc;
+    }
+
+    private void BuildWorld() {
+        int numOfFrequencies = 50;
+        double[] fourierCoeff = new double[numOfFrequencies];
+        for (int i = 0; i < fourierCoeff.length; i++) {
+            fourierCoeff[i] = -0.25 + 0.5 * Math.random();
+        }
+        Composite sphere = ThreeUtils.buildSphere(1.0, 50, Color.RED);
+        Composite water = ThreeUtils.buildSphere(0.75 + 0.5 * Math.random(), 20, Color.BLUE);
+        sphere.forEach(element -> {
+            final int numOfPoints = element.getNumOfPoints();
+            final TriVector[] pointsArray = element.getPointsArray();
+            for (int i = 0; i < numOfPoints; i++) {
+                pointsArray[i] = TriVector.sum(pointsArray[i], TriVector.multConst(fourier3D(pointsArray[i], fourierCoeff), pointsArray[i]));
+            }
+        });
+        final Double maxNorm = sphere.stream().map(e -> {
+            final TriVector[] pointsArray = e.getPointsArray();
+            final int numOfPoints = e.getNumOfPoints();
+            double max = -1;
+            for (int i = 0; i < numOfPoints; i++) {
+                final double norm = pointsArray[i].norm();
+                max = Math.max(max, norm);
+            }
+            return max;
+        }).reduce(-1.0, Math::max);
+        final Double minNorm = sphere.stream().map(e -> {
+            final TriVector[] pointsArray = e.getPointsArray();
+            final int numOfPoints = e.getNumOfPoints();
+            double min = Double.MAX_VALUE;
+            for (int i = 0; i < numOfPoints; i++) {
+                final double norm = pointsArray[i].norm();
+                min = Math.min(min, norm);
+            }
+            return min;
+        }).reduce(Double.MAX_VALUE, Math::min);
+        sphere.forEach(element -> {
+            final int numOfPoints = element.getNumOfPoints();
+            final TriVector[] pointsArray = element.getPointsArray();
+            for (int i = 0; i < numOfPoints; i++) {
+                final double norm = pointsArray[i].norm();
+                element.setColorPoint(getWorldColor(norm, minNorm, maxNorm), i);
+            }
+        });
+        figure = Optional.of(sphere);
+        graphics.addtoList(sphere);
+        graphics.addtoList(water);
+        graphics.setMethod(new InterpolativeShader());
+//        addFlatShader();
+    }
+
+    private Color getWorldColor(double x, Double minNorm, Double maxNorm) {
+        final double z = (x - minNorm) / (maxNorm - minNorm);
+        final TriVector color = linearInterpolate(z, new double[]{0, 0.75, 1}, new TriVector[]{new TriVector(0, 1, 0), new TriVector(0.54509807, 0.33333334, 0.11764706), new TriVector(1, 1, 1)});
+        return new Color((float) color.getX(), (float) color.getY(), (float) color.getZ());
+    }
+
+    /**
+     * @param x0
+     * @param x  assumes it is a order array
+     * @param y
+     * @return
+     */
+    private TriVector linearInterpolate(double x0, double[] x, TriVector[] y) {
+        assert x.length == y.length;
+        assert x0 >= x[0] && x0 <= x[x.length - 1];
+        int lower = 0;
+        int upper = x.length - 1;
+        int len = upper - lower;
+        while(len > 1) {
+            if(x[len / 2] >= x0) {
+                upper = len / 2;
+            }else {
+                lower = len / 2;
+            }
+            len = upper - lower;
+        }
+        return TriVector.sum(TriVector.multConst((x[upper] - x0) / (x[upper] - x[lower]), y[lower]), TriVector.multConst((x0 - x[lower]) / (x[upper] - x[lower]), y[upper]));
     }
 
     private void buildSonic() {
@@ -416,7 +526,8 @@ public class Tetra extends JFrame implements MouseListener,
             final TriVector centroid = composite.centroid();
             final double std = composite.getDistanceStandardDeviation();
             composite.forEach(x -> {
-                for (int i = 0; i < 3; i++) {
+                final int numOfPoints = x.getNumOfPoints();
+                for (int i = 0; i < numOfPoints; i++) {
                     TriVector nPoint = x.getNPoint(i);
                     final TriVector sub = TriVector.sub(centroid, nPoint);
                     final double length = sub.getLength();

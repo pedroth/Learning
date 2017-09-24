@@ -111,9 +111,6 @@ public class SimplePhysics extends JFrame implements MouseListener, KeyListener,
                 wd.setViewWindow(square.xCenter + square.velXCenter * 0.01 - 5, square.xCenter + square.velXCenter * 0.01 + 5, square.yCenter + square.velYCenter * 0.01 - 5, square.yCenter + square.velYCenter * 0.01 + 5);
             }
             this.drawLandScape();
-            wd.setDrawColor(Color.black);
-            double dt = (1 / (1E-04 * 1E-04)) * (function(square.xCenter, time + 2 * 1E-04) - function(square.xCenter, time));
-            wd.drawLine(square.xCenter, function(square.xCenter, time), square.xCenter, function(square.xCenter, time) + 0.01 * dt);
             wd.setDrawColor(Color.red);
             wd.drawLine(square.getXCenter(), square.getYCenter(), square.getXCenter() + square.getXCenterAceleration(), square.getYCenter() + square.getYCenterAceleration());
             wd.setDrawColor(Color.blue);
@@ -126,18 +123,13 @@ public class SimplePhysics extends JFrame implements MouseListener, KeyListener,
         double xmin = wd.getXMin();
         double xmax = wd.getXMax();
         double h = minimalStepFunction(xmin);
-        /*
-		 * if(h < wd.pxl_xstep())
-		 * wd.getImage().getGraphics().drawLine(wd.changeCoordX(xmin),
-		 * wd.changeCoordY(function(xmin)), wd.x2, y2)
-		 */
 
         while (xmin < xmax) {
             wd.setDrawColor(Color.green);
             wd.drawLine(xmin, function(xmin, time), xmin + h, function(xmin + h, time));
-            // wd.setDrawColor(Color.red);
-            // wd.drawFilledRectangle(xmin, function(xmin, time), 0.1, 0.1);
-            // wd.setDrawColor(Color.green);
+//            wd.setDrawColor(Color.red);
+//            wd.drawFilledRectangle(xmin, function(xmin, time), 0.1, 0.1);
+            wd.setDrawColor(Color.green);
             xmin = xmin + h;
             h = minimalStepFunction(xmin);
         }
