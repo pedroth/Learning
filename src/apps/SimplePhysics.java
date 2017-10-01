@@ -8,10 +8,9 @@ import window.Window2D;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class SimplePhysics extends JFrame implements MouseListener, KeyListener, MouseWheelListener {
     /**
@@ -19,14 +18,13 @@ public class SimplePhysics extends JFrame implements MouseListener, KeyListener,
      */
     private static final long serialVersionUID = 1L;
     public static double dx = 1E-09;
-    private static String helpText = "< arrows > : move square \n\n" + "< c > : follow square \n\n" + "< [1-9] >,<space> : change map \n\n" + "Made By Pedroth";
-    public Random rand;
-    ImageWindow wd;
-    Square square;
+    private static String helpText = "< arrows > : move square \n\n" + "< c > : follow square \n\n" + "< [0-9] >,<space> : change map \n\n"+ "< + > : add squares \n\n" + "Made By Pedroth";
+    private ImageWindow wd;
+    private List<Square> squares;
+    private Square square;
+    private Random rand;
     private int wChanged;
     private int hChanged;
-    private Timer timer;
-    private TimerTask euler;
     private double time;
     private double oldTime;
     private int rot;
@@ -40,6 +38,7 @@ public class SimplePhysics extends JFrame implements MouseListener, KeyListener,
     private double ranAmp1;
     private double ranAmp2;
     private boolean camera;
+    private boolean isDebug = false;
 
     public SimplePhysics(boolean isApplet) {
         super("Simple Physics - Press h for Help");
@@ -55,15 +54,12 @@ public class SimplePhysics extends JFrame implements MouseListener, KeyListener,
         time = 0.0;
         wd.setBackGroundColor(Color.white);
         wd.clearImageWithBackGround();
-        square = new Square(0, 4.9, 0.1);
+        squares = new ArrayList<>();
+        squares.add(new Square(0, 4.9, 0.1));
+        square = squares.get(0);
         rot = 0;
         rand = new Random();
-        timer = new Timer();
-        euler = new Euler();
-        // long l = (long) (time*1000);
-        // time in seconds
-        oldTime = ((double) System.currentTimeMillis()) * 1E-03;
-        timer.schedule(euler, 0, 1);
+        oldTime = System.currentTimeMillis();
         this.addKeyListener(this);
         this.addMouseListener(this);
         this.addMouseWheelListener(this);
@@ -90,11 +86,15 @@ public class SimplePhysics extends JFrame implements MouseListener, KeyListener,
     }
 
     public void update(Graphics g) {
-        update();
+        double dt = (System.currentTimeMillis() - oldTime) * 1E-3;
+        oldTime = System.currentTimeMillis();
+        updateAnimation(dt);
+        squares.forEach(x -> run(x, dt));
+        time += dt;
         wd.paint(g);
     }
 
-    public void update() {
+    public void updateAnimation(double dt) {
         if (graph) {
             int oldk = k;
             k = (int) (time / 30);
@@ -102,11 +102,9 @@ public class SimplePhysics extends JFrame implements MouseListener, KeyListener,
                 wd.clearImageWithBackGround();
             }
             wd.setViewWindow(30 * k, 30 + 30 * k, -7, 7);
-            // System.out.println(k + "  " + time);
             wd.drawPoint(time, square.angle, 1);
         } else {
             wd.clearImageWithBackGround();
-
             if (camera) {
                 wd.setViewWindow(square.xCenter + square.velXCenter * 0.01 - 5, square.xCenter + square.velXCenter * 0.01 + 5, square.yCenter + square.velYCenter * 0.01 - 5, square.yCenter + square.velYCenter * 0.01 + 5);
             }
@@ -115,7 +113,7 @@ public class SimplePhysics extends JFrame implements MouseListener, KeyListener,
             wd.drawLine(square.getXCenter(), square.getYCenter(), square.getXCenter() + square.getXCenterAceleration(), square.getYCenter() + square.getYCenterAceleration());
             wd.setDrawColor(Color.blue);
             wd.drawLine(square.getXCenter(), square.getYCenter(), square.getXCenter() + square.getXCenterVelocity(), square.getYCenter() + square.getYCenterVelocity());
-            square.draw(wd);
+            squares.forEach(x -> x.draw(wd));
         }
     }
 
@@ -123,33 +121,21 @@ public class SimplePhysics extends JFrame implements MouseListener, KeyListener,
         double xmin = wd.getXMin();
         double xmax = wd.getXMax();
         double h = minimalStepFunction(xmin);
-
         while (xmin < xmax) {
             wd.setDrawColor(Color.green);
-            wd.drawLine(xmin, function(xmin, time), xmin + h, function(xmin + h, time));
-//            wd.setDrawColor(Color.red);
-//            wd.drawFilledRectangle(xmin, function(xmin, time), 0.1, 0.1);
+            final double y = function(xmin, time);
+            final double yh = function(xmin + h, time);
+            wd.drawLine(xmin, y, xmin + h, yh);
+            if (isDebug) {
+                wd.setDrawColor(Color.red);
+                wd.drawFilledRectangle(xmin, y, 0.1, 0.1);
+            }
             wd.setDrawColor(Color.green);
+            if (wd.getYMin() < y) {
+                wd.drawFilledQuadrilateral(xmin, wd.getYMin(), xmin + h, wd.getYMin(), xmin + h, yh, xmin, y);
+            }
             xmin = xmin + h;
             h = minimalStepFunction(xmin);
-        }
-        if (wd.getYMin() < function(wd.getXMin(), time)) {
-            floodFill(wd.getImage(), 0, hChanged - 1, Color.green);
-        }
-    }
-
-    // ---------------------------------------------------------------------------------------------------
-
-    // draw until it reaches a frontier, which is a pixel with color c.
-    public void floodFill(BufferedImage bi, int x, int y, Color c) {
-        for (int i = y; bi.getRGB(x, i) != c.getRGB(); i--) {
-            if (i % 2 == 0)
-                bi.setRGB(x, i, c.getRGB());
-        }
-        try {
-            floodFill(bi, x + 1, y, c);
-        } catch (ArrayIndexOutOfBoundsException e) {
-            // System.out.print("oups");
         }
     }
 
@@ -232,10 +218,10 @@ public class SimplePhysics extends JFrame implements MouseListener, KeyListener,
     }
 
     double factorial(int x) {
-        int acum = 1;
+        int acc = 1;
         for (int i = x; i > 0; i--)
-            acum = acum * i;
-        return (double) acum;
+            acc = acc * i;
+        return (double) acc;
     }
 
     @Override
@@ -258,19 +244,20 @@ public class SimplePhysics extends JFrame implements MouseListener, KeyListener,
             ranAmp2 = rand.nextDouble();
         } else if (e.getKeyCode() == KeyEvent.VK_C) {
             camera = !camera;
-        } else {
-            if (e.getKeyCode() == KeyEvent.VK_UP)
-                yThrust = 20.0;
-            if (e.getKeyCode() == KeyEvent.VK_DOWN)
-                yThrust = -10.0;
-            if (e.getKeyCode() == KeyEvent.VK_LEFT)
-                xThrust = -10.0;
-            if (e.getKeyCode() == KeyEvent.VK_RIGHT)
-                xThrust = 10.0;
+        } else if (e.getKeyCode() == KeyEvent.VK_UP) {
+            yThrust = 20.0;
+        } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+            yThrust = -10.0;
+        } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+            xThrust = -10.0;
+        } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+            xThrust = 10.0;
+        } else if (e.getKeyCode() == KeyEvent.VK_PLUS) {
+            squares.add(new Square(square.getXCenter(), square.getYCenter(), square.radius));
+        } else if (e.getKeyCode() == KeyEvent.VK_D) {
+            squares.add(new Square(square.getXCenter(), square.getYCenter(), square.radius));
         }
     }
-
-    // ---------------------------------------------------------------------------------------
 
     @Override
     public void keyReleased(KeyEvent e) {
@@ -334,7 +321,6 @@ public class SimplePhysics extends JFrame implements MouseListener, KeyListener,
         square.setYCenterVelocity(0.0);
         square.setMomentum(0.0);
         square.setAngle(0.0);
-        // time=0.0;
     }
 
     @Override
@@ -346,206 +332,194 @@ public class SimplePhysics extends JFrame implements MouseListener, KeyListener,
         wd.clearImageWithBackGround();
     }
 
-    public class Euler extends TimerTask {
-        Euler() {
-        }
+    public void run(Square square, double dt) {
+        double contactXForce;
+        double contactYForce;
+        double r1;
+        double r2;
+        double ax;
+        double ay;
+        double torque = 0.0;
+        double omega;
+        double dx;
+        double dy;
+        double ds;
+        double dot;
+        double minGetOut = 0;
+        double dfdt;
+        boolean logic = false;
+        double epsilon = 10;
+        Matrix ai = new Matrix(2, 4);
+        Matrix vertex = square.getVertexs();
 
-        @Override
-        public void run() {
-            double contactXForce;
-            double contactYForce;
-            double r1;
-            double r2;
-            double ax;
-            double ay;
-            double torque = 0.0;
-            double omega;
-            double dx;
-            double dy;
-            double ds;
-            double dot;
-            double minGetOut = 0;
-            double dt;
-            double dfdt;
-            double currentTimeSec;
-            boolean logic = false;
-            double epsilon = 10;
-            Matrix ai = new Matrix(2, 4);
-            Matrix vertex = square.getVertexs();
+        for (int i = 1; i <= 4; i++) {
+            // check contact with some precision
+            dfdt = 1 / 1E-09 * (function(vertex.selMatrix(1, i), time + 1E-09) - function(vertex.selMatrix(1, i), time));
+            if ((vertex.selMatrix(2, i)) + square.velYCenter * 0.01 - (function(vertex.selMatrix(1, i), time) + dfdt * 0.01) < 1E-02) {
+                logic = true;
 
-            for (int i = 1; i <= 4; i++) {
-                // check contact with some precision
-                dfdt = 1 / 1E-09 * (function(vertex.selMatrix(1, i), time + 1E-09) - function(vertex.selMatrix(1, i), time));
-                if ((vertex.selMatrix(2, i)) + square.velYCenter * 0.01 - (function(vertex.selMatrix(1, i), time) + dfdt * 0.01) < 1E-02) {
-                    logic = true;
-
-                    // figure out max distance between floor and vertex
-                    double aux = vertex.selMatrix(2, i) - function(vertex.selMatrix(1, i), time);
-                    if (minGetOut > aux) {
-                        minGetOut = aux;
-                    }
-
-                    // contact force on vertex[i]
-                    dx = -nthDerivativeFunction(vertex.selMatrix(1, i), 1);
-                    dy = 1;
-                    ds = Math.sqrt(dx * dx + dy * dy);
-                    dx = (1 / ds) * dx;
-                    dy = (1 / ds) * dy;
-                    dot = -(dx * ax(vertex.selMatrix(1, i), vertex.selMatrix(2, i), time) + dy * ay(vertex.selMatrix(1, i), vertex.selMatrix(2, i), time));
-                    contactXForce = 1 * dot * dx;
-                    contactYForce = 1 * dot * dy;
-
-                } else {
-                    contactXForce = 0.0;
-                    contactYForce = 0.0;
+                // figure out max distance between floor and vertex
+                double aux = vertex.selMatrix(2, i) - function(vertex.selMatrix(1, i), time);
+                if (minGetOut > aux) {
+                    minGetOut = aux;
                 }
 
-                ai.setMatrix(1, i, ax(vertex.selMatrix(1, i), vertex.selMatrix(2, i), time) + contactXForce + xThrust);
-                ai.setMatrix(2, i, ay(vertex.selMatrix(1, i), vertex.selMatrix(2, i), time) + contactYForce + yThrust);
-                // wd.drawLine(vertex.selMatrix(1, i), vertex.selMatrix(2, i),
-                // ai.selMatrix(1, i)+vertex.selMatrix(1, i), ai.selMatrix(2,
-                // i)+vertex.selMatrix(2, i));
-
-            }
-
-            currentTimeSec = (System.currentTimeMillis()) * 1E-03;
-            dt = currentTimeSec - oldTime;
-            oldTime = currentTimeSec;
-            time += dt;
-
-            contactXForce = 0;
-            contactYForce = 0;
-
-            if (logic) {
-                // floor velocity
-                if ((dfdt = 1 / 1E-09 * (function(square.xCenter, time + 1E-09) - function(square.xCenter, time))) < 0.0)
-                    dfdt = 0.0;
-                // collision velocity
-                dx = -nthDerivativeFunction(square.getXCenter(), 1);
+                // contact force on vertex[i]
+                dx = -nthDerivativeFunction(vertex.selMatrix(1, i), 1);
                 dy = 1;
                 ds = Math.sqrt(dx * dx + dy * dy);
                 dx = (1 / ds) * dx;
                 dy = (1 / ds) * dy;
-                dot = -(dx * square.getXCenterVelocity() + dy * square.getYCenterVelocity());
-                square.setXCenterVelocity(1.5 * dot * dx + square.getXCenterVelocity());
-                square.setYCenterVelocity(1.5 * dot * dy + square.getYCenterVelocity());
-
-                // get out of floor speed
-                dot = -epsilon * (dy * minGetOut);
-                square.setXCenterVelocity(square.getXCenterVelocity() + dot * dx);
-                square.setYCenterVelocity(square.getYCenterVelocity() + dot * dy);
-
-                // floor movement velocity
-                dot = (dy * dfdt);
-                square.setXCenterVelocity(square.getXCenterVelocity() + dot * dx);
-                square.setYCenterVelocity(square.getYCenterVelocity() + dot * dy);
-
-                // contact force calculation
-                dot = -(dx * ax(square.xCenter, square.yCenter, time) + dy * ay(square.xCenter, square.yCenter, time));
+                dot = -(dx * ax(vertex.selMatrix(1, i), vertex.selMatrix(2, i), time) + dy * ay(vertex.selMatrix(1, i), vertex.selMatrix(2, i), time));
                 contactXForce = 1 * dot * dx;
                 contactYForce = 1 * dot * dy;
 
-                // wd.drawLine(square.xCenter, square.yCenter, square.xCenter +
-                // dot*dx, square.yCenter + dot*dy);
-
-                // floor movement acceleration
-                if ((dfdt = (1 / (1E-04 * 1E-04)) * (function(square.xCenter, time + 2 * 1E-04) - function(square.xCenter, time))) < 0.0)
-                    dfdt = 0.0;
-                dot = (dy * dfdt);
-                contactXForce += 0.01 * dot * dx;
-                contactYForce += 0.01 * dot * dy;
-
-            }
-            ax = ax(square.xCenter, square.yCenter, time) + contactXForce + xThrust;
-            ay = ay(square.xCenter, square.yCenter, time) + contactYForce + yThrust;
-
-            square.setXCenterAceleration(ax);
-            square.setYCenterAceleration(ay);
-
-            double vx = square.getXCenterVelocity() + square.getXCenterAceleration() * dt;
-            double vy = square.getYCenterVelocity() + square.getYCenterAceleration() * dt;
-            double x = square.getXCenter() + vx * dt;
-            double y = square.getYCenter() + vy * dt;
-
-            square.setXCenter(x);
-            square.setYCenter(y);
-            square.setXCenterVelocity(vx);
-            square.setYCenterVelocity(vy);
-
-            Matrix aux = new Matrix(2, 4);
-            Matrix aux2 = new Matrix(2, 4);
-            for (int i = 1; i <= 4; i++) {
-                r1 = square.getVertexs().selMatrix(1, i) - square.getXCenter();
-                r2 = square.getVertexs().selMatrix(2, i) - square.getYCenter();
-                ax = ai.selMatrix(1, i);
-                ay = ai.selMatrix(2, i);
-                aux.setMatrix(1, i, square.getXCenter());
-                aux.setMatrix(2, i, square.getYCenter());
-                aux2.setMatrix(1, i, vx * dt);
-                aux2.setMatrix(2, i, vy * dt);
-                torque += (r1 * ay - r2 * ax);
-            }
-            square.setTorque(1 * torque);
-
-            if (logic) {
-                square.setMomentum(3 * torque);
+            } else {
+                contactXForce = 0.0;
+                contactYForce = 0.0;
             }
 
-            omega = square.getMomentum() + square.getTorque() * dt;
-            double theta = square.getAngle() + omega * dt;
+            ai.setMatrix(1, i, ax(vertex.selMatrix(1, i), vertex.selMatrix(2, i), time) + contactXForce + xThrust);
+            ai.setMatrix(2, i, ay(vertex.selMatrix(1, i), vertex.selMatrix(2, i), time) + contactYForce + yThrust);
+            // wd.drawLine(vertex.selMatrix(1, i), vertex.selMatrix(2, i),
+            // ai.selMatrix(1, i)+vertex.selMatrix(1, i), ai.selMatrix(2,
+            // i)+vertex.selMatrix(2, i));
 
-            // System.out.printf("%.3f\t %.3f\t %.3f\t %.3f\t \n", time, torque,
-            // omega, theta);
-            vertex.setMatrix(1, 1, x + square.getWidth());
-            vertex.setMatrix(2, 1, y + square.getWidth());
-            vertex.setMatrix(1, 2, x - square.getWidth());
-            vertex.setMatrix(2, 2, y + square.getWidth());
-            vertex.setMatrix(1, 3, x - square.getWidth());
-            vertex.setMatrix(2, 3, y - square.getWidth());
-            vertex.setMatrix(1, 4, x + square.getWidth());
-            vertex.setMatrix(2, 4, y - square.getWidth());
-
-            Matrix rot = new Matrix(2, 2);
-            rot.setMatrix(1, 1, Math.cos(theta));
-            rot.setMatrix(1, 2, -Math.sin(theta));
-            rot.setMatrix(2, 1, Math.sin(theta));
-            rot.setMatrix(2, 2, Math.cos(theta));
-            Matrix result = Matrix.subMatrix(square.getVertexs(), aux);
-            result = Matrix.multiMatrix(rot, result);
-            aux = Matrix.sumMatrix(aux, aux2);
-            result = Matrix.sumMatrix(aux, result);
-
-            square.setVertex(result);
-
-            square.setMomentum(omega);
-            square.setAngle(theta);
-
-            repaint();
         }
 
-        public double ax(double x, double y, double t) {
-            return
-                    // -x*Math.exp(-t);
-                    // -x;
-                    0;
-            // -(x-1);
-            // -y;
-            // -(y-3)/((x-3) + (y-3));
-            // -100*(y - square.yCenter);
+        contactXForce = 0;
+        contactYForce = 0;
+
+        if (logic) {
+            // floor velocity
+            if ((dfdt = 1 / 1E-09 * (function(square.xCenter, time + 1E-09) - function(square.xCenter, time))) < 0.0)
+                dfdt = 0.0;
+            // collision velocity
+            dx = -nthDerivativeFunction(square.getXCenter(), 1);
+            dy = 1;
+            ds = Math.sqrt(dx * dx + dy * dy);
+            dx = (1 / ds) * dx;
+            dy = (1 / ds) * dy;
+            dot = -(dx * square.getXCenterVelocity() + dy * square.getYCenterVelocity());
+            square.setXCenterVelocity(1.5 * dot * dx + square.getXCenterVelocity());
+            square.setYCenterVelocity(1.5 * dot * dy + square.getYCenterVelocity());
+
+            // get out of floor speed
+            dot = -epsilon * (dy * minGetOut);
+            square.setXCenterVelocity(square.getXCenterVelocity() + dot * dx);
+            square.setYCenterVelocity(square.getYCenterVelocity() + dot * dy);
+
+            // floor movement velocity
+            dot = (dy * dfdt);
+            square.setXCenterVelocity(square.getXCenterVelocity() + dot * dx);
+            square.setYCenterVelocity(square.getYCenterVelocity() + dot * dy);
+
+            // contact force calculation
+            dot = -(dx * ax(square.xCenter, square.yCenter, time) + dy * ay(square.xCenter, square.yCenter, time));
+            contactXForce = 1 * dot * dx;
+            contactYForce = 1 * dot * dy;
+
+            // wd.drawLine(square.xCenter, square.yCenter, square.xCenter +
+            // dot*dx, square.yCenter + dot*dy);
+
+            // floor movement acceleration
+            if ((dfdt = (1 / (1E-04 * 1E-04)) * (function(square.xCenter, time + 2 * 1E-04) - function(square.xCenter, time))) < 0.0)
+                dfdt = 0.0;
+            dot = (dy * dfdt);
+            contactXForce += 0.01 * dot * dx;
+            contactYForce += 0.01 * dot * dy;
+
+        }
+        ax = ax(square.xCenter, square.yCenter, time) + contactXForce + xThrust;
+        ay = ay(square.xCenter, square.yCenter, time) + contactYForce + yThrust;
+
+        square.setXCenterAceleration(ax);
+        square.setYCenterAceleration(ay);
+
+        double vx = square.getXCenterVelocity() + square.getXCenterAceleration() * dt;
+        double vy = square.getYCenterVelocity() + square.getYCenterAceleration() * dt;
+        double x = square.getXCenter() + vx * dt;
+        double y = square.getYCenter() + vy * dt;
+
+        square.setXCenter(x);
+        square.setYCenter(y);
+        square.setXCenterVelocity(vx);
+        square.setYCenterVelocity(vy);
+
+        Matrix aux = new Matrix(2, 4);
+        Matrix aux2 = new Matrix(2, 4);
+        for (int i = 1; i <= 4; i++) {
+            r1 = square.getVertexs().selMatrix(1, i) - square.getXCenter();
+            r2 = square.getVertexs().selMatrix(2, i) - square.getYCenter();
+            ax = ai.selMatrix(1, i);
+            ay = ai.selMatrix(2, i);
+            aux.setMatrix(1, i, square.getXCenter());
+            aux.setMatrix(2, i, square.getYCenter());
+            aux2.setMatrix(1, i, vx * dt);
+            aux2.setMatrix(2, i, vy * dt);
+            torque += (r1 * ay - r2 * ax);
+        }
+        square.setTorque(1 * torque);
+
+        if (logic) {
+            square.setMomentum(3 * torque);
         }
 
-        public double ay(double x, double y, double t) {
-            return
-                    // -y*Math.exp(-t);
-                    -9.8;
-            // 1 / ((y - function(x, t)) * (y - function(x, t)));
-            // -1.0;
-            // -(y-1);
-            // x;
-            // (x-3)/((x-3) + (y-3));
-            // 100*(x - square.xCenter) - 1;
-        }
+        omega = square.getMomentum() + square.getTorque() * dt;
+        double theta = square.getAngle() + omega * dt;
+
+        // System.out.printf("%.3f\t %.3f\t %.3f\t %.3f\t \n", time, torque,
+        // omega, theta);
+        vertex.setMatrix(1, 1, x + square.getWidth());
+        vertex.setMatrix(2, 1, y + square.getWidth());
+        vertex.setMatrix(1, 2, x - square.getWidth());
+        vertex.setMatrix(2, 2, y + square.getWidth());
+        vertex.setMatrix(1, 3, x - square.getWidth());
+        vertex.setMatrix(2, 3, y - square.getWidth());
+        vertex.setMatrix(1, 4, x + square.getWidth());
+        vertex.setMatrix(2, 4, y - square.getWidth());
+
+        Matrix rot = new Matrix(2, 2);
+        rot.setMatrix(1, 1, Math.cos(theta));
+        rot.setMatrix(1, 2, -Math.sin(theta));
+        rot.setMatrix(2, 1, Math.sin(theta));
+        rot.setMatrix(2, 2, Math.cos(theta));
+        Matrix result = Matrix.subMatrix(square.getVertexs(), aux);
+        result = Matrix.multiMatrix(rot, result);
+        aux = Matrix.sumMatrix(aux, aux2);
+        result = Matrix.sumMatrix(aux, result);
+
+        square.setVertex(result);
+
+        square.setMomentum(omega);
+        square.setAngle(theta);
+
+        repaint();
     }
+
+    public double ax(double x, double y, double t) {
+        return
+                // -x*Math.exp(-t);
+                // -x;
+                0;
+        // -(x-1);
+        // -y;
+        // -(y-3)/((x-3) + (y-3));
+        // -100*(y - square.yCenter);
+    }
+
+    public double ay(double x, double y, double t) {
+        return
+                // -y*Math.exp(-t);
+                -9.8;
+        // 1 / ((y - function(x, t)) * (y - function(x, t)));
+        // -1.0;
+        // -(y-1);
+        // x;
+        // (x-3)/((x-3) + (y-3));
+        // 100*(x - square.xCenter) - 1;
+    }
+
 
     public class Square {
         private double xCenter;
@@ -673,8 +647,6 @@ public class SimplePhysics extends JFrame implements MouseListener, KeyListener,
 
         public void draw(Window2D w) {
             w.drawFilledQuadrilateral(vertex.selMatrix(1, 1), vertex.selMatrix(2, 1), vertex.selMatrix(1, 2), vertex.selMatrix(2, 2), vertex.selMatrix(1, 3), vertex.selMatrix(2, 3), vertex.selMatrix(1, 4), vertex.selMatrix(2, 4));
-            // w.drawFilledQuadrilateral(0, 0, 1, 0, 1, 1, 0, 1);
         }
-
     }
 }

@@ -8,6 +8,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.util.Random;
+import java.util.function.Supplier;
 
 public class PolygonFill2 extends JFrame implements MouseListener, KeyListener {
     /**
@@ -35,6 +36,7 @@ public class PolygonFill2 extends JFrame implements MouseListener, KeyListener {
     int nVertex;
     private BufferedImage bImg;
     private int wChanged, hChanged;
+    private Supplier<Integer[]> randomPointOnPoly = this::RandomPointOnPoly;
 
     public PolygonFill2() {
         // Set JFrame title
@@ -49,7 +51,7 @@ public class PolygonFill2 extends JFrame implements MouseListener, KeyListener {
         // Make JFrame visible
         setVisible(true);
 
-        nVertex = 5;
+        nVertex = 3;
         bImg = new BufferedImage(this.getWidth(), this.getHeight(),
                 BufferedImage.TYPE_INT_RGB);
         wChanged = this.getWidth();
@@ -65,7 +67,6 @@ public class PolygonFill2 extends JFrame implements MouseListener, KeyListener {
     }
 
     public static void main(String[] args) {
-        // starting app
         new PolygonFill2();
     }
 
@@ -85,13 +86,11 @@ public class PolygonFill2 extends JFrame implements MouseListener, KeyListener {
     }
 
     public void update(Graphics g) {
-        paintComponent(bImg.getGraphics());
+        paintComponent(bImg.getGraphics(), this.randomPointOnPoly);
         g.drawImage(bImg, 0, 0, wChanged, hChanged, null);
     }
 
-    // not over writing
-    public void paintComponent(Graphics g) {
-
+    public void paintComponent(Graphics g, Supplier<Integer[]> randomPointOnPoly) {
         if (drawP) {
             double oldTime = System.currentTimeMillis() * 1E-3;
             computeNormals();
@@ -99,15 +98,14 @@ public class PolygonFill2 extends JFrame implements MouseListener, KeyListener {
             int root = (int) Math.floor(Math.sqrt(area));
             for (int i = 0; i < area; i++) {
                 g.setColor(Color.blue);
-                int[] v = RandomPointOnPoly2();
+//                int[] v = RandomPointOnPoly2();
 //				int[] v = RandomPointOnPoly();
 //				int[] v = pointOnDistribution(i % root,i / root, root);
-//				int[] v = RandomPointOnPoly3();
+                Integer[] v = randomPointOnPoly.get();
                 g.drawLine(v[0], v[1], v[0], v[1]);
             }
             double currentTime = System.currentTimeMillis() * 1E-3;
             double timeElapse = currentTime - oldTime;
-            oldTime = currentTime;
             System.out.println("time :" + timeElapse);
         }
         drawP = false;
@@ -129,8 +127,8 @@ public class PolygonFill2 extends JFrame implements MouseListener, KeyListener {
         return ret;
     }
 
-    public int[] RandomPointOnPoly() {
-        int ret[] = new int[2];
+    public Integer[] RandomPointOnPoly() {
+        Integer ret[] = new Integer[2];
         Random r = new Random();
         double[] randomVector = new double[nVertex];
         double acm = 0;
@@ -149,12 +147,12 @@ public class PolygonFill2 extends JFrame implements MouseListener, KeyListener {
         return ret;
     }
 
-    public int[] RandomPointOnPoly2() {
-        int ret[] = new int[2];
+    public Integer[] RandomPointOnPoly2() {
+        Integer ret[] = new Integer[2];
         double[] randomVector = new double[nVertex];
         double acm = 0;
         for (int i = 0; i < nVertex - 1; i++) {
-            randomVector[i] = randomPointOnIterval(0, 1 - acm);
+            randomVector[i] = randomPointOnInterval(0, 1 - acm);
             acm += randomVector[i];
         }
         randomVector[nVertex - 1] = 1 - acm;
@@ -171,11 +169,11 @@ public class PolygonFill2 extends JFrame implements MouseListener, KeyListener {
     /*
      * only works with 3 vertex
      */
-    public int[] RandomPointOnPoly3() {
-        int ret[] = new int[2];
+    public Integer[] RandomPointOnPoly3() {
+        Integer ret[] = new Integer[2];
         double[] randomVector = new double[nVertex];
-        double r1 = randomPointOnIterval(0, 1);
-        double r2 = randomPointOnIterval(0, 1);
+        double r1 = randomPointOnInterval(0, 1);
+        double r2 = randomPointOnInterval(0, 1);
         randomVector[0] = (1 - Math.sqrt(r1));
         randomVector[1] = (Math.sqrt(r1) * (1 - r2));
         randomVector[2] = (Math.sqrt(r1) * r2);
@@ -189,7 +187,7 @@ public class PolygonFill2 extends JFrame implements MouseListener, KeyListener {
         return ret;
     }
 
-    public double randomPointOnIterval(double xmin, double xmax) {
+    public double randomPointOnInterval(double xmin, double xmax) {
         Random r = new Random();
         return xmin + (xmax - xmin) * r.nextDouble();
     }
@@ -265,6 +263,19 @@ public class PolygonFill2 extends JFrame implements MouseListener, KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_1) {
+            this.randomPointOnPoly = this::RandomPointOnPoly;
+        } else if (e.getKeyCode() == KeyEvent.VK_2) {
+            this.randomPointOnPoly = this::RandomPointOnPoly2;
+        } else if (e.getKeyCode() == KeyEvent.VK_3) {
+            this.randomPointOnPoly = this::RandomPointOnPoly3;
+            nVertex = 3;
+        } else if (e.getKeyCode() == KeyEvent.VK_PLUS) {
+            nVertex++;
+        } else if (e.getKeyCode() == KeyEvent.VK_MINUS) {
+            nVertex--;
+        }
+        points = new int[nVertex][2];
     }
 
     @Override
