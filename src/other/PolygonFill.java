@@ -336,8 +336,6 @@ public class PolygonFill extends JFrame implements MouseListener, KeyListener {
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        int[] x = {100, 200, 300, 200};
-        int[] y = {200, 300, 200, 100};
         points[nClicks % nVertex][0] = e.getX();
         points[nClicks % nVertex][1] = e.getY();
         nClicks++;
@@ -360,6 +358,12 @@ public class PolygonFill extends JFrame implements MouseListener, KeyListener {
     public void keyPressed(KeyEvent e) {
         isBruteForce = !isBruteForce;
         System.out.println("isBruteForce :" + isBruteForce);
+       if (e.getKeyCode() == KeyEvent.VK_PLUS) {
+            nVertex++;
+        } else if (e.getKeyCode() == KeyEvent.VK_MINUS) {
+            nVertex--;
+        }
+        points = new int[nVertex][2];
     }
 
     @Override

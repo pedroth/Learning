@@ -10,6 +10,7 @@ public class FlatShader extends ZBufferPerspective {
     protected Color shade;
     protected double shininess;
     protected double ambientLightParameter;
+    protected double powerDecay;
     private List<TriVector> lightPoints;
 
     public FlatShader() {
@@ -17,6 +18,7 @@ public class FlatShader extends ZBufferPerspective {
         lightPoints = new LinkedList<TriVector>();
         shininess = 5.0;
         ambientLightParameter = 0.25;
+        powerDecay = 0.0;
     }
 
     private static double pow(final double a, final double b) {
@@ -80,11 +82,12 @@ public class FlatShader extends ZBufferPerspective {
             TriVector h = TriVector.sum(v, dLight);
 
             h.normalize();
-
+            double power = dLight.getLength();
+            final double irrandiance = powerDecay == 0.0 ? 1 : 1 / (power * power);
             dLight.normalize();
 
-            double dotDiff = Math.max(TriVector.vInnerProduct(normal, dLight), 0);
-            double dotSpecular = pow(Math.max(TriVector.vInnerProduct(normal, h), 0), shininess);
+            double dotDiff = irrandiance * Math.max(TriVector.vInnerProduct(normal, dLight), 0);
+            double dotSpecular = irrandiance * pow(Math.max(TriVector.vInnerProduct(normal, h), 0), shininess);
             acmDiff += dotDiff;
             acmSpec += dotSpecular;
             acmSpec = Math.min(acmSpec, 1);
@@ -156,4 +159,7 @@ public class FlatShader extends ZBufferPerspective {
         return shade;
     }
 
+    public void setPowerDecay(double powerDecay) {
+        this.powerDecay = powerDecay;
+    }
 }

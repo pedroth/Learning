@@ -53,6 +53,7 @@ public class Flying extends JFrame implements MouseListener, MouseMotionListener
         graphics = new TriWin(Math.PI / 2);
         shader = new FlatShader();
         shader.setCullBack(false);
+        shader.setPowerDecay(1.0);
         graphics.setMethod(shader);
         graphics.getBuffer().setBackGroundColor(new Color(0.9f, 0.9f, 0.9f));
 
@@ -78,7 +79,7 @@ public class Flying extends JFrame implements MouseListener, MouseMotionListener
 
         shader.setAmbientLightParameter(0.5);
         shader.setShininess(25);
-        shader.addLightPoint(new TriVector(3, 3, 3));
+        shader.addLightPoint(new TriVector(1, 1, 1));
         orbit(theta, phi, 0);
 
         buildWorld();

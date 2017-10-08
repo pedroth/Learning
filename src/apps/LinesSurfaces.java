@@ -1017,7 +1017,7 @@ public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionL
         }
 
         /**
-         * update light
+         * updateAnimation light
          */
         public void updateLight(double dt) {
             if (isMotionLight) {

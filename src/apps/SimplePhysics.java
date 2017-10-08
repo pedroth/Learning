@@ -255,7 +255,7 @@ public class SimplePhysics extends JFrame implements MouseListener, KeyListener,
         } else if (e.getKeyCode() == KeyEvent.VK_PLUS) {
             squares.add(new Square(square.getXCenter(), square.getYCenter(), square.radius));
         } else if (e.getKeyCode() == KeyEvent.VK_D) {
-            squares.add(new Square(square.getXCenter(), square.getYCenter(), square.radius));
+            this.isDebug = !isDebug;
         }
     }
 
