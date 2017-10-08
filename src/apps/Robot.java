@@ -258,10 +258,8 @@ public class Robot extends JFrame implements MouseListener, MouseMotionListener,
             double max = 0.01;
             double vel = clamp((computePartialDerivative(theta, i, positionXYZ) + computeRestriction(theta, i)) * 0.5 * dt, -max, max);
             dOF[i].theta -= vel;
-            // System.out.println(i + "  " + theta[i] + "\t");
         }
-        // System.out.print(computeCostFunction(theta, positionXYZ));
-        // System.out.println();
+        System.out.println(dOF.length);
         Element e = new Point(new TriVector(theta[0], theta[1], theta[2]));
         e.setColor(Color.blue);
         graphics.addtoList(e);
@@ -269,19 +267,17 @@ public class Robot extends JFrame implements MouseListener, MouseMotionListener,
     }
 
     public double computeRestriction(double[] theta, int i) {
-        if (i == 0) {
-            return 0;
-        } else if (i == 1) {
-            // return 0;
-            return 1 / ((Math.PI / 2) - theta[i]) - 1 / theta[i];
-        } else if (i == 2) {
-            // return 0;
-            return 1 / ((Math.PI / 2) - theta[i]) - 1 / theta[i];
-        } else if (i == 3) {
-            // return 0;
-            return 1 / ((Math.PI / 2) - theta[i]) - 1 / ((Math.PI / 2) + theta[i]);
-        } else {
-            return 0;
+        switch (i) {
+            case 0:
+                return 0;
+            case 1:
+                return 1 / ((Math.PI / 2) - theta[i]) - 1 / theta[i];
+            case 2:
+                return 1 / ((Math.PI / 2) - theta[i]) - 1 / theta[i];
+            case 3:
+                return 1 / ((Math.PI / 2) - theta[i]) - 1 / ((Math.PI / 2) + theta[i]);
+            default:
+                return 0;
         }
     }
 
