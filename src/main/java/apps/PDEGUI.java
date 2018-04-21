@@ -21,7 +21,25 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
      *
      */
     private static final long serialVersionUID = 1L;
-    private static String helpText = "< w > : Camera move foward / zoom in \n\n" + "< s > : Camera move backward /zoom out \n\n" + "< z > : Toggle wireframe / zbuffer \n\n" + "< n > : Toggle flat shading \n\n" + "< [1-3] > : change color of surface \n\n" + "< e > : random examples of functions\n\n" + "< 8 > : interpolative colors \n\n" + "< 9 > : level set shader\n\n" + "< Available functions > : sin ,cos, exp, ln, tan, acos, asin, atan, min, adding more \n\n" + "< operators > : +, - , *, ^ \n\n" + "< Available constants > : pi\n\n" + "< a > : draw Axis \n\n" + "< mouse > : rotate camera \n\n" + "< k > : toogle kakashi mode\n\n" + "< Available function on animation part > :  dfx(x,y) (df / dx), dfy(x,y) (df / dy) , dt(x,y) (df / dt), d2fx(x,y)(d2f / dx2)\n\n" + "d2fy(x,y) (d2f / dy2), f(x,y), d2fxy(x,y)\n\n" + "Made by Pedroth";
+    private static final TextFrame HELP_FRAME = TextFrame.builder()
+            .addLine("< w > : Camera move foward / zoom in")
+            .addLine("< s > : Camera move backward /zoom out")
+            .addLine("< z > : Toggle wireframe / zbuffer")
+            .addLine("< n > : Toggle flat shading")
+            .addLine("< [1-3] > : change color of surface")
+            .addLine("< e > : random examples of functions")
+            .addLine("< 8 > : interpolative colors")
+            .addLine("< 9 > : level set shader")
+            .addLine("< Available functions > : sin ,cos, exp, ln, tan, acos, asin, atan, min, adding more")
+            .addLine("< operators > : +, - , *, ^ ")
+            .addLine("< Available constants > : pi")
+            .addLine("< a > : draw Axis")
+            .addLine("< mouse > : rotate camera")
+            .addLine("< k > : toogle kakashi mode")
+            .addLine("< Available function on animation part > :  dfx(x,y) (df / dx), dfy(x,y) (df / dy) , dt(x,y) (df / dt), d2fx(x,y)(d2f / dx2)")
+            .addLine("d2fy(x,y) (d2f / dy2), f(x,y), d2fxy(x,y)")
+            .addLine("Made by Pedroth")
+            .buildWithTitle("Help");
     JButton drawButton;
     /**
      * size of the screen
@@ -900,7 +918,7 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
     public void keyReleased(KeyEvent arg0) {
         thrust = 0;
         if (arg0.getKeyCode() == KeyEvent.VK_H) {
-            new TextFrame("help", helpText);
+           HELP_FRAME.setVisible(true);
         }
     }
 

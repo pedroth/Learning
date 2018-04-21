@@ -18,16 +18,18 @@ import java.util.TimerTask;
 
 public class Cube extends JFrame implements MouseListener, MouseMotionListener,
         KeyListener {
-
     private static final long serialVersionUID = 1L;
+    private static final TextFrame HELP_FRAME = TextFrame.builder()
+            .addLine("< [1-6] > : various vector fields")
+            .addLine("< w > : Camera move foward / zoom in")
+            .addLine("< s > : Camera move backward /zoom out")
+            .addLine("< l > : loop mode toggle")
+            .addLine("< [+,-] > : increase / decrease loop box size")
+            .addLine("< v > : toggle between velocity field and acceleration field")
+            .addLine("Made by Pedroth")
+            .buildWithTitle("Help");
+
     private static int numParticles = 10000;
-    private static String helpText = "< [1-6] > : various vector fields \n\n" +
-            "< w > : Camera move foward / zoom in \n\n" +
-            "< s > : Camera move backward /zoom out \n\n" +
-            "< l > : loop mode toggle \n\n" +
-            "< [+,-] > : increase / decrease loop box size \n\n" +
-            "< v > : toggle between velocity field and acceleration field\n\n" +
-            "Made by Pedroth";
     private int wChanged, hChanged;
     private TriWin graphics, graphParticles;
     private ImageWindow wd;
@@ -293,7 +295,7 @@ public class Cube extends JFrame implements MouseListener, MouseMotionListener,
     public void keyReleased(KeyEvent arg0) {
         thrust = 0;
         if (arg0.getKeyCode() == KeyEvent.VK_H) {
-            new TextFrame("help", helpText);
+            HELP_FRAME.setVisible(true);
         }
     }
 

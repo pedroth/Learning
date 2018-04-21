@@ -25,7 +25,12 @@ import java.util.Random;
 public class ParallelCellularAutomaton extends JFrame implements MouseMotionListener, KeyListener {
 
     private static final long serialVersionUID = 1L;
-    private static String helpText = "< mouse > : draw initial state \n\n" + "<space> : starts animation \n" + "<r> : reset \n" + "\n" + "Made by Pedroth";
+    private static final TextFrame HELP_FRAME = TextFrame.builder()
+            .addLine("< mouse > : draw initial state")
+            .addLine("<space> : starts animation")
+            .addLine("<r> : reset")
+            .addLine("Made by Pedroth")
+            .buildWithTitle("Help");
     private BufferedImage buffer;
     private int wChanged, hChanged;
     private boolean[][] space;
@@ -123,7 +128,7 @@ public class ParallelCellularAutomaton extends JFrame implements MouseMotionList
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_H) {
-            new TextFrame("help", helpText);
+            HELP_FRAME.setVisible(true);
         } else if (e.getKeyCode() == KeyEvent.VK_R) {
             timerStarted = false;
             myInit();

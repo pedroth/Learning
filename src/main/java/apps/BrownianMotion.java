@@ -19,7 +19,16 @@ import java.util.Random;
  *         You may encapsulate some of these function in a class.
  */
 public class BrownianMotion extends JFrame implements KeyListener {
-    private static String helpText = "< q > : add particle \n\n < a > : remove particle \n\n < w > : increase collision damping \n\n < s > : decrease collision damping\n\n" + "< arrows > : add force to all particles \n\n" + "< + > : increase radius of particles \n\n" + "< - > : decrease radius of particles\n\n" + "Made by Pedroth";
+    private static final TextFrame HELP_FRAME = TextFrame.builder()
+            .addLine("< q > : add particle")
+            .addLine( "< a > : remove particle ")
+            .addLine("< w > : increase collision damping")
+            .addLine("< s > : decrease collision damping")
+            .addLine("< arrows > : add force to all particles")
+            .addLine("< + > : increase radius of particles")
+            .addLine("< - > : decrease radius of particles")
+            .addLine("Made by Pedroth")
+            .buildWithTitle("Help");
     /**
      * diameter of circles
      */
@@ -348,7 +357,7 @@ public class BrownianMotion extends JFrame implements KeyListener {
             thrusty = 0;
         }
         if (e.getKeyCode() == KeyEvent.VK_H) {
-            new TextFrame("help", helpText);
+            HELP_FRAME.setVisible(true);
         }
     }
 

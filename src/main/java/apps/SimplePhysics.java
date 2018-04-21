@@ -18,7 +18,13 @@ public class SimplePhysics extends JFrame implements MouseListener, KeyListener,
      */
     private static final long serialVersionUID = 1L;
     public static double dx = 1E-09;
-    private static String helpText = "< arrows > : move square \n\n" + "< c > : follow square \n\n" + "< [0-9] >,<space> : change map \n\n"+ "< + > : add squares \n\n" + "Made By Pedroth";
+    private static final TextFrame HELP_FRAME = TextFrame.builder()
+            .addLine("< arrows > : move square")
+            .addLine("< c > : follow square")
+            .addLine("< [0-9] >,<space> : change map")
+            .addLine("< + > : add squares")
+            .addLine("Made By Pedroth")
+            .buildWithTitle("Help");
     private ImageWindow wd;
     private List<Square> squares;
     private Square square;
@@ -266,7 +272,7 @@ public class SimplePhysics extends JFrame implements MouseListener, KeyListener,
             yThrust = 0;
         }
         if (e.getKeyCode() == KeyEvent.VK_H) {
-            new TextFrame("help", helpText);
+            HELP_FRAME.setVisible(true);
         }
     }
 

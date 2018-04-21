@@ -21,7 +21,13 @@ import java.util.Stack;
  * @author pedro
  */
 public class Robot extends JFrame implements MouseListener, MouseMotionListener, KeyListener, MouseWheelListener {
-    private static String helpText = "< left mouse button > : change orientation of camera \n\n" + "< right mouse button > : zoom in / zoom out \n\n" + "< [w, s] and arrows > : move ball \n\n" + "< t > : toggle space state \n\n" + "Made by Pedroth";
+    private static final TextFrame HELP_FRAME = TextFrame.builder()
+            .addLine("< left mouse button > : change orientation of camera")
+            .addLine("< right mouse button > : zoom in / zoom out")
+            .addLine("< [w, s] and arrows > : move ball")
+            .addLine("< t > : toggle space state")
+            .addLine("Made by Pedroth")
+            .buildWithTitle("Help");
     Transformation ballTransform;
     /**
      * size of the screen
@@ -378,7 +384,7 @@ public class Robot extends JFrame implements MouseListener, MouseMotionListener,
     public void keyReleased(KeyEvent arg0) {
         thrust = new TriVector();
         if (arg0.getKeyCode() == KeyEvent.VK_H) {
-            new TextFrame("help", helpText);
+            HELP_FRAME.setVisible(true);
         }
 
     }

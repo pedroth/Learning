@@ -20,11 +20,13 @@ public class RandomCurve extends JFrame implements MouseListener, KeyListener {
      *
      */
     private static final long serialVersionUID = 1L;
-    private static String helpText = "< mouse > : initial position of curve \n\n" +
-            "< [+, -] > : increase/decrease speed of curve\n\n" +
-            "< s > : save png image(does not work in applet)\n\n" +
-            "Made by Pedroth";
-    public Random rand;
+    private static final TextFrame HELP_FRAME = TextFrame.builder()
+            .addLine("< mouse > : initial position of curve")
+            .addLine("< [+, -] > : increase/decrease speed of curve")
+            .addLine("< s > : save png image(does not work in applet)")
+            .addLine("Made by Pedroth")
+            .buildWithTitle("Help");
+    private Random rand;
     ImageWindow wd;
     private int wChanged;
     private int hChanged;
@@ -238,7 +240,7 @@ public class RandomCurve extends JFrame implements MouseListener, KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_H) {
-            new TextFrame("help", helpText);
+            HELP_FRAME.setVisible(true);
         }
     }
 

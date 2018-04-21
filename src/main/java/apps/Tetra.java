@@ -22,16 +22,18 @@ public class Tetra extends JFrame implements MouseListener,
      *
      */
     private static final long serialVersionUID = 1L;
-    private static final String helpText = "< w > : Camera move foward / zoom in \n\n" +
-            "< s > : Camera move backward /zoom out \n\n" +
-            "< z > : Toggle wireframe / zbuffer \n\n" +
-            "< [1-6] > : various geometries \n\n" +
-            "< 7 > : sphere flow\n\n" +
-            "< 8 > : distance to camera shader\n\n" +
-            "< 9 > : random planet\n\n" +
-            "< mouse > : rotate camera\n\n" +
-            "< +,- > : increase angle of view , decrease angle of view\n\n" +
-            "Made by Pedroth";
+    private static final TextFrame HELP_FRAME = TextFrame.builder()
+            .addLine("< w > : Camera move foward / zoom in")
+            .addLine("< s > : Camera move backward /zoom out")
+            .addLine("< z > : Toggle wireframe / zbuffer")
+            .addLine("< [1-6] > : various geometries")
+            .addLine("< 7 > : sphere flow")
+            .addLine("< 8 > : distance to camera shader")
+            .addLine("< 9 > : random planet")
+            .addLine("< mouse > : rotate camera")
+            .addLine("< +,- > : increase angle of view , decrease angle of view")
+            .addLine("Made by Pedroth")
+            .buildWithTitle("Help");
     private int wChanged, hChanged;
     private TriWin graphics;
     private double theta, phi;
@@ -504,7 +506,7 @@ public class Tetra extends JFrame implements MouseListener,
     public void keyReleased(KeyEvent arg0) {
         thrust = 0;
         if (arg0.getKeyCode() == KeyEvent.VK_H) {
-            new TextFrame("help", helpText);
+            HELP_FRAME.setVisible(true);
         }
     }
 

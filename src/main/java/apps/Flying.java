@@ -13,7 +13,13 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class Flying extends JFrame implements MouseListener, MouseMotionListener, KeyListener, MouseWheelListener {
-    private static String helpText = "< left mouse button > : change orientation of camera \n\n" + "< right mouse button > : zoom in / zoom out \n\n" + "< [w, s] ans arrows > : move ball \n\n" + "< t > : toggle space state \n\n" + "Made by Pedroth";
+    private final static TextFrame HELP_FRAME = TextFrame.builder()
+            .addLine("< left mouse button > : change orientation of camera")
+            .addLine("< right mouse button > : zoom in / zoom out")
+            .addLine("< [w, s] ans arrows > : move ball")
+            .addLine("< t > : toggle space state")
+            .addLine("Made by Pedroth")
+            .buildWithTitle("Help");
     /**
      * size of the screen
      */
@@ -217,7 +223,7 @@ public class Flying extends JFrame implements MouseListener, MouseMotionListener
     @Override
     public void keyReleased(KeyEvent arg0) {
         if (arg0.getKeyCode() == KeyEvent.VK_H) {
-            new TextFrame("help", helpText);
+           HELP_FRAME.setVisible(true);
         }
         eyeThrust = new TriVector();
     }

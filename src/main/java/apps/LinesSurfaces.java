@@ -11,10 +11,30 @@ import windowThreeDim.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.HashSet;
 import java.util.Random;
 
 public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionListener, KeyListener, MouseWheelListener {
-    private static String helpText = "< w > : Camera move foward / zoom in \n\n" + "< s > : Camera move backward /zoom out \n\n" + "< z > : Toggle wireframe / zbuffer \n\n" + "< n > : Toggle flat shading \n\n" + "< [1-3] > : change color of surface \n\n" + "< [4 - 7] > : various surfaces examples \n\n" + "< l > : rotating light mode \n\n" + "< 8 > : interpolative colors \n\n" + "< 9 > : level set shader\n\n" + "< 0 > : Z-buffer shader\n\n" + "< Available functions > : sin ,cos, exp, ln, tan, acos, asin, atan, min, adding more \n\n" + "< operators > : +, - , *, ^ \n\n" + "< Available constants > : pi\n\n" + "< a > : draw Axis \n\n" + "< mouse > : rotate camera\n" + "---------------------------------------------------\n\n" + "< g > : generate obj file!!!\n\n" + "----------------------------------------------------\n\n" + "Made by Pedroth";
+    private static final TextFrame HELP_FRAME = TextFrame.builder()
+            .addLine("< w > : Camera move foward / zoom in")
+            .addLine("< s > : Camera move backward /zoom out")
+            .addLine("< z > : Toggle wireframe / zbuffer")
+            .addLine("< n > : Toggle flat shading")
+            .addLine("< [1-3] > : change color of surface")
+            .addLine("< [4 - 7] > : various surfaces examples")
+            .addLine("< l > : rotating light mode")
+            .addLine("< 8 > : interpolative colors")
+            .addLine("< 9 > : level set shader")
+            .addLine("< 0 > : Z-buffer shader")
+            .addLine("< Available functions > : sin ,cos, exp, ln, tan, acos, asin, atan, min, adding more")
+            .addLine("< operators > : +, - , *, ^ ")
+            .addLine("< Available constants > : pi")
+            .addLine("< a > : draw Axis")
+            .addLine("< mouse > : rotate camera")
+            .addLine("---------------------------------------------------")
+            .addLine("< g > : generate obj file!!!")
+            .addLine("Made by Pedroth")
+            .buildWithTitle("Help");
 
     /*
      * size of the screen
@@ -865,7 +885,7 @@ public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionL
         for (int i = 0; i < curve.length - 1; i++) {
             objFile += "l" + " " + (i + 1) + " " + (i + 2) + "\n";
         }
-        TextFrame frame = new TextFrame("Curve obj file", objFile);
+        new TextFrame("Curve obj file", objFile).setVisible(true);
     }
 
     private void generateSurf(double step) {
@@ -899,14 +919,14 @@ public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionL
                 objFile += "f" + " " + index + " " + (index + numSamplesV + 1) + " " + (index + 1) + "\n";
             }
         }
-        TextFrame frame = new TextFrame("Surface obj file", objFile);
+        new TextFrame("Surface obj file", objFile).setVisible(true);
     }
 
     @Override
     public void keyReleased(KeyEvent arg0) {
         thrust = 0;
         if (arg0.getKeyCode() == KeyEvent.VK_H) {
-            new TextFrame("help", helpText);
+            HELP_FRAME.setVisible(true);
         }
     }
 
