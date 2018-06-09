@@ -10,7 +10,7 @@
     </properties>
 
     <groupId>com.pedroth</groupId>
-    <artifactId>LearningJava</artifactId>
+    <artifactId>Learning</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <build>

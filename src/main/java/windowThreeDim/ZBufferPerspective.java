@@ -174,8 +174,8 @@ public class ZBufferPerspective implements PaintMethod {
                 Triangle t1 = new Triangle(inter1, p[inVertex2], p[inVertex1]);
                 t1.setColor(element.getColor());
                 t1.setColorPoint(element.getColorPoint(outVertex), outVertex);
-                t1.setColorPoint(element.getColorPoint(inVertex1), inVertex1);
                 t1.setColorPoint(element.getColorPoint(inVertex2), inVertex2);
+                t1.setColorPoint(element.getColorPoint(inVertex1), inVertex1);
                 Triangle t2 = new Triangle(inter1, inter2, p[inVertex2]);
                 t2.setColor(element.getColor());
                 t2.setColorPoint(element.getColorPoint(outVertex), outVertex);
