@@ -7,6 +7,7 @@ Some experiments made in Java while learning...
  ### algebra
  *  Simple Implementation of Matrices and 3-vectors
 ### apps
+*You can run most of these apps in here[https://github.com/pedroth/visualExperiments]*
   *  Pseudo-Brownian motion simulation
   * Particle flow simulator with strange cube
   * Flying in 3D world
