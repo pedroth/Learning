@@ -220,10 +220,9 @@ public class Robot extends JFrame implements MouseListener, MouseMotionListener,
         currentTime = (System.currentTimeMillis()) * 1E-03;
         double dt = currentTime - oldTime;
         oldTime = currentTime;
-        scene.action(new Stack<Matrix>(), new Stack<TriVector>());
+        scene.action(new Stack<>(), new Stack<>());
         if (showStateSpace)
             graphics.drawElements();
-//		System.out.println(dt);
         if (dt > 0.05) {
             euler(0.005);
         } else {
@@ -265,7 +264,6 @@ public class Robot extends JFrame implements MouseListener, MouseMotionListener,
             double vel = clamp((computePartialDerivative(theta, i, positionXYZ) + computeRestriction(theta, i)) * 0.5 * dt, -max, max);
             dOF[i].theta -= vel;
         }
-        System.out.println(dOF.length);
         Element e = new Point(new TriVector(theta[0], theta[1], theta[2]));
         e.setColor(Color.blue);
         graphics.addtoList(e);
@@ -357,26 +355,30 @@ public class Robot extends JFrame implements MouseListener, MouseMotionListener,
     @Override
     public void keyPressed(KeyEvent arg0) {
         double pi = Math.PI;
-        if (arg0.getKeyCode() == KeyEvent.VK_RIGHT) {
-            thrust.setZ(-pi / 12);
-        }
-        if (arg0.getKeyCode() == KeyEvent.VK_LEFT) {
-            thrust.setZ(pi / 12);
-        }
-        if (arg0.getKeyCode() == KeyEvent.VK_UP) {
-            thrust.setY(pi / 12);
-        }
-        if (arg0.getKeyCode() == KeyEvent.VK_DOWN) {
-            thrust.setY(-pi / 12);
-        }
-        if (arg0.getKeyCode() == KeyEvent.VK_W) {
-            thrust.setX(10);
-        }
-        if (arg0.getKeyCode() == KeyEvent.VK_S) {
-            thrust.setX(-10);
-        }
-        if (arg0.getKeyCode() == KeyEvent.VK_T) {
-            showStateSpace = !showStateSpace;
+        switch (arg0.getKeyCode()) {
+            case KeyEvent.VK_RIGHT:
+                thrust.setZ(-pi / 12);
+                break;
+            case KeyEvent.VK_LEFT:
+                thrust.setZ(pi / 12);
+                break;
+            case KeyEvent.VK_UP:
+                thrust.setY(pi / 12);
+                break;
+            case KeyEvent.VK_DOWN:
+                thrust.setY(-pi / 12);
+                break;
+            case KeyEvent.VK_W:
+                thrust.setX(10);
+                break;
+            case KeyEvent.VK_S:
+                thrust.setX(-10);
+                break;
+            case KeyEvent.VK_T:
+                showStateSpace = !showStateSpace;
+                break;
+            default:
+                break;
         }
     }
 
@@ -386,7 +388,6 @@ public class Robot extends JFrame implements MouseListener, MouseMotionListener,
         if (arg0.getKeyCode() == KeyEvent.VK_H) {
             HELP_FRAME.setVisible(true);
         }
-
     }
 
     @Override

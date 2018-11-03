@@ -171,18 +171,18 @@ public class ZBufferPerspective implements PaintMethod {
                 int outVertex = outFrustum.get(0);
                 TriVector inter1 = intersectImagePlaneInCameraSpace(p[outVertex], p[inVertex1]);
                 TriVector inter2 = intersectImagePlaneInCameraSpace(p[outVertex], p[inVertex2]);
-                Triangle t1 = new Triangle(inter1, p[inVertex2], p[inVertex1]);
+                Triangle t1 = new Triangle(inter2, p[inVertex2], p[inVertex1]);
                 t1.setColor(element.getColor());
-                t1.setColorPoint(element.getColorPoint(outVertex), outVertex);
-                t1.setColorPoint(element.getColorPoint(inVertex2), inVertex2);
-                t1.setColorPoint(element.getColorPoint(inVertex1), inVertex1);
-                Triangle t2 = new Triangle(inter1, inter2, p[inVertex2]);
+                t1.setColorPoint(element.getColorPoint(outVertex), 0);
+                t1.setColorPoint(element.getColorPoint(inVertex2), 1);
+                t1.setColorPoint(element.getColorPoint(inVertex1), 2);
+                Triangle t2 = new Triangle(inter1, inter2, p[inVertex1]);
                 t2.setColor(element.getColor());
-                t2.setColorPoint(element.getColorPoint(outVertex), outVertex);
-                t2.setColorPoint(element.getColorPoint(outVertex), outVertex);
-                t2.setColorPoint(element.getColorPoint(inVertex2), inVertex2);
-                paintTriangleAtomic(t1, t1.getPointsArray());
-                paintTriangleAtomic(t2, t2.getPointsArray());
+                t2.setColorPoint(element.getColorPoint(outVertex), 0);
+                t2.setColorPoint(element.getColorPoint(outVertex), 1);
+                t2.setColorPoint(element.getColorPoint(inVertex2), 2);
+                paintTriangleAtomic(element, t1.getPointsArray());
+                paintTriangleAtomic(element, t2.getPointsArray());
                 break;
             case 2:
                 int outVertex1 = outFrustum.get(0);
@@ -195,7 +195,7 @@ public class ZBufferPerspective implements PaintMethod {
                 t.setColorPoint(element.getColorPoint(outVertex1), outVertex1);
                 t.setColorPoint(element.getColorPoint(outVertex2), outVertex2);
                 t.setColorPoint(element.getColorPoint(inVertex), inVertex);
-                paintTriangleAtomic(t, t.getPointsArray());
+                paintTriangleAtomic(element, t.getPointsArray());
                 break;
             default:
                 break;
@@ -214,19 +214,20 @@ public class ZBufferPerspective implements PaintMethod {
 
     private void paintTriangleAtomic(Triangle element, TriVector[] p) {
         intBuffer = new TriVector[element.nPoints];
-        for (int i = 0; i < element.nPoints; i++)
+        for (int i = 0; i < element.nPoints; i++) {
             intBuffer[i] = new TriVector();
-        /**
+        }
+        /*
          * Calculate of the integer coordinates
          */
-        for (int i = 0; i < element.nPoints; i++) {
+        for (int i = 0; i < p.length; i++) {
             intBuffer[i].setZ(p[i].getZ());
             p[i] = project(p[i]);
             intBuffer[i].setX(wd.changeCoordX(p[i].getX()));
             intBuffer[i].setY(wd.changeCoordY(p[i].getY()));
         }
         TriVector normal = Triangle.calcNormal(intBuffer);
-        drawZ(intBuffer, element.nPoints, normal, element);
+        drawZ(intBuffer, p.length, normal, element);
     }
 
     /**
