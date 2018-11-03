@@ -338,11 +338,11 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
             intervalPanelYValue.add(this.yMinTxt);
             intervalPanelYValue.add(this.yMaxTxt);
             this.panel.add(intervalPanelYValue);
-            JPanel stepPanel = new JPanel();
-            stepPanel.setLayout(new GridLayout(1, 2));
-            stepPanel.add(new JLabel("X\\Y samplesText"));
-            stepPanel.add(this.samplesText);
-            this.panel.add(stepPanel);
+            JPanel samplesPanel = new JPanel();
+            samplesPanel.setLayout(new GridLayout(1, 2));
+            samplesPanel.add(new JLabel("X\\Y samplesText"));
+            samplesPanel.add(this.samplesText);
+            this.panel.add(samplesPanel);
             JPanel drawButtonPanel = new JPanel();
             drawButtonPanel.setLayout(new GridLayout(1, 2));
             drawButtonPanel.add(new JLabel(""));
@@ -638,7 +638,7 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
     private void maxPolyConstraint(double delta) {
         double nextStep = Math.sqrt(delta) / 2;
         this.samplesText.setText("" + nextStep);
-        JOptionPane.showMessageDialog(null, "the X/Y samples is too high, pls choose a smaller one");
+        JOptionPane.showMessageDialog(null, "the X/Y samples are too high, pls choose a smaller one");
     }
 
     private void animate(double dt) {
@@ -652,10 +652,7 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
 
     private void accAnimate(double dt) {
         if (dt > 0.02) {
-            if (this.isKakashi)
-                dt = 0.0001;
-            else
-                dt = 0.01;
+            dt = this.isKakashi ? 0.0001 : 0.01;
         }
         ExpressionFunction accEquation = new ExpressionFunction(this.functionAcc.getText(), this.diffVars);
         accEquation.addFunction("dx", new Dfdx());
@@ -715,10 +712,7 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
 
     private void velAnimate(double dt) {
         if (dt > 0.02) {
-            if (this.isKakashi)
-                dt = 0.0001;
-            else
-                dt = 0.01;
+            dt = this.isKakashi ? 0.0001 : 0.01;
         }
         /**
          * PDE functions

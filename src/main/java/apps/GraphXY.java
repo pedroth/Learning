@@ -15,6 +15,9 @@ import windowThreeDim.Point;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 
 public class GraphXY extends JFrame implements MouseListener,
@@ -54,7 +57,7 @@ public class GraphXY extends JFrame implements MouseListener,
      * User Interface(UI) crap
      */
     private JTextField functionString;
-    private JTextField xMinTxt, xMaxTxt, yMinTxt, yMaxTxt, stepTxt;
+    private JTextField xMinTxt, xMaxTxt, yMinTxt, yMaxTxt, samplesTxt;
     private JTextArea minMaxTxt;
     private JButton maxButton;
     private String txtAreaStr;
@@ -72,37 +75,29 @@ public class GraphXY extends JFrame implements MouseListener,
     /**
      * mouse coordinates
      */
-    private int mx, my, newMx, newMy, mRotation;
+    private int mx;
+    private int my;
+    private int mRotation;
     /**
      * camera dynamics
      */
     private double raw;
     private double velocity;
-    private double accelaration;
+    private double acceleration;
     private double oldTime;
-    private double currentTime;
     private double thrust;
     /**
      * where the camera is looking
      */
     private TriVector focalPoint;
     /**
-     * there is no need in this class i only put here for the case i want to
-     * insert a timer
-     */
-    private Euler euler;
-    /**
      * variable to check the need of drawing
      */
     private boolean drawFunction;
     /**
-     * surface
-     */
-    private TriVector[][] surface;
-    /**
      * variables describing the domain of the function
      */
-    private double xmin, xmax, ymin, ymax, step;
+    private double xmin, xmax, ymin, ymax, samples;
     /**
      * computes function from string
      */
@@ -163,10 +158,26 @@ public class GraphXY extends JFrame implements MouseListener,
     private boolean isShading;
     private boolean axisAlreadyBuild;
 
+    private Runnable euler = () -> {
+        double currentTime = (System.currentTimeMillis()) * 1E-03;
+        double dt = currentTime - this.oldTime;
+        this.oldTime = currentTime;
+        this.acceleration = -velocity + this.thrust;
+        this.velocity += this.acceleration * dt;
+        this.raw += this.velocity * dt;
+        orbit(this.theta, this.phi, this.focalPoint);
+        if (this.gradientFlow != 0) gradientFlow(dt);
+        if (this.drawAxis) buildAxis();
+        if (this.drawFunction) buildFunction();
+        if (this.isZoomFit) cameraFindGraph();
+        this.graphics.drawElements();
+        repaint();
+    };
+
     public GraphXY(boolean isApplet) {
         /*
          * Set JFrame title.
-		 */
+         */
         super("Draw Graph XY - Press h for Help");
 
         this.setLayout(null);
@@ -174,118 +185,116 @@ public class GraphXY extends JFrame implements MouseListener,
         /*
          * Begin the engine
          */
-        graphics = new TriWin();
-        wd = graphics.getBuffer();
+        this.graphics = new TriWin();
+        this.wd = this.graphics.getBuffer();
         ZBufferPerspective painter = new ZBufferPerspective();
-        graphics.setMethod(painter);
-        wd.setBackGroundColor(Color.black);
-        isZBuffer = true;
-        colorState = 0;
-        drawAxis = false;
+        this.graphics.setMethod(painter);
+        this.wd.setBackGroundColor(Color.black);
+        this.isZBuffer = true;
+        this.colorState = 0;
+        this.drawAxis = false;
         /*
          * int global variables
          */
-        gradientFlow = 0;
-        optimalPoints = new TriVector[numGradPoints];
+        this.gradientFlow = 0;
+        this.optimalPoints = new TriVector[this.numGradPoints];
         buildSphere(0.1);
-        maxGradientTime = 3.0;
+        this.maxGradientTime = 3.0;
 
 
         /*
          * Set default close operation for JFrame.
-		 */
+         */
         if (!isApplet) {
             setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         }
 
         /*
          * Set JFrame size.
-		 */
+         */
         setSize(800, 600);
 
-        wChanged = this.getWidth();
-        hChanged = this.getHeight();
+        this.wChanged = this.getWidth();
+        this.hChanged = this.getHeight();
 
-        wd.setWindowSize(7 * wChanged / 10, hChanged);
+        this.wd.setWindowSize(7 * this.wChanged / 10, this.hChanged);
 
         /*
          * UI crap initialization.
-		 */
-        panel = new JPanel();
-        functionString = new JTextField();
-        xMinTxt = new JTextField();
-        xMaxTxt = new JTextField();
-        yMinTxt = new JTextField();
-        yMaxTxt = new JTextField();
-        minMaxTxt = new JTextArea();
-        stepTxt = new JTextField();
-        drawButton = new JButton("Draw");
-        drawButton.addActionListener(e -> {
-            drawFunction = true;
-            graphics.removeAllElements();
+         */
+        this.panel = new JPanel();
+        this.functionString = new JTextField();
+        this.xMinTxt = new JTextField();
+        this.xMaxTxt = new JTextField();
+        this.yMinTxt = new JTextField();
+        this.yMaxTxt = new JTextField();
+        this.minMaxTxt = new JTextArea();
+        this.samplesTxt = new JTextField();
+        this.drawButton = new JButton("Draw");
+        this.drawButton.addActionListener(e -> {
+            this.drawFunction = true;
+            this.graphics.removeAllElements();
         });
-        minButton = new JButton("Min");
-        minButton.addActionListener(arg0 -> {
-            gradientFlow = -1.0;
+        this.minButton = new JButton("Min");
+        this.minButton.addActionListener(arg0 -> {
+            this.gradientFlow = -1.0;
             initGradientFlow();
-            gradientTime = 0;
+            this.gradientTime = 0;
 
         });
-        maxButton = new JButton("Max");
-        maxButton.addActionListener(e -> {
-            gradientFlow = 1.0;
+        this.maxButton = new JButton("Max");
+        this.maxButton.addActionListener(e -> {
+            this.gradientFlow = 1.0;
             initGradientFlow();
-            gradientTime = 0;
+            this.gradientTime = 0;
         });
 
-        clearButton = new JButton("Clear Table");
-        clearButton.addActionListener(arg0 -> {
-            txtAreaStr = "\tx \t y \t z\n";
+        this.clearButton = new JButton("Clear Table");
+        this.clearButton.addActionListener(arg0 -> {
+            this.txtAreaStr = "\tx \t y \t z\n";
             processLayout();
         });
-        zoomFit = new JButton("Zoom fit");
-        zoomFit.addActionListener(arg0 -> isZoomFit = true);
-        isZoomFit = false;
-        init = true;
+        this.zoomFit = new JButton("Zoom fit");
+        this.zoomFit.addActionListener(arg0 -> this.isZoomFit = true);
+        this.isZoomFit = false;
+        this.init = true;
 
         /*
          * init camera values
          */
-        raw = 3;
-        velocity = 0;
-        accelaration = 0;
+        this.raw = 3;
+        this.velocity = 0;
+        this.acceleration = 0;
 
-        oldTime = (System.currentTimeMillis()) * 1E-03;
-        thrust = 0;
+        this.oldTime = (System.currentTimeMillis()) * 1E-03;
+        this.thrust = 0;
 
-        drawFunction = true;
-        focalPoint = new TriVector();
-        euler = new Euler();
-
-        mRotation = 0;
+        this.drawFunction = true;
+        this.focalPoint = new TriVector();
+        this.mRotation = 0;
 
         processLayout();
 
-		/*
+        /*
          * Make JFrame visible.
-		 */
+         */
         setVisible(true);
 
         /*
-		 * Add listeners.
-		 */
+         * Add listeners.
+         */
         this.addKeyListener(this);
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
         this.addMouseWheelListener(this);
 
-        isShading = false;
-        shader = new FlatShader();
-        shader.setAmbientLightParameter(0.5);
-        shader.setShininess(25);
-        shader.addLightPoint(new TriVector(raw, raw, raw));
+        this.isShading = false;
+        this.shader = new FlatShader();
+        this.shader.setAmbientLightParameter(0.5);
+        this.shader.setShininess(25);
+        this.shader.addLightPoint(new TriVector(this.raw, this.raw, this.raw));
 
-        axisAlreadyBuild = false;
+        this.axisAlreadyBuild = false;
     }
 
     public static void main(String[] args) {
@@ -295,13 +304,13 @@ public class GraphXY extends JFrame implements MouseListener,
     private void processLayout() {
         int border = 70;
 
-        if (init) {
-            panel.setLayout(new GridLayout(2, 1));
+        if (this.init) {
+            this.panel.setLayout(new GridLayout(2, 1));
             JPanel upperPanel = new JPanel(new GridLayout(8, 1));
             JPanel functionPanel = new JPanel();
             functionPanel.setLayout(new GridLayout(1, 2));
             functionPanel.add(new JLabel("F(x,y)"));
-            functionPanel.add(functionString);
+            functionPanel.add(this.functionString);
             upperPanel.add(functionPanel);
             JPanel intervalPanelX = new JPanel();
             intervalPanelX.setLayout(new GridLayout(1, 2));
@@ -310,8 +319,8 @@ public class GraphXY extends JFrame implements MouseListener,
             upperPanel.add(intervalPanelX);
             JPanel intervalPanelXValue = new JPanel();
             intervalPanelXValue.setLayout(new GridLayout(1, 2));
-            intervalPanelXValue.add(xMinTxt);
-            intervalPanelXValue.add(xMaxTxt);
+            intervalPanelXValue.add(this.xMinTxt);
+            intervalPanelXValue.add(this.xMaxTxt);
             upperPanel.add(intervalPanelXValue);
             JPanel intervalPanelY = new JPanel();
             intervalPanelY.setLayout(new GridLayout(1, 2));
@@ -320,64 +329,63 @@ public class GraphXY extends JFrame implements MouseListener,
             upperPanel.add(intervalPanelY);
             JPanel intervalPanelYValue = new JPanel();
             intervalPanelYValue.setLayout(new GridLayout(1, 2));
-            intervalPanelYValue.add(yMinTxt);
-            intervalPanelYValue.add(yMaxTxt);
+            intervalPanelYValue.add(this.yMinTxt);
+            intervalPanelYValue.add(this.yMaxTxt);
             upperPanel.add(intervalPanelYValue);
-            JPanel stepPanel = new JPanel();
-            stepPanel.setLayout(new GridLayout(1, 2));
-            stepPanel.add(new JLabel("X\\Y step"));
-            stepPanel.add(stepTxt);
-            upperPanel.add(stepPanel);
+            JPanel samplesPanel = new JPanel();
+            samplesPanel.setLayout(new GridLayout(1, 2));
+            samplesPanel.add(new JLabel("X\\Y Samples"));
+            samplesPanel.add(this.samplesTxt);
+            upperPanel.add(samplesPanel);
             JPanel drawButtonPanel = new JPanel();
             drawButtonPanel.setLayout(new GridLayout(1, 2));
             drawButtonPanel.add(new JLabel(""));
-            drawButtonPanel.add(drawButton);
+            drawButtonPanel.add(this.drawButton);
             upperPanel.add(drawButtonPanel);
             JPanel minMaxPanel = new JPanel(new GridLayout(1, 2));
-            minMaxPanel.add(minButton);
-            minMaxPanel.add(maxButton);
+            minMaxPanel.add(this.minButton);
+            minMaxPanel.add(this.maxButton);
             upperPanel.add(minMaxPanel);
-            panel.add(upperPanel);
+            this.panel.add(upperPanel);
             JPanel lowerPane = new JPanel(new GridLayout(2, 1));
-            JScrollPane areaScrollPane = new JScrollPane(minMaxTxt);
-            areaScrollPane.setVerticalScrollBarPolicy(
-                    JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+            JScrollPane areaScrollPane = new JScrollPane(this.minMaxTxt);
+            areaScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
             areaScrollPane.setPreferredSize(new Dimension(250, 250));
             lowerPane.add(areaScrollPane);
             JPanel clearZoomPanel = new JPanel(new GridLayout(1, 2));
-            clearZoomPanel.add(clearButton);
-            clearZoomPanel.add(zoomFit);
+            clearZoomPanel.add(this.clearButton);
+            clearZoomPanel.add(this.zoomFit);
             JPanel dummyPanel = new JPanel(new GridLayout(2, 1));
             dummyPanel.add(clearZoomPanel);
             dummyPanel.add(new JLabel());
             lowerPane.add(dummyPanel);
-            panel.add(lowerPane);
-            functionString.setText("sin( x ^ 2 + y ^ 2)");
-            xMinTxt.setText("-1");
-            xMaxTxt.setText("1");
-            yMinTxt.setText("-1");
-            yMaxTxt.setText("1");
-            stepTxt.setText("0.25");
-            txtAreaStr = "\tx \t y \t z\n";
-            this.add(panel);
-            init = false;
+            this.panel.add(lowerPane);
+            this.functionString.setText("sin( x ^ 2 + y ^ 2)");
+            this.xMinTxt.setText("-1");
+            this.xMaxTxt.setText("1");
+            this.yMinTxt.setText("-1");
+            this.yMaxTxt.setText("1");
+            this.samplesTxt.setText("33");
+            this.txtAreaStr = "\tx \t y \t z\n";
+            this.add(this.panel);
+            this.init = false;
         }
         /*
           pseudo - canvas
          */
-        wd.setWindowSize(border * wChanged / 100, hChanged);
-        panel.setBounds(border * wChanged / 100, 0, (100 - border) * wChanged / 100, hChanged);
-        minMaxTxt.setText(txtAreaStr);
+        this.wd.setWindowSize(border * this.wChanged / 100, this.hChanged);
+        this.panel.setBounds(border * this.wChanged / 100, 0, (100 - border) * this.wChanged / 100, this.hChanged);
+        this.minMaxTxt.setText(this.txtAreaStr);
     }
 
     private void cameraFindGraph() {
         Double v[] = new Double[3];
-        v[0] = (xmax + xmin) / 2;
-        v[1] = (ymax + ymin) / 2;
-        v[2] = (maxHeightColor + minHeightColor) / 2;
-        raw = 3 * xmax;
-        focalPoint = new TriVector(v[0], v[1], v[2]);
-        isZoomFit = false;
+        v[0] = (this.xmax + this.xmin) / 2;
+        v[1] = (this.ymax + this.ymin) / 2;
+        v[2] = (this.maxHeightColor + this.minHeightColor) / 2;
+        this.raw = 3 * this.xmax;
+        this.focalPoint = new TriVector(v[0], v[1], v[2]);
+        this.isZoomFit = false;
     }
 
     /**
@@ -387,7 +395,7 @@ public class GraphXY extends JFrame implements MouseListener,
      * @return computation of the expression in s
      */
     private double numericRead(String s) {
-        if ("" .equals(s))
+        if ("".equals(s))
             return 0;
         ExpressionFunction in;
         in = new ExpressionFunction(s, new String[]{});
@@ -396,104 +404,95 @@ public class GraphXY extends JFrame implements MouseListener,
     }
 
     private void buildFunction() {
-        double nx, ny, x, y, z, colorHSB;
+        double x, y, z, colorHSB;
         int inx, iny;
         int MaxPoly = 25600;
         Random r = new Random();
         colorHSB = r.nextDouble();
-        drawFunction = false;
-        xmin = numericRead(xMinTxt.getText());
-        xmax = numericRead(xMaxTxt.getText());
-        ymin = numericRead(yMinTxt.getText());
-        ymax = numericRead(yMaxTxt.getText());
-        step = numericRead(stepTxt.getText());
-        exprFunction = new ExpressionFunction(functionString.getText(), vars);
+        this.drawFunction = false;
+        this.xmin = numericRead(this.xMinTxt.getText());
+        this.xmax = numericRead(this.xMaxTxt.getText());
+        this.ymin = numericRead(this.yMinTxt.getText());
+        this.ymax = numericRead(this.yMaxTxt.getText());
+        this.samples = numericRead(this.samplesTxt.getText());
+        this.exprFunction = new ExpressionFunction(this.functionString.getText(), this.vars);
         String[] dummyVar = {"t"};
-        exprFunction
-                .addFunction("pedro", new PedroNode(dummyVar, exprFunction));
-        exprFunction.addFunction("linearSystemError", new LinearSystemError(1,
-                -2, 5, -7, 7, -5));
-        exprFunction.addFunction("C", new CombinationNode());
-        maxHeightColor = Double.NEGATIVE_INFINITY;
-        minHeightColor = Double.POSITIVE_INFINITY;
+        this.exprFunction.addFunction("pedro", new PedroNode(dummyVar, this.exprFunction));
+        this.exprFunction.addFunction("linearSystemError", new LinearSystemError(1, -2, 5, -7, 7, -5));
+        this.exprFunction.addFunction("C", new CombinationNode());
+        this.maxHeightColor = Double.NEGATIVE_INFINITY;
+        this.minHeightColor = Double.POSITIVE_INFINITY;
         try {
-            exprFunction.init();
+            this.exprFunction.init();
         } catch (SyntaxErrorException e) {
-            JOptionPane
-                    .showMessageDialog(
-                            null,
-                            "there is a syntax error in the formula, pls change the formula."
-                                    + String.format("%n")
-                                    + " try to use more brackets, try not to cocatenate 2*x^2 as 2x2."
-                                    + String.format("%n")
-                                    + "check also for simple errors like 1/*2.");
+            JOptionPane.showMessageDialog(
+                    null,
+                    "there is a syntax error in the formula, pls change the formula."
+                            + String.format("%n")
+                            + " try to use more brackets, try not to cocatenate 2*x^2 as 2x2."
+                            + String.format("%n")
+                            + "check also for simple errors like 1/*2."
+            );
         }
-        nx = Math.abs(xmax - xmin) / (step);
-        ny = Math.abs(ymax - ymin) / (step);
-
-        if (!isZBuffer) {
-            MaxPoly = 50000;
-        }
-
-        if (nx * ny > MaxPoly) {
-            double aux = (nx * ny) * (step * step);
-            maxPolyConstraint(aux);
-            step = numericRead(stepTxt.getText());
-            nx = Math.abs(xmax - xmin) / (step);
-            ny = Math.abs(ymax - ymin) / (step);
+        final double samplesSq = this.samples * this.samples;
+        if (samplesSq > MaxPoly) {
+            maxPolyConstraint(samplesSq);
+            this.samples = numericRead(this.samplesTxt.getText());
         }
 
-        inx = (int) Math.floor(nx);
-        iny = (int) Math.floor(ny);
-        surface = new TriVector[inx + 1][iny + 1];
-        for (int j = 0; j < iny; j++) {
-            for (int i = 0; i < inx; i++) {
+        inx = (int) Math.floor(this.samples);
+        iny = (int) Math.floor(this.samples);
+        final double stepX = Math.abs(this.xmax - this.xmin) / (this.samples - 1);
+        final double stepY = Math.abs(this.ymax - this.ymin) / (this.samples - 1);
+        /*
+         * surface
+         */
+        TriVector[][] surface = new TriVector[inx][iny];
+        for (int j = 0; j < iny - 1; j++) {
+            for (int i = 0; i < inx - 1; i++) {
+                final double xbase = this.xmin + i * stepX;
+                final double ybase = this.ymin + j * stepY;
                 if (surface[i][j] == null) {
-                    x = xmin + i * step;
-                    y = ymin + j * step;
+                    x = xbase;
+                    y = ybase;
                     Double[] xy = {x, y};
-                    z = exprFunction.compute(xy);
+                    z = this.exprFunction.compute(xy);
                     surface[i][j] = new TriVector(x, y, z);
-                    // surface[i][j] = new TriVector(x, y, r.nextDouble());
                 }
                 if (surface[i + 1][j] == null) {
-                    x = xmin + (i + 1) * step;
-                    y = ymin + j * step;
+                    x = xbase + stepX;
+                    y = ybase;
                     Double[] xy = {x, y};
-                    z = exprFunction.compute(xy);
+                    z = this.exprFunction.compute(xy);
                     surface[i + 1][j] = new TriVector(x, y, z);
-                    // surface[i+1][j] = new TriVector(x, y, r.nextDouble());
                 }
                 if (surface[i + 1][j + 1] == null) {
-                    x = xmin + (i + 1) * step;
-                    y = ymin + (j + 1) * step;
+                    x = xbase + stepX;
+                    y = ybase + stepY;
                     Double[] xy = {x, y};
-                    z = exprFunction.compute(xy);
+                    z = this.exprFunction.compute(xy);
                     surface[i + 1][j + 1] = new TriVector(x, y, z);
-                    // surface[i+1][j+1] = new TriVector(x, y, r.nextDouble());
                 }
                 if (surface[i][j + 1] == null) {
-                    x = xmin + (i) * step;
-                    y = ymin + (j + 1) * step;
+                    x = xbase;
+                    y = ybase + stepY;
                     Double[] xy = {x, y};
-                    z = exprFunction.compute(xy);
+                    z = this.exprFunction.compute(xy);
                     surface[i][j + 1] = new TriVector(x, y, z);
-                    // surface[i][j+1] = new TriVector(x, y, r.nextDouble());
                 }
                 double auxZ = surface[i][j].getZ();
                 if (!Double.isInfinite(auxZ) && !Double.isNaN(auxZ)) {
-                    maxHeightColor = Math.max(auxZ, maxHeightColor);
-                    minHeightColor = Math.min(auxZ, minHeightColor);
+                    this.maxHeightColor = Math.max(auxZ, this.maxHeightColor);
+                    this.minHeightColor = Math.min(auxZ, this.minHeightColor);
                 }
             }
         }
 
-        for (int j = 0; j < iny; j++) {
-            for (int i = 0; i < inx; i++) {
-                Element e = new Quad(surface[i][j], surface[i + 1][j],
-                        surface[i + 1][j + 1], surface[i][j + 1]);
+        for (int j = 0; j < iny - 1; j++) {
+            for (int i = 0; i < inx - 1; i++) {
+                Element e = new Quad(surface[i][j], surface[i + 1][j], surface[i + 1][j + 1], surface[i][j + 1]);
                 setElementColor(e, colorHSB);
-                graphics.addtoList(e);
+                this.graphics.addtoList(e);
             }
         }
     }
@@ -504,57 +503,56 @@ public class GraphXY extends JFrame implements MouseListener,
         double green = 120.0 / 360.0;
         for (int i = 0; i < e.getNumOfPoints(); i++) {
             double z = e.getNPoint(i).getZ();
+            double x = -1 + 2 * (z - this.minHeightColor) / (this.maxHeightColor - this.minHeightColor);
+            switch (this.colorState) {
+                case 0:
+                     /*
+                      linear interpolation between blue color and red
+                     */
+                    colorHSB = blue + (red - blue) * 0.5 * (x + 1);
+                    e.setColorPoint(Color.getHSBColor((float) colorHSB, 1f, 1f), i);
+                    break;
+                case 1:
+                    Random r = new Random();
+                    e.setColorPoint(Color.getHSBColor((float) colorHSB, r.nextFloat(), 1f), i);
+                    break;
+                case 2:
+                    /*
+                      see discrete/finite calculus or Newton series to understand
 
-            double x = -1 + 2 * (z - minHeightColor)
-                    / (maxHeightColor - minHeightColor);
-
-            if (colorState == 0) {
-                /*
-                  linear interpolation between blue color and red
-                 */
-                colorHSB = blue + (red - blue) * 0.5 * (x + 1);
-                e.setColorPoint(Color.getHSBColor((float) colorHSB, 1f, 1f), i);
-            } else if (colorState == 1) {
-                Random r = new Random();
-                e.setColorPoint(
-                        Color.getHSBColor((float) colorHSB, r.nextFloat(), 1f),
-                        i);
-            } else if (colorState == 2) {
-                /*
-                  see discrete/finite calculus or Newton series to understand
-
-                  magically it is equal to color state 1 so there is no need
-                  for it just here for fun.
-                 */
-                double d2s = ((red - green) - (green - blue));
-                double ds = (green - blue);
-                colorHSB = blue + ds * (x + 1) + 0.5 * d2s * (x + 1) * x;
-                e.setColorPoint(Color.getHSBColor((float) colorHSB, 1f, 1f), i);
+                      magically it is equal to color state 1 so there is no need
+                      for it just here for fun.
+                     */
+                    double d2s = ((red - green) - (green - blue));
+                    double ds = (green - blue);
+                    colorHSB = blue + ds * (x + 1) + 0.5 * d2s * (x + 1) * x;
+                    e.setColorPoint(Color.getHSBColor((float) colorHSB, 1f, 1f), i);
+                    break;
             }
         }
     }
 
     private void buildAxis() {
-        if (!axisAlreadyBuild) {
+        if (!this.axisAlreadyBuild) {
             Element e = new Line(new TriVector(0, 0, 0), new TriVector(1, 0, 0));
             e.setColor(Color.white);
-            graphics.addtoList(e);
+            this.graphics.addtoList(e);
             e = new StringElement(new TriVector(1.1, 0, 0), "X");
             e.setColor(Color.white);
-            graphics.addtoList(e);
+            this.graphics.addtoList(e);
             e = new Line(new TriVector(0, 0, 0), new TriVector(0, 1, 0));
             e.setColor(Color.white);
-            graphics.addtoList(e);
+            this.graphics.addtoList(e);
             e = new StringElement(new TriVector(0, 1.1, 0), "Y");
             e.setColor(Color.white);
-            graphics.addtoList(e);
+            this.graphics.addtoList(e);
             e = new Line(new TriVector(0, 0, 0), new TriVector(0, 0, 1));
             e.setColor(Color.white);
-            graphics.addtoList(e);
+            this.graphics.addtoList(e);
             e = new StringElement(new TriVector(0, 0, 1.1), "Z");
             e.setColor(Color.white);
-            graphics.addtoList(e);
-            axisAlreadyBuild = true;
+            this.graphics.addtoList(e);
+            this.axisAlreadyBuild = true;
         }
     }
 
@@ -567,40 +565,30 @@ public class GraphXY extends JFrame implements MouseListener,
             x = -1 + (2.0 / n) * i;
             colorHSB = blue + (red - blue) * 0.5 * (x + 1);
             divN = 1.0 / n;
-            wd.setDrawColor(Color.getHSBColor((float) colorHSB, 1f, 1f));
+            this.wd.setDrawColor(Color.getHSBColor((float) colorHSB, 1f, 1f));
             a = -0.5 + (divN) * i;
-            wd.drawFilledRectangle(a, -0.9, divN, 0.05);
+            this.wd.drawFilledRectangle(a, -0.9, divN, 0.05);
         }
-        wd.setDrawColor(Color.white);
-        wd.drawString("" + minHeightColor, -0.5, -0.95);
-        wd.drawString("" + maxHeightColor, 0.5, -0.95);
+        this.wd.setDrawColor(Color.white);
+        this.wd.drawString("" + this.minHeightColor, -0.5, -0.95);
+        this.wd.drawString("" + this.maxHeightColor, 0.5, -0.95);
 
     }
 
     private void maxPolyConstraint(double delta) {
-        double nextStep = Math.sqrt(delta / 10E3);
-
-        if (!isZBuffer) {
-            nextStep = Math.sqrt(delta / 10000);
-        }
-
-        stepTxt.setText("" + nextStep);
-        JOptionPane.showMessageDialog(null,
-                "the X/Y step is too low, pls choose a higher one");
-
+        double nextSamples = Math.sqrt(delta);
+        this.samplesTxt.setText("" + nextSamples);
+        JOptionPane.showMessageDialog(null, "the X/Y samples are too high, pls choose a lower one");
     }
 
     private double randomPointInInterval(double xmin, double xmax) {
         Random r = new Random();
-
         return xmin + (xmax - xmin) * r.nextDouble();
     }
 
     private void initGradientFlow() {
-
-        for (int i = 0; i < numGradPoints; i++) {
-            optimalPoints[i] = new TriVector(randomPointInInterval(xmin, xmax),
-                    randomPointInInterval(ymin, ymax), 0);
+        for (int i = 0; i < this.numGradPoints; i++) {
+            this.optimalPoints[i] = new TriVector(randomPointInInterval(this.xmin, this.xmax), randomPointInInterval(this.ymin, this.ymax), 0);
         }
     }
 
@@ -613,7 +601,7 @@ public class GraphXY extends JFrame implements MouseListener,
         v[1] = y;
         vh[0] = x + h;
         vh[1] = y;
-        double df = exprFunction.compute(vh) - exprFunction.compute(v);
+        double df = this.exprFunction.compute(vh) - this.exprFunction.compute(v);
         return df / h;
     }
 
@@ -626,93 +614,74 @@ public class GraphXY extends JFrame implements MouseListener,
         v[1] = y;
         vh[0] = x;
         vh[1] = y + h;
-        double df = exprFunction.compute(vh) - exprFunction.compute(v);
+        double df = this.exprFunction.compute(vh) - this.exprFunction.compute(v);
         return df / h;
     }
 
     private void gradientFlow(double dt) {
-        double x, y, z;
-        Color c;
+        this.graphics.removeAllElements();
+        this.gradientTime += dt;
+
         boolean logic = false;
-        graphics.removeAllElements();
-
-        gradientTime += dt;
-
-        for (int i = 0; i < numGradPoints; i++) {
-            x = optimalPoints[i].getX();
-            y = optimalPoints[i].getY();
+        for (int i = 0; i < this.numGradPoints; i++) {
+            double x = this.optimalPoints[i].getX();
+            double y = this.optimalPoints[i].getY();
             double dfdx = dfdx(x, y);
             double dfdy = dfdy(x, y);
             if (Math.abs(dfdx) < 1E-5 && Math.abs(dfdy) < 1E-5) {
                 logic = true;
                 continue;
             }
-            x = x + dt * gradientFlow * dfdx;
-            y = y + dt * gradientFlow * dfdy;
+            x = x + dt * this.gradientFlow * dfdx;
+            y = y + dt * this.gradientFlow * dfdy;
             Double[] v = new Double[2];
             v[0] = x;
             v[1] = y;
-            z = exprFunction.compute(v);
-            optimalPoints[i] = new TriVector(x, y, z);
-            if (gradientFlow < 0)
-                c = Color.red;
-            else
-                c = Color.blue;
-
-            if (isZBuffer)
-                drawSphere(optimalPoints[i], c);
+            double z = this.exprFunction.compute(v);
+            this.optimalPoints[i] = new TriVector(x, y, z);
+            Color c = this.gradientFlow < 0 ? Color.red : Color.blue;
+            if (this.isZBuffer)
+                drawSphere(this.optimalPoints[i], c);
             else {
-                Point e = new Point(optimalPoints[i]);
+                Point e = new Point(this.optimalPoints[i]);
                 e.setRadius(10);
                 e.setColor(c);
-                graphics.addtoList(e);
+                this.graphics.addtoList(e);
             }
         }
 
         /*
           bad programming
          */
-        if (logic || gradientTime >= maxGradientTime) {
-            double zMinMaz;
+        if (logic || this.gradientTime >= this.maxGradientTime) {
             int indexMinMax = 0;
-            if (gradientFlow < 0)
-                zMinMaz = Double.MAX_VALUE;
-            else
-                zMinMaz = Double.MIN_VALUE;
-
-            for (int i = 0; i < numGradPoints; i++) {
-                if (gradientFlow < 0) {
-                    if (zMinMaz > optimalPoints[i].getZ()) {
+            double zMinMaz = this.gradientFlow < 0 ? Double.MAX_VALUE : Double.MIN_VALUE;
+            for (int i = 0; i < this.numGradPoints; i++) {
+                if (this.gradientFlow < 0) {
+                    if (zMinMaz > this.optimalPoints[i].getZ()) {
                         indexMinMax = i;
-                        zMinMaz = optimalPoints[i].getZ();
+                        zMinMaz = this.optimalPoints[i].getZ();
                     }
                 } else {
-                    if (zMinMaz < optimalPoints[i].getZ()) {
+                    if (zMinMaz < this.optimalPoints[i].getZ()) {
                         indexMinMax = i;
-                        zMinMaz = optimalPoints[i].getZ();
+                        zMinMaz = this.optimalPoints[i].getZ();
                     }
                 }
             }
-
-            if (gradientFlow < 0)
-                txtAreaStr += "min	";
-            else
-                txtAreaStr += "max	";
-
-            txtAreaStr += String.format("%.3g",
-                    optimalPoints[indexMinMax].getX())
+            this.txtAreaStr += this.gradientFlow < 0 ? "min	" : "max	";
+            this.txtAreaStr += String.format("%.3g", this.optimalPoints[indexMinMax].getX())
                     + "\t"
-                    + String.format("%.3g", optimalPoints[indexMinMax].getY())
+                    + String.format("%.3g", this.optimalPoints[indexMinMax].getY())
                     + "\t"
-                    + String.format("%.3g", optimalPoints[indexMinMax].getZ())
+                    + String.format("%.3g", this.optimalPoints[indexMinMax].getZ())
                     + "\n";
-
-            graphics.removeAllElements();
-            gradientFlow = 0.0;
+            this.graphics.removeAllElements();
+            this.gradientFlow = 0.0;
             processLayout();
         }
 
-        drawFunction = true;
+        this.drawFunction = true;
 
     }
 
@@ -721,7 +690,7 @@ public class GraphXY extends JFrame implements MouseListener,
         double step = pi / 2;
         double n = 2 * pi / step;
         int numIte = (int) Math.floor(n);
-        sphere = new TriVector[numIte][numIte];
+        this.sphere = new TriVector[numIte][numIte];
         for (int j = 0; j < numIte; j++) {
             for (int i = 0; i < numIte; i++) {
                 double u = step * i;
@@ -730,8 +699,7 @@ public class GraphXY extends JFrame implements MouseListener,
                 double cosU = Math.cos(u);
                 double sinV = Math.sin(v);
                 double cosV = Math.cos(v);
-                sphere[i][j] = new TriVector(radius * sinU * cosV, radius
-                        * sinU * sinV, radius * cosU);
+                this.sphere[i][j] = new TriVector(radius * sinU * cosV, radius * sinU * sinV, radius * cosU);
             }
         }
     }
@@ -743,39 +711,38 @@ public class GraphXY extends JFrame implements MouseListener,
         int numIte = (int) Math.floor(n);
         for (int j = 0; j < numIte - 1; j++) {
             for (int i = 0; i < numIte - 1; i++) {
-                Quad e = new Quad(TriVector.sum(p, sphere[i][j]),
-                        TriVector.sum(p, sphere[i + 1][j]), TriVector.sum(p,
-                        sphere[i + 1][j + 1]), TriVector.sum(p,
-                        sphere[i][j + 1]));
+                Quad e = new Quad(TriVector.sum(p, this.sphere[i][j]),
+                        TriVector.sum(p, this.sphere[i + 1][j]), TriVector.sum(p,
+                        this.sphere[i + 1][j + 1]), TriVector.sum(p,
+                        this.sphere[i][j + 1]));
                 e.setColorPoint(c, 0);
                 e.setColorPoint(c, 1);
                 e.setColorPoint(c, 2);
                 e.setColorPoint(c, 3);
-                graphics.addtoList(e);
-
+                this.graphics.addtoList(e);
             }
         }
     }
 
     public void paint(Graphics g) {
-        if (Math.abs(wChanged - this.getWidth()) > 0
-                || Math.abs(hChanged - this.getHeight()) > 0) {
-            wChanged = this.getWidth();
-            hChanged = this.getHeight();
+        if (Math.abs(this.wChanged - this.getWidth()) > 0
+                || Math.abs(this.hChanged - this.getHeight()) > 0) {
+            this.wChanged = this.getWidth();
+            this.hChanged = this.getHeight();
             processLayout();
         }
-        if (panel.getGraphics() != null) {
-            panel.update(panel.getGraphics());
+        if (this.panel.getGraphics() != null) {
+            this.panel.update(this.panel.getGraphics());
         }
         update(g);
     }
 
     public void update(Graphics g) {
-        wd.clearImageWithBackGround();
+        this.wd.clearImageWithBackGround();
         euler.run();
-        if (drawAxis && colorState == 0)
+        if (this.drawAxis && this.colorState == 0)
             infoColor();
-        wd.paint(g);
+        this.wd.paint(g);
     }
 
     private void orbit(double t, double p, TriVector x) {
@@ -799,52 +766,49 @@ public class GraphXY extends JFrame implements MouseListener,
         aux.setMatrix(2, 1, cosT);
         aux.setMatrix(3, 1, 0);
 
-        TriVector eye = new TriVector(raw * cosP * cosT + x.getX(), raw * cosP
-                * sinT + x.getY(), raw * sinP + x.getZ());
+        TriVector eye = new TriVector(this.raw * cosP * cosT + x.getX(), this.raw * cosP * sinT + x.getY(), this.raw * sinP + x.getZ());
 
-        graphics.setCamera(aux, eye);
+        this.graphics.setCamera(aux, eye);
     }
 
     @Override
     public void keyPressed(KeyEvent arg0) {
-        if (arg0.getKeyCode() == KeyEvent.VK_W) {
-            thrust = -5;
-        } else if (arg0.getKeyCode() == KeyEvent.VK_S) {
-            thrust = +5;
-        } else if (arg0.getKeyCode() == KeyEvent.VK_Z) {
-            isZBuffer = !isZBuffer;
-            if (isZBuffer) {
-                graphics.setMethod(new ZBufferPerspective());
+        Map<Integer, Runnable> keyActionMap = new HashMap<>();
+        keyActionMap.put(KeyEvent.VK_W, () -> this.thrust = -5);
+        keyActionMap.put(KeyEvent.VK_S, () -> this.thrust = +5);
+        keyActionMap.put(KeyEvent.VK_1, () -> {
+            this.colorState = 0;
+            this.graphics.removeAllElements();
+            this.drawFunction = true;
+        });
+        keyActionMap.put(KeyEvent.VK_2, () -> {
+            this.colorState = 1;
+            this.graphics.removeAllElements();
+            this.drawFunction = true;
+        });
+        keyActionMap.put(KeyEvent.VK_3, () -> {
+            this.colorState = 2;
+            this.graphics.removeAllElements();
+            this.drawFunction = true;
+        });
+        keyActionMap.put(KeyEvent.VK_8, () -> this.graphics.setMethod(new InterpolativeShader()));
+        keyActionMap.put(KeyEvent.VK_9, () -> this.graphics.setMethod(new LevelSetShader()));
+        keyActionMap.put(KeyEvent.VK_A, () -> {
+            this.drawAxis = !this.drawAxis;
+            this.axisAlreadyBuild = false;
+            this.graphics.removeAllElements();
+            this.drawFunction = true;
+        });
+        keyActionMap.put(KeyEvent.VK_N, () -> {
+            this.isShading = !this.isShading;
+            if (this.isShading) {
+                this.graphics.setMethod(this.shader);
+                this.shader.changeNthLight(0, new TriVector(this.raw, this.raw, this.raw));
             } else {
-                graphics.setMethod(new WiredPrespective());
+                this.graphics.setMethod(new ZBufferPerspective());
             }
-            // drawFunction = true;
-        } else if (arg0.getKeyCode() == KeyEvent.VK_1) {
-            colorState = 0;
-            graphics.removeAllElements();
-            drawFunction = true;
-        } else if (arg0.getKeyCode() == KeyEvent.VK_2) {
-            colorState = 1;
-            graphics.removeAllElements();
-            drawFunction = true;
-        } else if (arg0.getKeyCode() == KeyEvent.VK_3) {
-            colorState = 2;
-            graphics.removeAllElements();
-            drawFunction = true;
-        } else if (arg0.getKeyCode() == KeyEvent.VK_A) {
-            drawAxis = !drawAxis;
-            axisAlreadyBuild = false;
-            graphics.removeAllElements();
-            drawFunction = true;
-        } else if (arg0.getKeyCode() == KeyEvent.VK_N) {
-            isShading = !isShading;
-            if (isShading) {
-                graphics.setMethod(shader);
-                shader.changeNthLight(0, new TriVector(raw, raw, raw));
-            } else {
-                graphics.setMethod(new ZBufferPerspective());
-            }
-        } else if (arg0.getKeyCode() == KeyEvent.VK_E) {
+        });
+        keyActionMap.put(KeyEvent.VK_E, () -> {
             Random r = new Random();
             String str = "1 / (1 + 3*exp(-(2 * x - y)))";
             switch (r.nextInt(7) + 1) {
@@ -869,83 +833,80 @@ public class GraphXY extends JFrame implements MouseListener,
                 case 7:
                     str = "25 / (1 + exp(1 / (1 + exp(-x - (y - 1))) + 1 / (1 + exp(x)) + 1/(1 + exp(y)))) - 5";
             }
-            functionString.setText(str);
-            graphics.removeAllElements();
-            drawFunction = true;
-        } else if (arg0.getKeyCode() == KeyEvent.VK_8) {
-            graphics.setMethod(new InterpolativeShader());
-        } else if (arg0.getKeyCode() == KeyEvent.VK_9) {
-            graphics.setMethod(new LevelSetShader());
-        }
-
+            this.functionString.setText(str);
+            this.graphics.removeAllElements();
+            this.drawFunction = true;
+        });
+        keyActionMap.put(KeyEvent.VK_Z, () -> {
+            this.isZBuffer = !this.isZBuffer;
+            if (this.isZBuffer) {
+                this.graphics.setMethod(new ZBufferPerspective());
+            } else {
+                this.graphics.setMethod(new WiredPrespective());
+            }
+        });
+        Optional.ofNullable(keyActionMap.get(arg0.getKeyCode())).ifPresent(Runnable::run);
     }
 
     @Override
     public void keyReleased(KeyEvent arg0) {
-        thrust = 0;
+        this.thrust = 0;
         if (arg0.getKeyCode() == KeyEvent.VK_H) {
-           HELP_FRAME.setVisible(true);
+            HELP_FRAME.setVisible(true);
         }
     }
 
     @Override
     public void keyTyped(KeyEvent arg0) {
         // TODO Auto-generated method stub
-
     }
 
     private void canvasFocus() {
-        xMinTxt.transferFocusUpCycle();
-        xMaxTxt.transferFocusUpCycle();
-        functionString.transferFocusUpCycle();
-        minMaxTxt.transferFocusUpCycle();
+        this.xMinTxt.transferFocusUpCycle();
+        this.xMaxTxt.transferFocusUpCycle();
+        this.functionString.transferFocusUpCycle();
+        this.minMaxTxt.transferFocusUpCycle();
     }
 
     @Override
     public void mouseDragged(MouseEvent e) {
         canvasFocus();
-        newMx = e.getX();
-        newMy = e.getY();
+        int newMx = e.getX();
+        int newMy = e.getY();
         double dx = newMx - mx;
         double dy = newMy - my;
-        theta += 2 * Math.PI * (dx / wChanged);
-        phi += 2 * Math.PI * (dy / hChanged);
+        this.theta += 2 * Math.PI * (dx / this.wChanged);
+        this.phi += 2 * Math.PI * (dy / this.hChanged);
 
-        orbit(theta, phi, focalPoint);
+        orbit(this.theta, this.phi, this.focalPoint);
         mx = newMx;
         my = newMy;
-
     }
 
     @Override
     public void mouseMoved(MouseEvent arg0) {
         // TODO Auto-generated method stub
-
     }
 
     @Override
     public void mouseClicked(MouseEvent arg0) {
         canvasFocus();
-
     }
 
     @Override
     public void mouseEntered(MouseEvent arg0) {
         // TODO Auto-generated method stub
-
     }
 
     @Override
     public void mouseExited(MouseEvent arg0) {
         // TODO Auto-generated method stub
-
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
         mx = e.getX();
         my = e.getY();
-
     }
 
     @Override
@@ -955,40 +916,12 @@ public class GraphXY extends JFrame implements MouseListener,
 
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
-        mRotation = e.getWheelRotation();
-        xMinTxt.setText("" + (xmin - mRotation));
-        xMaxTxt.setText("" + (xmax + mRotation));
-        yMinTxt.setText("" + (ymin - mRotation));
-        yMaxTxt.setText("" + (ymax + mRotation));
-        graphics.removeAllElements();
-        drawFunction = true;
-
-    }
-
-    class Euler {
-
-        public void run() {
-            currentTime = (System.currentTimeMillis()) * 1E-03;
-            double dt = currentTime - oldTime;
-            oldTime = currentTime;
-            accelaration = -velocity + thrust;
-            velocity += accelaration * dt;
-            raw += velocity * dt;
-            orbit(theta, phi, focalPoint);
-            if (gradientFlow != 0) {
-                gradientFlow(dt);
-            }
-            if (drawAxis) {
-                buildAxis();
-            }
-            if (drawFunction) {
-                buildFunction();
-            }
-            if (isZoomFit)
-                cameraFindGraph();
-
-            graphics.drawElements();
-            repaint();
-        }
+        this.mRotation = e.getWheelRotation();
+        this.xMinTxt.setText("" + (this.xmin - this.mRotation));
+        this.xMaxTxt.setText("" + (this.xmax + this.mRotation));
+        this.yMinTxt.setText("" + (this.ymin - this.mRotation));
+        this.yMaxTxt.setText("" + (this.ymax + this.mRotation));
+        this.graphics.removeAllElements();
+        this.drawFunction = true;
     }
 }
