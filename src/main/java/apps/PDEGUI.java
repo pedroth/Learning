@@ -14,6 +14,9 @@ import windowThreeDim.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 
 public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener, KeyListener, MouseWheelListener {
@@ -40,7 +43,8 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
             .addLine("d2fy(x,y) (d2f / dy2), f(x,y), d2fxy(x,y)")
             .addLine("Made by Pedroth")
             .buildWithTitle("Help");
-    JButton drawButton;
+
+    private JButton drawButton;
     /**
      * size of the screen
      */
@@ -54,7 +58,7 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
      * User Interface(UI) crap
      */
     private JTextField functionString;
-    private JTextField xMinTxt, xMaxTxt, yMinTxt, yMaxTxt, stepTxt;
+    private JTextField xMinTxt, xMaxTxt, yMinTxt, yMaxTxt, samplesText;
     private JComboBox<String> comboBox;
     private JTextField functionVel;
     private JTextField functionAcc;
@@ -73,7 +77,9 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
     /**
      * mouse coordinates
      */
-    private int mx, my, newMx, newMy, mRotation;
+    private int mx;
+    private int my;
+    private int mRotation;
     /**
      * camera dynamics
      */
@@ -87,11 +93,6 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
      * where the camera is looking
      */
     private TriVector focalPoint;
-    /**
-     * there is no need in this class i only put here for the case i want to
-     * insert a timer
-     */
-    private Euler euler;
     /**
      * variable to check the need of drawing
      */
@@ -107,17 +108,8 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
     /**
      * variables describing the domain of the function
      */
-    private double xmin, xmax, ymin, ymax, step;
-    /**
-     * computes function from string
-     */
-    private ExpressionFunction exprFunction;
+    private double xmin, xmax, ymin, ymax, samples;
     private String[] vars = {"x", "y"};
-    /**
-     * PDE functions
-     */
-    private ExpressionFunction velEquation;
-    private ExpressionFunction accEquation;
     private String[] diffVars = {"x", "y", "t"};
     /**
      * ZBuffer/WiredFrame
@@ -166,246 +158,255 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
     private boolean isKakashi;
     private boolean axisAlreadyBuild;
 
+    private Runnable euler = () -> {
+        this.currentTime = (System.currentTimeMillis()) * 1E-03;
+        double dt = this.currentTime - this.oldTime;
+        this.time += dt;
+        this.oldTime = this.currentTime;
+        this.acceleration = -this.velocity + this.thrust;
+        this.velocity += this.acceleration * dt;
+        this.raw += this.velocity * dt;
+        orbit(this.theta, this.phi, this.focalPoint);
+        if (this.drawAxis) {
+            buildAxis();
+        }
+        if (this.drawFunction) {
+            if (!this.isKakashi)
+                buildFunction();
+            else {
+                buildKakashi();
+            }
+        }
+        if (this.isZoomFit) {
+            cameraFindGraph();
+        }
+        if (this.isAnimating) {
+            animate(dt);
+        }
+        this.graphics.drawElements();
+        repaint();
+    };
+
     public PDEGUI(boolean isApplet) {
         /*
          * Set JFrame title.
-		 */
+         */
         super("PDE - Press h for Help");
 
         this.setLayout(null);
 
         /*
          * Begin Engine.
-		 */
-        graphics = new TriWin();
-        wd = graphics.getBuffer();
+         */
+        this.graphics = new TriWin();
+        this.wd = this.graphics.getBuffer();
         ZBufferPerspective painter = new ZBufferPerspective();
-        graphics.setMethod(painter);
-        wd.setBackGroundColor(Color.black);
-        isZBuffer = true;
-        colorState = 0;
-        drawAxis = false;
+        this.graphics.setMethod(painter);
+        this.wd.setBackGroundColor(Color.black);
+        this.isZBuffer = true;
+        this.colorState = 0;
+        this.drawAxis = false;
 
-		/*
+        /*
          * Set default close operation for JFrame.
-		 */
+         */
         if (!isApplet) {
             setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         }
 
-		/*
+        /*
          * Set JFrame size.
-		 */
+         */
         setSize(800, 600);
-
-        wChanged = this.getWidth();
-        hChanged = this.getHeight();
-
-        wd.setWindowSize(7 * wChanged / 10, hChanged);
-
-		/*
-		 * UI crap initialization.
-		 */
-        panel = new JPanel();
-        functionString = new JTextField();
-        xMinTxt = new JTextField();
-        xMaxTxt = new JTextField();
-        yMinTxt = new JTextField();
-        yMaxTxt = new JTextField();
-        stepTxt = new JTextField();
-        functionAcc = new JTextField();
-        functionVel = new JTextField();
-        comboBox = new JComboBox(new String[]{"Acceleration", "Velocity"});
-        accVelTextLabel = new JLabel();
-        comboBox.addItemListener(new ItemListener() {
-
-            @Override
-            public void itemStateChanged(ItemEvent arg0) {
-                processLayout();
+        this.wChanged = this.getWidth();
+        this.hChanged = this.getHeight();
+        this.wd.setWindowSize(7 * this.wChanged / 10, this.hChanged);
+        /*
+         * UI crap initialization.
+         */
+        this.panel = new JPanel();
+        this.functionString = new JTextField();
+        this.xMinTxt = new JTextField();
+        this.xMaxTxt = new JTextField();
+        this.yMinTxt = new JTextField();
+        this.yMaxTxt = new JTextField();
+        this.samplesText = new JTextField();
+        this.functionAcc = new JTextField();
+        this.functionVel = new JTextField();
+        this.comboBox = new JComboBox(new String[]{"Acceleration", "Velocity"});
+        this.accVelTextLabel = new JLabel();
+        this.comboBox.addItemListener(e -> processLayout());
+        this.drawButton = new JButton("Draw");
+        this.drawButton.addActionListener(e -> {
+            this.drawFunction = true;
+            this.graphics.removeAllElements();
+        });
+        this.animate = new JButton("Animate");
+        this.animate.addActionListener(e -> {
+            if ("Animate".equals(this.animate.getText())) {
+                this.drawFunction = true;
+                this.graphics.removeAllElements();
+                this.isAnimating = true;
+                this.animate.setText("Stop Animation");
+            } else {
+                this.isAnimating = false;
+                this.animate.setText("Animate");
+                this.time = 0;
             }
         });
-        drawButton = new JButton("Draw");
-        drawButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                drawFunction = true;
-                graphics.removeAllElements();
-            }
-        });
-        animate = new JButton("Animate");
-        animate.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                if (animate.getText() == "Animate") {
-                    drawFunction = true;
-                    graphics.removeAllElements();
-                    isAnimating = true;
-                    animate.setText("Stop Animation");
-                } else {
-                    isAnimating = false;
-                    animate.setText("Animate");
-                    time = 0;
-                }
-            }
-        });
-
-        zoomFit = new JButton("Zoom fit");
-        zoomFit.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                isZoomFit = true;
-            }
-        });
-        isZoomFit = false;
-        init = true;
-
+        this.zoomFit = new JButton("Zoom fit");
+        this.zoomFit.addActionListener(e -> this.isZoomFit = true);
+        this.isZoomFit = false;
+        this.init = true;
         /*
          * init camera values
          */
-        raw = 3;
-        velocity = 0;
-        acceleration = 0;
-
-        oldTime = (System.currentTimeMillis()) * 1E-03;
-        thrust = 0;
-
-        drawFunction = true;
-        focalPoint = new TriVector();
-        euler = new Euler();
-
+        this.raw = 3;
+        this.velocity = 0;
+        this.acceleration = 0;
+        this.oldTime = (System.currentTimeMillis()) * 1E-03;
+        this.thrust = 0;
+        this.drawFunction = true;
+        this.focalPoint = new TriVector();
         mRotation = 0;
         processLayout();
 
-		/*
-		 * Make JFrame visible.
-		 */
+        /*
+         * Make JFrame visible.
+         */
         setVisible(true);
 
-		/*
-		 * Add listeners.
-		 */
+        /*
+         * Add listeners.
+         */
         this.addKeyListener(this);
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
         this.addMouseWheelListener(this);
 
-        isShading = false;
-        shader = new FlatShader();
-        shader.setAmbientLightParameter(0.5);
-        shader.setShininess(25);
-        shader.addLightPoint(new TriVector(raw, raw, raw));
+        this.isShading = false;
+        this.shader = new FlatShader();
+        this.shader.setAmbientLightParameter(0.5);
+        this.shader.setShininess(25);
+        this.shader.addLightPoint(new TriVector(this.raw, this.raw, this.raw));
 
-        isAnimating = false;
-        time = 0;
-        isfastShading = false;
-        isKakashi = false;
-        axisAlreadyBuild = false;
+        this.isAnimating = false;
+        this.time = 0;
+        this.isfastShading = false;
+        this.isKakashi = false;
+        this.axisAlreadyBuild = false;
     }
 
     public static void main(String[] args) {
         new PDEGUI(false);
     }
 
-    public void processLayout() {
+    public static int positiveMod(int x, int y) {
+        if (x < 0) {
+            return y + (x % y);
+        } else {
+            return x % y;
+        }
+    }
+
+    private void processLayout() {
         int border = 70;
-        if (init) {
-            panel.setLayout(new GridLayout(20, 1));
+        if (this.init) {
+            this.panel.setLayout(new GridLayout(20, 1));
             JPanel functionPanel = new JPanel();
             functionPanel.setLayout(new GridLayout(1, 2));
             functionPanel.add(new JLabel("F(x,y)"));
-            functionPanel.add(functionString);
-            panel.add(functionPanel);
+            functionPanel.add(this.functionString);
+            this.panel.add(functionPanel);
             JPanel intervalPanelX = new JPanel();
             intervalPanelX.setLayout(new GridLayout(1, 2));
             intervalPanelX.add(new JLabel("xmin"));
             intervalPanelX.add(new JLabel("xmax"));
-            panel.add(intervalPanelX);
+            this.panel.add(intervalPanelX);
             JPanel intervalPanelXValue = new JPanel();
             intervalPanelXValue.setLayout(new GridLayout(1, 2));
-            intervalPanelXValue.add(xMinTxt);
-            intervalPanelXValue.add(xMaxTxt);
-            panel.add(intervalPanelXValue);
+            intervalPanelXValue.add(this.xMinTxt);
+            intervalPanelXValue.add(this.xMaxTxt);
+            this.panel.add(intervalPanelXValue);
             JPanel intervalPanelY = new JPanel();
             intervalPanelY.setLayout(new GridLayout(1, 2));
             intervalPanelY.add(new JLabel("ymin"));
             intervalPanelY.add(new JLabel("ymax"));
-            panel.add(intervalPanelY);
+            this.panel.add(intervalPanelY);
             JPanel intervalPanelYValue = new JPanel();
             intervalPanelYValue.setLayout(new GridLayout(1, 2));
-            intervalPanelYValue.add(yMinTxt);
-            intervalPanelYValue.add(yMaxTxt);
-            panel.add(intervalPanelYValue);
+            intervalPanelYValue.add(this.yMinTxt);
+            intervalPanelYValue.add(this.yMaxTxt);
+            this.panel.add(intervalPanelYValue);
             JPanel stepPanel = new JPanel();
             stepPanel.setLayout(new GridLayout(1, 2));
-            stepPanel.add(new JLabel("X\\Y step"));
-            stepPanel.add(stepTxt);
-            panel.add(stepPanel);
+            stepPanel.add(new JLabel("X\\Y samplesText"));
+            stepPanel.add(this.samplesText);
+            this.panel.add(stepPanel);
             JPanel drawButtonPanel = new JPanel();
             drawButtonPanel.setLayout(new GridLayout(1, 2));
             drawButtonPanel.add(new JLabel(""));
-            drawButtonPanel.add(drawButton);
-            panel.add(drawButtonPanel);
+            drawButtonPanel.add(this.drawButton);
+            this.panel.add(drawButtonPanel);
             JPanel comboBoxPanel = new JPanel();
             comboBoxPanel.setLayout(new GridLayout(1, 1));
-            comboBoxPanel.add(comboBox);
-            panel.add(comboBoxPanel);
+            comboBoxPanel.add(this.comboBox);
+            this.panel.add(comboBoxPanel);
             JPanel paux = new JPanel();
-            panel.add(paux.add(accVelTextLabel));
-            panel.add(functionAcc);
-            panel.add(functionVel);
+            this.panel.add(paux.add(this.accVelTextLabel));
+            this.panel.add(this.functionAcc);
+            this.panel.add(this.functionVel);
             JPanel animationButtonPanel = new JPanel();
             animationButtonPanel.setLayout(new GridLayout(1, 2));
-            animationButtonPanel.add(animate);
-            animationButtonPanel.add(zoomFit);
-            panel.add(animationButtonPanel);
-            functionString.setText("sin( x ^ 2 + y ^ 2)");
-            functionAcc.setText("d2x(x,y) + d2y(x,y) - 0.5 * dt(x,y)");
-            functionVel.setText("(1 / ((1 + dx(x,y)^2 + dy(x,y)^2)^(3/2))) * (d2x(x,y)*(1 + dy(x,y)^2) +2*dx(x,y)*dy(x,y)*d2xy(x,y) +  d2y(x,y)*(1 + dx(x,y)^2))");
-            xMinTxt.setText("-1");
-            xMaxTxt.setText("1");
-            yMinTxt.setText("-1");
-            yMaxTxt.setText("1");
-            stepTxt.setText("0.25");
-            this.add(panel);
-            init = false;
+            animationButtonPanel.add(this.animate);
+            animationButtonPanel.add(this.zoomFit);
+            this.panel.add(animationButtonPanel);
+            this.functionString.setText("sin( x ^ 2 + y ^ 2)");
+            this.functionAcc.setText("d2x(x,y) + d2y(x,y) - 0.5 * dt(x,y)");
+            this.functionVel.setText("0.1*(d2x(x,y) + d2y(x,y))");
+            this.xMinTxt.setText("-1");
+            this.xMaxTxt.setText("1");
+            this.yMinTxt.setText("-1");
+            this.yMaxTxt.setText("1");
+            this.samplesText.setText("33");
+            this.add(this.panel);
+            this.init = false;
         }
-		/*
-		 * pseudo - canvas
-		 */
-        wd.setWindowSize(border * wChanged / 100, hChanged);
-        panel.setBounds(border * wChanged / 100, 0, (100 - border) * wChanged / 100, hChanged);
+        /*
+         * pseudo - canvas
+         */
+        this.wd.setWindowSize(border * this.wChanged / 100, this.hChanged);
+        this.panel.setBounds(border * this.wChanged / 100, 0, (100 - border) * this.wChanged / 100, this.hChanged);
 
-		/*
-		 * Acceleration/Velocity
-		 */
-        if (comboBox.getSelectedItem() == "Acceleration") {
-            functionVel.setVisible(false);
-            functionAcc.setVisible(true);
+        /*
+         * Acceleration/Velocity
+         */
+        if (this.comboBox.getSelectedItem() == "Acceleration") {
+            this.functionVel.setVisible(false);
+            this.functionAcc.setVisible(true);
         } else {
-            functionVel.setVisible(true);
-            functionAcc.setVisible(false);
+            this.functionVel.setVisible(true);
+            this.functionAcc.setVisible(false);
         }
-		/*
-		 * PDE text
-		 */
-        if (comboBox.getSelectedItem() == "Acceleration") {
-            accVelTextLabel.setText("d2F/d2t = G(f(x,y),dx(x,y),dy(x,y),d2x(x,y),d2y(x,y),d2xy(x,y),dt(x,y),t,x,y)");
+        /*
+         * PDE text
+         */
+        if (this.comboBox.getSelectedItem() == "Acceleration") {
+            this.accVelTextLabel.setText("d2F/d2t = G(f(x,y),dx(x,y),dy(x,y),d2x(x,y),d2y(x,y),d2xy(x,y),dt(x,y),t,x,y)");
         } else {
-            accVelTextLabel.setText("dF/dt = G(f(x,y),dx(x,y),dy(x,y),d2x(x,y),d2y(x,y),d2xy(x,y),t,x,y)");
+            this.accVelTextLabel.setText("dF/dt = G(f(x,y),dx(x,y),dy(x,y),d2x(x,y),d2y(x,y),d2xy(x,y),t,x,y)");
         }
 
     }
 
-    public void cameraFindGraph() {
+    private void cameraFindGraph() {
         Double v[] = new Double[3];
-        v[0] = (xmax + xmin) / 2;
-        v[1] = (ymax + ymin) / 2;
-        v[2] = (maxHeightColor + minHeightColor) / 2;
-        raw = 3 * xmax;
-        focalPoint = new TriVector(v[0], v[1], v[2]);
-        isZoomFit = false;
+        v[0] = (this.xmax + this.xmin) / 2;
+        v[1] = (this.ymax + this.ymin) / 2;
+        v[2] = (this.maxHeightColor + this.minHeightColor) / 2;
+        this.raw = 3 * this.xmax;
+        this.focalPoint = new TriVector(v[0], v[1], v[2]);
+        this.isZoomFit = false;
     }
 
     /**
@@ -414,7 +415,7 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
      * @param s string to be read.
      * @return computation of the expression in s
      */
-    public double numericRead(String s) {
+    private double numericRead(String s) {
         ExpressionFunction in;
         in = new ExpressionFunction(s, new String[]{});
         in.init();
@@ -422,18 +423,18 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
     }
 
     private double gauss(int x, int y, int window) {
-        double u = x;
-        double v = y;
+        double u = (double) x;
+        double v = (double) y;
         double w = window / 2.0;
         return 1 / (4 * w * w) * Math.exp(-0.25 * ((u - w) * (u - w) + (v - w) * (v - w)));
     }
 
     private void gaussianFilterToSurface(TriVector[][] s, int window) {
-        maxHeightColor = Double.MIN_VALUE;
-        minHeightColor = Double.MAX_VALUE;
+        this.maxHeightColor = Double.MIN_VALUE;
+        this.minHeightColor = Double.MAX_VALUE;
         double aux = 0;
-        for (int j = 0; j < s[0].length + 1; j++) {
-            for (int i = 0; i < s.length + 1; i++) {
+        for (int j = 0; j < s[0].length; j++) {
+            for (int i = 0; i < s.length; i++) {
                 for (int k = 0; k < window; k++) {
                     for (int l = 0; l < window; l++) {
                         int x = Math.max(0, i - window / 2 + k);
@@ -445,181 +446,178 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
                 }
                 int x = Math.min(s.length - 1, i);
                 int y = Math.min(s[0].length - 1, j);
-                surface[i][j] = new TriVector(s[x][y].getX(), s[x][y].getY(), aux);
-                double auxZ = surface[i][j].getZ();
+                this.surface[i][j] = new TriVector(s[x][y].getX(), s[x][y].getY(), aux);
+                double auxZ = this.surface[i][j].getZ();
                 if (!Double.isInfinite(auxZ) && !Double.isNaN(auxZ)) {
-                    maxHeightColor = Math.max(auxZ, maxHeightColor);
-                    minHeightColor = Math.min(auxZ, minHeightColor);
+                    this.maxHeightColor = Math.max(auxZ, this.maxHeightColor);
+                    this.minHeightColor = Math.min(auxZ, this.minHeightColor);
                 }
                 aux = 0.0;
             }
         }
     }
 
-    public void buildKakashi() {
+    private void buildKakashi() {
         MyImage kakashi = new MyImage("https://92c3cb5a-a-62cb3a1a-s-sites.googlegroups.com/site/ibplanalto2010/Home/kakashi46-3459488_50_50%5B1%5D.jpg?attachauth=ANoY7cp6kFZ2u7lOyL3KJqDYkzI_jmNGeoLsCE29u25IlE23i8Bgqx-4UsNUTkE4Mh7vBQpKPe107E_-PLAOywT34dv8cW9_r9WV0uOZ8p26uBT4rusztcGEh9wkuZ2QI0f-loBiB4pmzo_3NKMrC0CPbRvHHiwa_vT2wVEjZiWh7fZ9XlUjC6vrCVvNOtnmgsnSd-WjjbZqO-q6jSPBFw1zyyaa8uzcAKExLodMjCR40cjjmDComqp1JMNpKJoE1iTDgXQDWFzU&attredirects=0");
         Matrix v = new Matrix(kakashi.getGrayScale());
         TriVector[][] s = v.matrixToSurface(-1, 1, -1, 1);
-        xmin = -1;
-        xmax = 1;
-        ymin = -1;
-        ymax = 1;
-        step = 2.0 / s.length;
-        surface = new TriVector[s.length + 1][s[0].length + 1];
-        dudt = new double[s.length + 1][s[0].length + 1];
+        this.xmin = -1;
+        this.xmax = 1;
+        this.ymin = -1;
+        this.ymax = 1;
+        this.samples = s.length;
+        this.surface = new TriVector[s.length][s[0].length];
+        this.dudt = new double[s.length][s[0].length];
 
         gaussianFilterToSurface(s, 3);
 
-        for (int j = 0; j < s[0].length; j++) {
-            for (int i = 0; i < s.length; i++) {
-                Element e = new Quad(surface[i][j], surface[i + 1][j], surface[i + 1][j + 1], surface[i][j + 1]);
+        for (int j = 0; j < s[0].length - 1; j++) {
+            for (int i = 0; i < s.length - 1; i++) {
+                Element e = new Quad(this.surface[i][j], this.surface[i + 1][j], this.surface[i + 1][j + 1], this.surface[i][j + 1]);
                 setElementColor(e);
-                graphics.addtoList(e);
+                this.graphics.addtoList(e);
             }
         }
-        drawFunction = false;
+        this.drawFunction = false;
     }
 
-    public void buildFunction() {
-        double nx, ny, x, y, z, colorHSB;
+    private void buildFunction() {
+        double x, y, z;
         int inx, iny;
         int MaxPoly = 4096;
-        Random r = new Random();
-        colorHSB = r.nextDouble();
-        drawFunction = false;
-        xmin = numericRead(xMinTxt.getText());
-        xmax = numericRead(xMaxTxt.getText());
-        ymin = numericRead(yMinTxt.getText());
-        ymax = numericRead(yMaxTxt.getText());
-        step = numericRead(stepTxt.getText());
-        exprFunction = new ExpressionFunction(functionString.getText(), vars);
+        this.drawFunction = false;
+        this.xmin = numericRead(this.xMinTxt.getText());
+        this.xmax = numericRead(this.xMaxTxt.getText());
+        this.ymin = numericRead(this.yMinTxt.getText());
+        this.ymax = numericRead(this.yMaxTxt.getText());
+        this.samples = numericRead(this.samplesText.getText());
+        /*
+         * computes function from string
+         */
+        ExpressionFunction exprFunction = new ExpressionFunction(this.functionString.getText(), vars);
         exprFunction.addFunction("C", new CombinationNode());
-        maxHeightColor = Double.NEGATIVE_INFINITY;
-        minHeightColor = Double.POSITIVE_INFINITY;
+        this.maxHeightColor = Double.NEGATIVE_INFINITY;
+        this.minHeightColor = Double.POSITIVE_INFINITY;
         try {
             exprFunction.init();
         } catch (SyntaxErrorException e) {
             JOptionPane.showMessageDialog(null, "there is a syntax error in the formula, pls change the formula." + String.format("%n") + " try to use more brackets, try not to concatenate 2*x^2 as 2x2." + String.format("%n") + "check also for simple errors like 1/*2.");
         }
-        nx = Math.abs(xmax - xmin) / (step);
-        ny = Math.abs(ymax - ymin) / (step);
 
-        if (!isZBuffer) {
-            MaxPoly = 4096;
+        final double samplesSquare = this.samples * this.samples;
+        if (samplesSquare > MaxPoly) {
+            maxPolyConstraint(MaxPoly);
+            this.samples = Double.parseDouble(this.samplesText.getText());
         }
+        inx = (int) Math.floor(this.samples);
+        iny = (int) Math.floor(this.samples);
+        this.surface = new TriVector[inx][iny];
+        this.dudt = new double[inx][iny];
 
-        if (nx * ny > MaxPoly) {
-            double aux = (nx * ny) * (step * step);
-            maxPolyConstraint(aux);
-            step = Double.parseDouble(stepTxt.getText());
-            nx = Math.abs(xmax - xmin) / (step);
-            ny = Math.abs(ymax - ymin) / (step);
-        }
+        final double stepX = Math.abs(this.xmax - this.xmin) / (this.samples - 1);
+        final double stepY = Math.abs(this.xmax - this.xmin) / (this.samples - 1);
 
-        inx = (int) Math.floor(nx);
-        iny = (int) Math.floor(ny);
-        surface = new TriVector[inx + 1][iny + 1];
-        dudt = new double[inx + 1][iny + 1];
-        for (int j = 0; j < iny; j++) {
-            for (int i = 0; i < inx; i++) {
-                if (surface[i][j] == null) {
-                    x = xmin + i * step;
-                    y = ymin + j * step;
+        for (int j = 0; j < iny - 1; j++) {
+            for (int i = 0; i < inx - 1; i++) {
+                final double xbase = this.xmin + i * stepX;
+                final double ybase = this.ymin + j * stepY;
+                if (this.surface[i][j] == null) {
+                    x = xbase;
+                    y = ybase;
                     Double[] xy = {x, y};
                     z = exprFunction.compute(xy);
-                    surface[i][j] = new TriVector(x, y, z);
-                    // surface[i][j] = new TriVector(x, y, r.nextDouble());
+                    this.surface[i][j] = new TriVector(x, y, z);
                 }
-                if (surface[i + 1][j] == null) {
-                    x = xmin + (i + 1) * step;
-                    y = ymin + j * step;
+                if (this.surface[i + 1][j] == null) {
+                    x = xbase + stepX;
+                    y = ybase;
                     Double[] xy = {x, y};
                     z = exprFunction.compute(xy);
-                    surface[i + 1][j] = new TriVector(x, y, z);
-                    // surface[i+1][j] = new TriVector(x, y, r.nextDouble());
+                    this.surface[i + 1][j] = new TriVector(x, y, z);
                 }
-                if (surface[i + 1][j + 1] == null) {
-                    x = xmin + (i + 1) * step;
-                    y = ymin + (j + 1) * step;
+                if (this.surface[i + 1][j + 1] == null) {
+                    x = xbase + stepX;
+                    y = ybase + stepY;
                     Double[] xy = {x, y};
                     z = exprFunction.compute(xy);
-                    surface[i + 1][j + 1] = new TriVector(x, y, z);
-                    // surface[i+1][j+1] = new TriVector(x, y, r.nextDouble());
+                    this.surface[i + 1][j + 1] = new TriVector(x, y, z);
                 }
-                if (surface[i][j + 1] == null) {
-                    x = xmin + (i) * step;
-                    y = ymin + (j + 1) * step;
+                if (this.surface[i][j + 1] == null) {
+                    x = xbase;
+                    y = ybase + stepY;
                     Double[] xy = {x, y};
                     z = exprFunction.compute(xy);
-                    surface[i][j + 1] = new TriVector(x, y, z);
-                    // surface[i][j+1] = new TriVector(x, y, r.nextDouble());
+                    this.surface[i][j + 1] = new TriVector(x, y, z);
                 }
-                double auxZ = surface[i][j].getZ();
+                double auxZ = this.surface[i][j].getZ();
                 if (!Double.isInfinite(auxZ) && !Double.isNaN(auxZ)) {
-                    maxHeightColor = Math.max(auxZ, maxHeightColor);
-                    minHeightColor = Math.min(auxZ, minHeightColor);
+                    this.maxHeightColor = Math.max(auxZ, this.maxHeightColor);
+                    this.minHeightColor = Math.min(auxZ, this.minHeightColor);
                 }
             }
         }
 
-        for (int j = 0; j < iny; j++) {
-            for (int i = 0; i < inx; i++) {
-                Element e = new Quad(surface[i][j], surface[i + 1][j], surface[i + 1][j + 1], surface[i][j + 1]);
+        for (int j = 0; j < iny - 1; j++) {
+            for (int i = 0; i < inx - 1; i++) {
+                Element e = new Quad(this.surface[i][j], this.surface[i + 1][j], this.surface[i + 1][j + 1], this.surface[i][j + 1]);
                 setElementColor(e);
-                graphics.addtoList(e);
+                this.graphics.addtoList(e);
             }
         }
     }
 
-    public void setElementColor(Element e) {
+    private void setElementColor(Element e) {
         double red = 0;
         double blue = 240.0 / 360.0;
-        double green = 120.0 / 360.0;
-
         for (int i = 0; i < e.getNumOfPoints(); i++) {
             double z = e.getNPoint(i).getZ();
-
-            double x = -1 + 2 * (z - minHeightColor) / (maxHeightColor - minHeightColor);
-            double perc = (z - minHeightColor) / (maxHeightColor - minHeightColor);
-            if (colorState == 0) {
-                /**
-                 * linear interpolation between blue color and red
-                 */
-                double colorHSB = blue + (red - blue) * 0.5 * (x + 1);
-                e.setColorPoint(Color.getHSBColor((float) colorHSB, 1f, 1f), i);
-            } else if (colorState == 1) {
-                e.setColorPoint(new Color((float) (1 / (1 + Math.exp(-20 * (perc - 0.1)))), (float) (1 / (1 + Math.exp(-20 * (perc - 0.5)))), (float) (1 / (1 + Math.exp(-20 * (perc - 0.75))))), i);
-            } else if (colorState == 2) {
-
+            double x = -1 + 2 * (z - this.minHeightColor) / (this.maxHeightColor - this.minHeightColor);
+            double p = (z - this.minHeightColor) / (this.maxHeightColor - this.minHeightColor);
+            switch (this.colorState) {
+                case 0:
+                    /*
+                     * linear interpolation between blue color and red
+                     */
+                    double colorHSB = blue + (red - blue) * 0.5 * (x + 1);
+                    e.setColorPoint(Color.getHSBColor((float) colorHSB, 1f, 1f), i);
+                    break;
+                case 1:
+                    float cRed = (float) Math.min(Math.max(10.0 / 4.0 * p, 0), 1);
+                    float cGreen = (float) Math.min(Math.max(10.0 / 4.0 * (p - 0.4), 0), 1);
+                    float cBlue = (float) Math.min(Math.max(5 * (p - 0.8), 0), 1);
+                    e.setColorPoint(new Color(cRed, cGreen, cBlue), i);
+                    break;
+                default:
+                    break;
             }
         }
     }
 
-    public void buildAxis() {
-        if (!axisAlreadyBuild) {
+    private void buildAxis() {
+        if (!this.axisAlreadyBuild) {
             Element e = new Line(new TriVector(0, 0, 0), new TriVector(1, 0, 0));
             e.setColor(Color.white);
-            graphics.addtoList(e);
+            this.graphics.addtoList(e);
             e = new StringElement(new TriVector(1.1, 0, 0), "X");
             e.setColor(Color.white);
-            graphics.addtoList(e);
+            this.graphics.addtoList(e);
             e = new Line(new TriVector(0, 0, 0), new TriVector(0, 1, 0));
             e.setColor(Color.white);
-            graphics.addtoList(e);
+            this.graphics.addtoList(e);
             e = new StringElement(new TriVector(0, 1.1, 0), "Y");
             e.setColor(Color.white);
-            graphics.addtoList(e);
+            this.graphics.addtoList(e);
             e = new Line(new TriVector(0, 0, 0), new TriVector(0, 0, 1));
             e.setColor(Color.white);
-            graphics.addtoList(e);
+            this.graphics.addtoList(e);
             e = new StringElement(new TriVector(0, 0, 1.1), "Z");
             e.setColor(Color.white);
-            graphics.addtoList(e);
-            axisAlreadyBuild = true;
+            this.graphics.addtoList(e);
+            this.axisAlreadyBuild = true;
         }
     }
 
-    public void infoColor() {
+    private void infoColor() {
         double red = 0;
         double blue = 240.0 / 360.0;
         double a, x, colorHSB, divN;
@@ -628,49 +626,38 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
             x = -1 + (2.0 / n) * i;
             colorHSB = blue + (red - blue) * 0.5 * (x + 1);
             divN = 1.0 / n;
-            wd.setDrawColor(Color.getHSBColor((float) colorHSB, 1f, 1f));
-            a = -0.5 + (divN) * i;
-            wd.drawFilledRectangle(a, -0.9, divN, 0.05);
+            this.wd.setDrawColor(Color.getHSBColor((float) colorHSB, 1f, 1f));
+            a = -0.5 + divN * i;
+            this.wd.drawFilledRectangle(a, -0.9, divN, 0.05);
         }
-        wd.setDrawColor(Color.white);
-        wd.drawString("" + minHeightColor, -0.5, -0.95);
-        wd.drawString("" + maxHeightColor, 0.5, -0.95);
-
+        this.wd.setDrawColor(Color.white);
+        this.wd.drawString("" + this.minHeightColor, -0.5, -0.95);
+        this.wd.drawString("" + this.maxHeightColor, 0.5, -0.95);
     }
 
-    public void maxPolyConstraint(double delta) {
-        double nextStep = Math.sqrt(delta / 1024);
-        if (!isZBuffer) {
-            nextStep = Math.sqrt(delta / 1024);
-        }
-        stepTxt.setText("" + nextStep);
-        JOptionPane.showMessageDialog(null, "the X/Y step is too low, pls choose a higher one");
-
+    private void maxPolyConstraint(double delta) {
+        double nextStep = Math.sqrt(delta) / 2;
+        this.samplesText.setText("" + nextStep);
+        JOptionPane.showMessageDialog(null, "the X/Y samples is too high, pls choose a smaller one");
     }
 
-    public double randomPointInInterval(double xmin, double xmax) {
-        Random r = new Random();
-
-        return xmin + (xmax - xmin) * r.nextDouble();
-    }
-
-    public void animate(double dt) {
-        graphics.removeAllElements();
-        if (comboBox.getSelectedItem() == "Acceleration") {
+    private void animate(double dt) {
+        this.graphics.removeAllElements();
+        if (this.comboBox.getSelectedItem() == "Acceleration") {
             accAnimate(dt);
         } else {
             velAnimate(dt);
         }
     }
 
-    public void accAnimate(double dt) {
+    private void accAnimate(double dt) {
         if (dt > 0.02) {
-            if (isKakashi)
+            if (this.isKakashi)
                 dt = 0.0001;
             else
                 dt = 0.01;
         }
-        accEquation = new ExpressionFunction(functionAcc.getText(), diffVars);
+        ExpressionFunction accEquation = new ExpressionFunction(this.functionAcc.getText(), this.diffVars);
         accEquation.addFunction("dx", new Dfdx());
         accEquation.addFunction("dy", new Dfdy());
         accEquation.addFunction("d2x", new D2fdx());
@@ -679,60 +666,64 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
         accEquation.addFunction("f", new Fxy());
         accEquation.addFunction("dt", new Dfdt());
         accEquation.addFunction("C", new CombinationNode());
-        maxHeightColor = Double.NEGATIVE_INFINITY;
-        minHeightColor = Double.POSITIVE_INFINITY;
+        this.maxHeightColor = Double.NEGATIVE_INFINITY;
+        this.minHeightColor = Double.POSITIVE_INFINITY;
         try {
             accEquation.init();
         } catch (SyntaxErrorException e) {
             JOptionPane.showMessageDialog(null, "there is a syntax error in the formula, pls change the formula." + String.format("%n") + " try to use more brackets, try not to cocatenate 2*x^2 as 2x2." + String.format("%n") + "check also for simple errors like 1/*2.");
         }
-        double nx = Math.abs(xmax - xmin) / (step);
-        double ny = Math.abs(ymax - ymin) / (step);
+        int inx = (int) Math.floor(this.samples);
+        int iny = (int) Math.floor(this.samples);
+        double[][] aux = new double[inx][inx];
 
-        int inx = (int) Math.floor(nx);
-        int iny = (int) Math.floor(ny);
-        double[][] aux = new double[inx + 1][inx + 1];
-        for (int j = 0; j < iny + 1; j++) {
-            for (int i = 0; i < inx + 1; i++) {
+        final double stepX = Math.abs(this.xmax - this.xmin) / (this.samples - 1);
+        final double stepY = Math.abs(this.ymax - this.ymin) / (this.samples - 1);
+
+        for (int j = 0; j < iny; j++) {
+            for (int i = 0; i < inx; i++) {
                 double auxZ;
                 Double[] x = new Double[3];
-                x[0] = xmin + i * step;
-                x[1] = ymin + j * step;
-                x[2] = time;
+                x[0] = this.xmin + i * stepX;
+                x[1] = this.ymin + j * stepY;
+                x[2] = this.time;
 
                 double acceleration = accEquation.compute(x);
 
-                dudt[i][j] = dudt[i][j] + acceleration * dt;
-                auxZ = surface[i][j].getZ() + dudt[i][j] * dt + 0.5 * acceleration * dt * dt;
-                aux[i][j] = (auxZ);
+                this.dudt[i][j] = this.dudt[i][j] + acceleration * dt;
+                auxZ = this.surface[i][j].getZ() + this.dudt[i][j] * dt + 0.5 * acceleration * dt * dt;
+                aux[i][j] = auxZ;
                 if (!Double.isInfinite(auxZ) && !Double.isNaN(auxZ)) {
-                    maxHeightColor = Math.max(auxZ, maxHeightColor);
-                    minHeightColor = Math.min(auxZ, minHeightColor);
+                    this.maxHeightColor = Math.max(auxZ, this.maxHeightColor);
+                    this.minHeightColor = Math.min(auxZ, this.minHeightColor);
                 }
             }
         }
 
-        for (int j = 0; j < iny; j++) {
-            for (int i = 0; i < inx; i++) {
-                surface[i][j].setZ(aux[i][j]);
-                surface[i + 1][j].setZ(aux[i + 1][j]);
-                surface[i + 1][j + 1].setZ(aux[i + 1][j + 1]);
-                surface[i][j + 1].setZ(aux[i][j + 1]);
-                Element e = new Quad(surface[i][j], surface[i + 1][j], surface[i + 1][j + 1], surface[i][j + 1]);
+        for (int j = 0; j < iny - 1; j++) {
+            for (int i = 0; i < inx - 1; i++) {
+                this.surface[i][j].setZ(aux[i][j]);
+                this.surface[i + 1][j].setZ(aux[i + 1][j]);
+                this.surface[i + 1][j + 1].setZ(aux[i + 1][j + 1]);
+                this.surface[i][j + 1].setZ(aux[i][j + 1]);
+                Element e = new Quad(this.surface[i][j], this.surface[i + 1][j], this.surface[i + 1][j + 1], this.surface[i][j + 1]);
                 setElementColor(e);
-                graphics.addtoList(e);
+                this.graphics.addtoList(e);
             }
         }
     }
 
-    public void velAnimate(double dt) {
+    private void velAnimate(double dt) {
         if (dt > 0.02) {
-            if (isKakashi)
+            if (this.isKakashi)
                 dt = 0.0001;
             else
                 dt = 0.01;
         }
-        velEquation = new ExpressionFunction(functionVel.getText(), diffVars);
+        /**
+         * PDE functions
+         */
+        ExpressionFunction velEquation = new ExpressionFunction(this.functionVel.getText(), this.diffVars);
         velEquation.addFunction("dx", new Dfdx());
         velEquation.addFunction("dy", new Dfdy());
         velEquation.addFunction("d2x", new D2fdx());
@@ -740,67 +731,69 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
         velEquation.addFunction("f", new Fxy());
         velEquation.addFunction("d2xy", new D2fdxdy());
         velEquation.addFunction("C", new CombinationNode());
-        maxHeightColor = Double.NEGATIVE_INFINITY;
-        minHeightColor = Double.POSITIVE_INFINITY;
+        this.maxHeightColor = Double.NEGATIVE_INFINITY;
+        this.minHeightColor = Double.POSITIVE_INFINITY;
         try {
             velEquation.init();
         } catch (SyntaxErrorException e) {
             JOptionPane.showMessageDialog(null, "there is a syntax error in the formula, pls change the formula." + String.format("%n") + " try to use more brackets, try not to concatenate 2*x^2 as 2x2." + String.format("%n") + "check also for simple errors like 1/*2.");
         }
-        double nx = Math.abs(xmax - xmin) / (step);
-        double ny = Math.abs(ymax - ymin) / (step);
 
-        int inx = (int) Math.floor(nx);
-        int iny = (int) Math.floor(ny);
-        double[][] aux = new double[inx + 1][inx + 1];
-        for (int j = 0; j < iny + 1; j++) {
-            for (int i = 0; i < inx + 1; i++) {
+        int inx = (int) Math.floor(this.samples);
+        int iny = (int) Math.floor(this.samples);
+        double[][] aux = new double[inx][inx];
+
+        final double stepX = Math.abs(this.xmax - this.xmin) / (this.samples - 1);
+        final double stepY = Math.abs(this.ymax - this.ymin) / (this.samples - 1);
+
+        for (int j = 0; j < iny; j++) {
+            for (int i = 0; i < inx; i++) {
                 double auxZ;
                 Double[] x = new Double[3];
-                x[0] = xmin + i * step;
-                x[1] = ymin + j * step;
-                x[2] = time;
-                auxZ = surface[i][j].getZ() + velEquation.compute(x) * dt;
+                x[0] = this.xmin + i * stepX;
+                x[1] = this.ymin + j * stepY;
+                x[2] = this.time;
+                auxZ = this.surface[i][j].getZ() + velEquation.compute(x) * dt;
                 aux[i][j] = (auxZ);
                 if (!Double.isInfinite(auxZ) && !Double.isNaN(auxZ)) {
-                    maxHeightColor = Math.max(auxZ, maxHeightColor);
-                    minHeightColor = Math.min(auxZ, minHeightColor);
+                    this.maxHeightColor = Math.max(auxZ, this.maxHeightColor);
+                    this.minHeightColor = Math.min(auxZ, this.minHeightColor);
                 }
             }
         }
 
-        for (int j = 0; j < iny; j++) {
-            for (int i = 0; i < inx; i++) {
-                surface[i][j].setZ(aux[i][j]);
-                surface[i + 1][j].setZ(aux[i + 1][j]);
-                surface[i + 1][j + 1].setZ(aux[i + 1][j + 1]);
-                surface[i][j + 1].setZ(aux[i][j + 1]);
-                Element e = new Quad(surface[i][j], surface[i + 1][j], surface[i + 1][j + 1], surface[i][j + 1]);
+        for (int j = 0; j < iny - 1; j++) {
+            for (int i = 0; i < inx - 1; i++) {
+                this.surface[i][j].setZ(aux[i][j]);
+                this.surface[i + 1][j].setZ(aux[i + 1][j]);
+                this.surface[i + 1][j + 1].setZ(aux[i + 1][j + 1]);
+                this.surface[i][j + 1].setZ(aux[i][j + 1]);
+                Element e = new Quad(this.surface[i][j], this.surface[i + 1][j], this.surface[i + 1][j + 1], this.surface[i][j + 1]);
                 setElementColor(e);
-                graphics.addtoList(e);
+                this.graphics.addtoList(e);
             }
         }
     }
 
     public void paint(Graphics g) {
-        if (Math.abs(wChanged - this.getWidth()) > 0 || Math.abs(hChanged - this.getHeight()) > 0) {
-            wChanged = this.getWidth();
-            hChanged = this.getHeight();
+        if (Math.abs(this.wChanged - this.getWidth()) > 0 || Math.abs(this.hChanged - this.getHeight()) > 0) {
+            this.wChanged = this.getWidth();
+            this.hChanged = this.getHeight();
             processLayout();
         }
-        panel.update(panel.getGraphics());
+        this.panel.update(this.panel.getGraphics());
         update(g);
     }
 
     public void update(Graphics g) {
-        wd.clearImageWithBackGround();
-        euler.run();
-        if (drawAxis && colorState == 0)
+        this.wd.clearImageWithBackGround();
+        this.euler.run();
+        if (this.drawAxis && colorState == 0)
             infoColor();
-        wd.paint(g);
+        this.wd.paint(g);
     }
 
-    public void orbit(double t, double p, TriVector x) {
+    private void orbit(double t, double p, TriVector x) {
 
         Matrix aux = new Matrix(3, 3);
         double cosP = Math.cos(p);
@@ -821,104 +814,112 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
         aux.setMatrix(2, 1, cosT);
         aux.setMatrix(3, 1, 0);
 
-        TriVector eye = new TriVector(raw * cosP * cosT + x.getX(), raw * cosP * sinT + x.getY(), raw * sinP + x.getZ());
+        TriVector eye = new TriVector(this.raw * cosP * cosT + x.getX(), this.raw * cosP * sinT + x.getY(), this.raw * sinP + x.getZ());
 
-        graphics.setCamera(aux, eye);
+        this.graphics.setCamera(aux, eye);
     }
 
     @Override
     public void keyPressed(KeyEvent arg0) {
-        if (arg0.getKeyCode() == KeyEvent.VK_W) {
-            thrust = -5;
-        } else if (arg0.getKeyCode() == KeyEvent.VK_S) {
-            thrust = +5;
-        } else if (arg0.getKeyCode() == KeyEvent.VK_F) {
-            isfastShading = !isfastShading;
-            if (isfastShading) {
-                graphics.setMethod(new SamplingZbuffer(3));
+        Map<Integer, Runnable> keyActionMap = new HashMap<>();
+        keyActionMap.put(KeyEvent.VK_W, () -> this.thrust = -5);
+        keyActionMap.put(KeyEvent.VK_S, () -> this.thrust = 5);
+        keyActionMap.put(KeyEvent.VK_F, () -> {
+            this.isfastShading = !this.isfastShading;
+            if (this.isfastShading) {
+                this.graphics.setMethod(new SamplingZbuffer(3));
             } else {
-                graphics.setMethod(new ZBufferPerspective());
+                this.graphics.setMethod(new ZBufferPerspective());
             }
-            drawFunction = true;
-            graphics.removeAllElements();
-        } else if (arg0.getKeyCode() == KeyEvent.VK_Z) {
-            isZBuffer = !isZBuffer;
-            if (isZBuffer) {
-                graphics.setMethod(new ZBufferPerspective());
+            this.drawFunction = true;
+            this.graphics.removeAllElements();
+        });
+        keyActionMap.put(KeyEvent.VK_Z, () -> {
+            this.isZBuffer = !this.isZBuffer;
+            if (this.isZBuffer) {
+                this.graphics.setMethod(new ZBufferPerspective());
             } else {
-                graphics.setMethod(new WiredPrespective());
+                this.graphics.setMethod(new WiredPrespective());
             }
-            drawFunction = true;
-
-            graphics.removeAllElements();
-        } else if (arg0.getKeyCode() == KeyEvent.VK_1) {
-            colorState = 0;
-            graphics.removeAllElements();
-            drawFunction = true;
-        } else if (arg0.getKeyCode() == KeyEvent.VK_2) {
-            colorState = 1;
-            graphics.removeAllElements();
-            drawFunction = true;
-        } else if (arg0.getKeyCode() == KeyEvent.VK_A) {
-            drawAxis = !drawAxis;
-            axisAlreadyBuild = false;
-            graphics.removeAllElements();
-            drawFunction = true;
-        } else if (arg0.getKeyCode() == KeyEvent.VK_N) {
-            isShading = !isShading;
-            if (isShading) {
-                graphics.setMethod(shader);
-                shader.changeNthLight(0, new TriVector(raw, raw, raw));
-                graphics.removeAllElements();
-                drawFunction = true;
+            this.drawFunction = true;
+            this.graphics.removeAllElements();
+        });
+        keyActionMap.put(KeyEvent.VK_1, () -> {
+            this.colorState = 0;
+            this.graphics.removeAllElements();
+            this.drawFunction = true;
+        });
+        keyActionMap.put(KeyEvent.VK_2, () -> {
+            this.colorState = 1;
+            this.graphics.removeAllElements();
+            this.drawFunction = true;
+        });
+        keyActionMap.put(KeyEvent.VK_A, () -> {
+            this.drawAxis = !this.drawAxis;
+            this.axisAlreadyBuild = false;
+            this.graphics.removeAllElements();
+            this.drawFunction = true;
+        });
+        keyActionMap.put(KeyEvent.VK_N, () -> {
+            this.isShading = !this.isShading;
+            if (this.isShading) {
+                this.graphics.setMethod(this.shader);
+                this.shader.changeNthLight(0, new TriVector(this.raw, this.raw, this.raw));
+                this.graphics.removeAllElements();
+                this.drawFunction = true;
             } else {
-                graphics.setMethod(new ZBufferPerspective());
+                this.graphics.setMethod(new ZBufferPerspective());
             }
-        } else if (arg0.getKeyCode() == KeyEvent.VK_E) {
+        });
+        keyActionMap.put(KeyEvent.VK_E, () -> {
             Random r = new Random();
             String str = "1 / (1 + 3*exp(-(2 * x - y)))";
-            switch (r.nextInt(7) + 1) {
-                case 1:
+            switch (r.nextInt(7)) {
+                case 0:
                     str = "1 / (1 + 4 * (x ^ 4 +  y ^ 4))";
                     break;
-                case 2:
+                case 1:
                     str = "exp(-((x - 1) ^ 2 + y ^ 2)) + 2 * exp(-(x ^ 2 + (y + 1) ^ 2))";
                     break;
-                case 3:
+                case 2:
                     str = "1 / (1 + 3 * exp(-3 * (2 * x - y)))";
                     break;
-                case 4:
+                case 3:
                     str = "ln((x * x + y * y + 1))";
                     break;
-                case 5:
+                case 4:
                     str = "(sin(x) * cos(y) - 0.5) ^ 2 + (sin(x) * sin(y) - 0.1) ^ 2";
                     break;
-                case 6:
+                case 5:
                     str = "sin(x * y) - cos(x * y) ";
                     break;
-                case 7:
+                case 6:
                     str = "25 / (1 + exp(1 / (1 + exp(-x - (y - 1))) + 1 / (1 + exp(x)) + 1/(1 + exp(y)))) - 5";
+                    break;
             }
-            functionString.setText(str);
-            graphics.removeAllElements();
-            drawFunction = true;
-        } else if (arg0.getKeyCode() == KeyEvent.VK_K) {
+            this.functionString.setText(str);
+            this.graphics.removeAllElements();
+            this.drawFunction = true;
+        });
+        keyActionMap.put(KeyEvent.VK_K, () -> {
             isKakashi = !isKakashi;
             graphics.removeAllElements();
             drawFunction = true;
-        } else if (arg0.getKeyCode() == KeyEvent.VK_8) {
+        });
+        keyActionMap.put(KeyEvent.VK_8, () -> {
             graphics.setMethod(new InterpolativeShader());
-        } else if (arg0.getKeyCode() == KeyEvent.VK_9) {
+        });
+        keyActionMap.put(KeyEvent.VK_9, () -> {
             graphics.setMethod(new LevelSetShader());
-        }
-
+        });
+        Optional.ofNullable(keyActionMap.get(arg0.getKeyCode())).ifPresent(Runnable::run);
     }
 
     @Override
     public void keyReleased(KeyEvent arg0) {
-        thrust = 0;
+        this.thrust = 0;
         if (arg0.getKeyCode() == KeyEvent.VK_H) {
-           HELP_FRAME.setVisible(true);
+            HELP_FRAME.setVisible(true);
         }
     }
 
@@ -929,117 +930,75 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
     }
 
     public void canvasFocus() {
-        xMinTxt.transferFocusUpCycle();
-        xMaxTxt.transferFocusUpCycle();
-        functionString.transferFocusUpCycle();
+        this.xMinTxt.transferFocusUpCycle();
+        this.xMaxTxt.transferFocusUpCycle();
+        this.functionString.transferFocusUpCycle();
     }
 
     @Override
     public void mouseDragged(MouseEvent e) {
         canvasFocus();
-        newMx = e.getX();
-        newMy = e.getY();
-        double dx = newMx - mx;
-        double dy = newMy - my;
-        theta += 2 * Math.PI * (dx / wChanged);
-        phi += 2 * Math.PI * (dy / hChanged);
-
-        orbit(theta, phi, focalPoint);
-
-        mx = newMx;
-        my = newMy;
-
+        int newMx = e.getX();
+        int newMy = e.getY();
+        double dx = newMx - this.mx;
+        double dy = newMy - this.my;
+        this.theta += 2 * Math.PI * (dx / this.wChanged);
+        this.phi += 2 * Math.PI * (dy / this.hChanged);
+        orbit(this.theta, this.phi, this.focalPoint);
+        this.mx = newMx;
+        this.my = newMy;
     }
 
     @Override
     public void mouseMoved(MouseEvent arg0) {
         // TODO Auto-generated method stub
-
     }
 
     @Override
     public void mouseClicked(MouseEvent arg0) {
         canvasFocus();
-
     }
 
     @Override
     public void mouseEntered(MouseEvent arg0) {
         // TODO Auto-generated method stub
-
     }
 
     @Override
     public void mouseExited(MouseEvent arg0) {
         // TODO Auto-generated method stub
-
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
-        mx = e.getX();
-        my = e.getY();
-
+        this.mx = e.getX();
+        this.my = e.getY();
     }
 
     @Override
     public void mouseReleased(MouseEvent arg0) {
         // TODO Auto-generated method stub
-
     }
 
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         mRotation = e.getWheelRotation();
-        xMinTxt.setText("" + (xmin - mRotation));
-        xMaxTxt.setText("" + (xmax + mRotation));
-        yMinTxt.setText("" + (ymin - mRotation));
-        yMaxTxt.setText("" + (ymax + mRotation));
-        graphics.removeAllElements();
-        drawFunction = true;
-
-    }
-
-    class Euler {
-
-        public void run() {
-            currentTime = (System.currentTimeMillis()) * 1E-03;
-            double dt = currentTime - oldTime;
-            time += dt;
-            oldTime = currentTime;
-            acceleration = -velocity + thrust;
-            velocity += acceleration * dt;
-            raw += velocity * dt;
-            orbit(theta, phi, focalPoint);
-            if (drawAxis) {
-                buildAxis();
-            }
-            if (drawFunction) {
-                if (!isKakashi)
-                    buildFunction();
-                else {
-                    buildKakashi();
-                }
-            }
-            if (isZoomFit) {
-                cameraFindGraph();
-            }
-            if (isAnimating) {
-                animate(dt);
-            }
-            graphics.drawElements();
-            repaint();
-        }
+        this.xMinTxt.setText("" + (this.xmin - mRotation));
+        this.xMaxTxt.setText("" + (this.xmax + mRotation));
+        this.yMinTxt.setText("" + (this.ymin - mRotation));
+        this.yMaxTxt.setText("" + (this.ymax + mRotation));
+        this.graphics.removeAllElements();
+        this.drawFunction = true;
     }
 
     public class Fxy extends FunctionNode {
 
-        public Fxy() {
+        Fxy() {
             super();
             setnVars(2);
         }
 
-        public Fxy(FunctionNode[] args) {
+        Fxy(FunctionNode[] args) {
             super(2, args);
         }
 
@@ -1050,21 +1009,20 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
 
         @Override
         public Double compute(Double[] variables) {
-            int i = (int) ((variables[0] - xmin) / step);
-            int j = (int) ((variables[1] - ymin) / step);
+            int i = (int) ((samples - 1) * ((variables[0] - xmin) / (xmax - xmin)));
+            int j = (int) ((samples - 1) * ((variables[1] - ymin) / (ymax - ymin)));
             return surface[i][j].getZ();
         }
-
     }
 
     public class Dfdx extends FunctionNode {
 
-        public Dfdx() {
+        Dfdx() {
             super();
             setnVars(2);
         }
 
-        public Dfdx(FunctionNode[] args) {
+        Dfdx(FunctionNode[] args) {
             super(2, args);
         }
 
@@ -1075,23 +1033,25 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
 
         @Override
         public Double compute(Double[] variables) {
-            int i = (int) ((variables[0] - xmin) / step);
-            int j = (int) ((variables[1] - ymin) / step);
-            int k = Math.min(i + 1, surface.length - 1);
-            int l = Math.max(i - 1, 0);
-            return (surface[k][j].getZ() - surface[l][j].getZ()) / (2 * step);
+            int i = (int) ((samples - 1) * ((variables[0] - xmin) / (xmax - xmin)));
+            int j = (int) ((samples - 1) * ((variables[1] - ymin) / (ymax - ymin)));
+            final double stepX = Math.abs(xmax - xmin) / (samples - 1);
+            if (i + 1 > surface.length - 1)
+                return (surface[i - 1][j].getZ() - surface[i][j].getZ()) / stepX;
+            if (i - 1 < 0)
+                return (surface[i + 1][j].getZ() - surface[i][j].getZ()) / stepX;
+            return (surface[i + 1][j].getZ() - surface[i][j].getZ()) / stepX;
         }
-
     }
 
     public class Dfdy extends FunctionNode {
 
-        public Dfdy() {
+        Dfdy() {
             super();
             setnVars(2);
         }
 
-        public Dfdy(FunctionNode[] args) {
+        Dfdy(FunctionNode[] args) {
             super(2, args);
         }
 
@@ -1102,23 +1062,25 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
 
         @Override
         public Double compute(Double[] variables) {
-            int i = (int) ((variables[0] - xmin) / step);
-            int j = (int) ((variables[1] - ymin) / step);
-            int k = Math.min(j + 1, surface[0].length - 1);
-            int l = Math.max(j - 1, 0);
-            return (surface[i][k].getZ() - surface[i][l].getZ()) / (2 * step);
+            int i = (int) ((samples - 1) * ((variables[0] - xmin) / (xmax - xmin)));
+            int j = (int) ((samples - 1) * ((variables[1] - ymin) / (ymax - ymin)));
+            final double stepY = Math.abs(ymax - ymin) / (samples - 1);
+            if (j + 1 > surface[0].length - 1)
+                return (surface[i][j - 1].getZ() - surface[i][j].getZ()) / stepY;
+            if (j - 1 < 0)
+                return (surface[i][j + 1].getZ() - surface[i][j].getZ()) / stepY;
+            return (surface[i][j + 1].getZ() - surface[i][j].getZ()) / stepY;
         }
-
     }
 
     public class D2fdx extends FunctionNode {
 
-        public D2fdx() {
+        D2fdx() {
             super();
             setnVars(2);
         }
 
-        public D2fdx(FunctionNode[] args) {
+        D2fdx(FunctionNode[] args) {
             super(2, args);
         }
 
@@ -1129,23 +1091,25 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
 
         @Override
         public Double compute(Double[] variables) {
-            int i = (int) ((variables[0] - xmin) / step);
-            int j = (int) ((variables[1] - ymin) / step);
-            int k = Math.min(i + 1, surface.length - 1);
-            int l = Math.max(i - 1, 0);
-            return (surface[k][j].getZ() - 2 * surface[i][j].getZ() + surface[l][j].getZ()) / (4 * step * step);
+            int i = (int) ((samples - 1) * ((variables[0] - xmin) / (xmax - xmin)));
+            int j = (int) ((samples - 1) * ((variables[1] - ymin) / (ymax - ymin)));
+            final double stepX = Math.abs(xmax - xmin) / (samples - 1);
+            if (i + 1 > surface.length - 1)
+                return (surface[i - 1][j].getZ() - surface[i][j].getZ()) / stepX;
+            if (i - 1 < 0)
+                return (surface[i + 1][j].getZ() - surface[i][j].getZ()) / stepX;
+            return (surface[i + 1][j].getZ() - 2 * surface[i][j].getZ() + surface[i - 1][j].getZ()) / (stepX * stepX);
         }
-
     }
 
     public class D2fdy extends FunctionNode {
 
-        public D2fdy() {
+        D2fdy() {
             super();
             setnVars(2);
         }
 
-        public D2fdy(FunctionNode[] args) {
+        D2fdy(FunctionNode[] args) {
             super(2, args);
         }
 
@@ -1156,23 +1120,25 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
 
         @Override
         public Double compute(Double[] variables) {
-            int i = (int) ((variables[0] - xmin) / step);
-            int j = (int) ((variables[1] - ymin) / step);
-            int k = Math.min(j + 1, surface[0].length - 1);
-            int l = Math.max(j - 1, 0);
-            return (surface[i][k].getZ() - 2 * surface[i][j].getZ() + surface[i][l].getZ()) / (4 * step * step);
+            int i = (int) ((samples - 1) * ((variables[0] - xmin) / (xmax - xmin)));
+            int j = (int) ((samples - 1) * ((variables[1] - ymin) / (ymax - ymin)));
+            final double stepY = Math.abs(ymax - ymin) / (samples - 1);
+            if (j + 1 > surface[0].length - 1)
+                return (surface[i][j - 1].getZ() - surface[i][j].getZ()) / stepY;
+            if (j - 1 < 0)
+                return (surface[i][j + 1].getZ() - surface[i][j].getZ()) / stepY;
+            return (surface[i][j + 1].getZ() - 2 * surface[i][j].getZ() + surface[i][j - 1].getZ()) / (stepY * stepY);
         }
-
     }
 
     public class D2fdxdy extends FunctionNode {
 
-        public D2fdxdy() {
+        D2fdxdy() {
             super();
             setnVars(2);
         }
 
-        public D2fdxdy(FunctionNode[] args) {
+        D2fdxdy(FunctionNode[] args) {
             super(2, args);
         }
 
@@ -1183,25 +1149,27 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
 
         @Override
         public Double compute(Double[] variables) {
-            int i = (int) ((variables[0] - xmin) / step);
-            int j = (int) ((variables[1] - ymin) / step);
-            int k = Math.min(j + 1, surface[0].length - 1);
-            int l = Math.max(j - 1, 0);
-            int m = Math.min(i + 1, surface.length - 1);
-            int n = Math.max(i - 1, 0);
-            return (surface[m][k].getZ() - surface[m][l].getZ() - surface[n][k].getZ() + surface[n][l].getZ()) / (4 * step * step);
-        }
+            int i = (int) ((samples - 1) * ((variables[0] - xmin) / (xmax - xmin)));
+            int j = (int) ((samples - 1) * ((variables[1] - ymin) / (ymax - ymin)));
+            final double stepX = Math.abs(xmax - xmin) / (samples - 1);
+            final double stepY = Math.abs(ymax - ymin) / (samples - 1);
 
+            if (i + 1 > surface.length - 1) return (surface[i - 1][j].getZ() - surface[i][j].getZ()) / stepX;
+            if (i - 1 < 0) return (surface[i + 1][j].getZ() - surface[i][j].getZ()) / stepX;
+            if (j + 1 > surface[0].length - 1) return (surface[i][j - 1].getZ() - surface[i][j].getZ()) / stepY;
+            if (j - 1 < 0) return (surface[i][j + 1].getZ() - surface[i][j].getZ()) / stepY;
+            return (surface[i + 1][j + 1].getZ() - surface[i + 1][j - 1].getZ() - surface[i - 1][j + 1].getZ() + surface[i - 1][j - 1].getZ()) / (4 * stepX * stepY);
+        }
     }
 
     public class Dfdt extends FunctionNode {
 
-        public Dfdt() {
+        Dfdt() {
             super();
             setnVars(2);
         }
 
-        public Dfdt(FunctionNode[] args) {
+        Dfdt(FunctionNode[] args) {
             super(2, args);
         }
 
@@ -1212,12 +1180,10 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
 
         @Override
         public Double compute(Double[] variables) {
-            int i = (int) ((variables[0] - xmin) / step);
-            int j = (int) ((variables[1] - ymin) / step);
-
+            int i = (int) ((samples - 1) * ((variables[0] - xmin) / (xmax - xmin)));
+            int j = (int) ((samples - 1) * ((variables[1] - ymin) / (ymax - ymin)));
             return dudt[i][j];
         }
-
     }
 }
 

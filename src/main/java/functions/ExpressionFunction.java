@@ -86,12 +86,12 @@ public class ExpressionFunction extends DoubleFunction {
 		else
 			this.vars = new String[0];
 
-		varNametoInt = new HashMap<String, Integer>();
-		operatorNametoPriotity = new HashMap<String, Integer>();
-		functionNametoFunc = new HashMap<String, FunctionNode>();
-		constantNametoNode = new HashMap<String, ConstantNode>();
-		tokens = new Vector<String>();
-		dummyVarNametoStack = new HashMap<String, Stack<Double>>();
+		varNametoInt = new HashMap<>();
+		operatorNametoPriotity = new HashMap<>();
+		functionNametoFunc = new HashMap<>();
+		constantNametoNode = new HashMap<>();
+		tokens = new Vector<>();
+		dummyVarNametoStack = new HashMap<>();
 	}
 
 	public static void main(String[] args) {
