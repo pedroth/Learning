@@ -5,17 +5,16 @@ import java.awt.*;
 public class InterpolativeShader extends ZBufferPerspective {
 
     public Color getFragmentColor(Element e, int x, int y) {
-        /**
+        /*
          * very ugly code but it is faster unfortunately
          */
-
         int vx = (int) (intBuffer[1].getX() - intBuffer[0].getX());
         int vy = (int) (intBuffer[1].getY() - intBuffer[0].getY());
         int ux = (int) (intBuffer[2].getX() - intBuffer[0].getX());
         int uy = (int) (intBuffer[2].getY() - intBuffer[0].getY());
         int px = (int) (x - intBuffer[0].getX());
         int py = (int) (y - intBuffer[0].getY());
-        /**
+        /*
          * det > 0, since x,y are always inside the triangle
          */
         int det = vx * uy - vy * ux;

@@ -536,7 +536,7 @@ public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionL
 
         final double samplesSq = this.samples * this.samples;
         if (samplesSq > MaxPoly) {
-            maxPolyConstraint(samplesSq);
+            maxPolyConstraint(this.samples);
             this.samples = numericRead(this.samplesTxtS.getText());
         }
 
@@ -657,8 +657,8 @@ public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionL
     }
 
     private void maxPolyConstraint(double delta) {
-        double nextStep = Math.sqrt(delta / 10E3);
-        this.samplesTxtS.setText("" + nextStep);
+        int nextSample = (int) Math.floor(Math.sqrt(delta));
+        this.samplesTxtS.setText("" + nextSample);
         JOptionPane.showMessageDialog(null, "the X/Y samples are too high, pls choose a lower one");
     }
 
@@ -980,7 +980,7 @@ public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionL
         }
         final double samplesSq = this.samples * this.samples;
         if (samplesSq > MaxPoly) {
-            maxPolyConstraint(samplesSq);
+            maxPolyConstraint(this.samples);
             this.samples = numericRead(this.samplesTxtL.getText());
         }
 
