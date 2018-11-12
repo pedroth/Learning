@@ -482,9 +482,7 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
     }
 
     private void buildFunction() {
-        double x, y, z;
-        int inx, iny;
-        int MaxPoly = 4096;
+        int maxPoly = 5000;
         this.drawFunction = false;
         this.xmin = numericRead(this.xMinTxt.getText());
         this.xmax = numericRead(this.xMaxTxt.getText());
@@ -505,22 +503,25 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
         }
 
         final double samplesSquare = this.samples * this.samples;
-        if (samplesSquare > MaxPoly) {
-            maxPolyConstraint(MaxPoly);
+        if (samplesSquare > maxPoly) {
+            maxPolyConstraint(maxPoly);
             this.samples = Double.parseDouble(this.samplesText.getText());
         }
-        inx = (int) Math.floor(this.samples);
-        iny = (int) Math.floor(this.samples);
+        final int inx = (int) Math.floor(this.samples);
+        final int iny = (int) Math.floor(this.samples);
         this.surface = new TriVector[inx][iny];
         this.dudt = new double[inx][iny];
 
         final double stepX = Math.abs(this.xmax - this.xmin) / (this.samples - 1);
-        final double stepY = Math.abs(this.xmax - this.xmin) / (this.samples - 1);
+        final double stepY = Math.abs(this.ymax - this.ymin) / (this.samples - 1);
 
         for (int j = 0; j < iny - 1; j++) {
             for (int i = 0; i < inx - 1; i++) {
                 final double xbase = this.xmin + i * stepX;
                 final double ybase = this.ymin + j * stepY;
+                double x;
+                double y;
+                double z;
                 if (this.surface[i][j] == null) {
                     x = xbase;
                     y = ybase;
@@ -636,7 +637,7 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
     }
 
     private void maxPolyConstraint(double delta) {
-        double nextStep = Math.sqrt(delta) / 2;
+        double nextStep = Math.floor(Math.sqrt(delta) / 2);
         this.samplesText.setText("" + nextStep);
         JOptionPane.showMessageDialog(null, "the X/Y samples are too high, pls choose a smaller one");
     }
@@ -679,16 +680,13 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
 
         for (int j = 0; j < iny; j++) {
             for (int i = 0; i < inx; i++) {
-                double auxZ;
                 Double[] x = new Double[3];
                 x[0] = this.xmin + i * stepX;
                 x[1] = this.ymin + j * stepY;
                 x[2] = this.time;
-
                 double acceleration = accEquation.compute(x);
-
                 this.dudt[i][j] = this.dudt[i][j] + acceleration * dt;
-                auxZ = this.surface[i][j].getZ() + this.dudt[i][j] * dt + 0.5 * acceleration * dt * dt;
+                double auxZ = this.surface[i][j].getZ() + this.dudt[i][j] * dt + 0.5 * acceleration * dt * dt;
                 aux[i][j] = auxZ;
                 if (!Double.isInfinite(auxZ) && !Double.isNaN(auxZ)) {
                     this.maxHeightColor = Math.max(auxZ, this.maxHeightColor);
@@ -714,7 +712,7 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
         if (dt > 0.02) {
             dt = this.isKakashi ? 0.0001 : 0.01;
         }
-        /**
+        /*
          * PDE functions
          */
         ExpressionFunction velEquation = new ExpressionFunction(this.functionVel.getText(), this.diffVars);

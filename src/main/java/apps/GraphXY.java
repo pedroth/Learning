@@ -406,7 +406,7 @@ public class GraphXY extends JFrame implements MouseListener,
     private void buildFunction() {
         double x, y, z, colorHSB;
         int inx, iny;
-        int MaxPoly = 25600;
+        int maxPoly = 25600;
         Random r = new Random();
         colorHSB = r.nextDouble();
         this.drawFunction = false;
@@ -429,14 +429,14 @@ public class GraphXY extends JFrame implements MouseListener,
                     null,
                     "there is a syntax error in the formula, pls change the formula."
                             + String.format("%n")
-                            + " try to use more brackets, try not to cocatenate 2*x^2 as 2x2."
+                            + " try to use more brackets, try not to concatenate 2*x^2 as 2x2."
                             + String.format("%n")
                             + "check also for simple errors like 1/*2."
             );
         }
         final double samplesSq = this.samples * this.samples;
-        if (samplesSq > MaxPoly) {
-            maxPolyConstraint(samplesSq);
+        if (samplesSq > maxPoly) {
+            maxPolyConstraint(maxPoly);
             this.samples = numericRead(this.samplesTxt.getText());
         }
 

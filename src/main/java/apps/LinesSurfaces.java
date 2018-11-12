@@ -536,7 +536,7 @@ public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionL
 
         final double samplesSq = this.samples * this.samples;
         if (samplesSq > MaxPoly) {
-            maxPolyConstraint(this.samples);
+            maxPolyConstraint(MaxPoly);
             this.samples = numericRead(this.samplesTxtS.getText());
         }
 
@@ -956,7 +956,7 @@ public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionL
      * build the parametric line
      */
     private void buildLine() {
-        int MaxPoly = 25600;
+        int maxPoly = 25600;
         double colorHSB = Math.random();
         this.drawFunction = false;
         this.tmin = numericRead(this.tMinTxt.getText());
@@ -979,7 +979,7 @@ public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionL
             JOptionPane.showMessageDialog(null, "there is a syntax error in the formula, pls change the formula." + String.format("%n") + " try to use more brackets, try not to cocatenate 2*x^2 as 2x2." + String.format("%n") + "check also for simple errors like 1/*2.");
         }
         final double samplesSq = this.samples * this.samples;
-        if (samplesSq > MaxPoly) {
+        if (samplesSq > maxPoly) {
             maxPolyConstraint(this.samples);
             this.samples = numericRead(this.samplesTxtL.getText());
         }
