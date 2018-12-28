@@ -6,6 +6,7 @@ Some experiments made in Java while learning...
 ## Contents by package
  ### algebra
  *  Simple Implementation of Matrices and 3-vectors
+ 
 ### apps
 *You can run most of these apps in [here](https://pedroth.github.io/visualExperiments/JavaExperiments/JavaExperiments.html)*
   *  Pseudo-Brownian motion simulation
@@ -33,13 +34,21 @@ Some experiments made in Java while learning...
 * Experiments with sockets
 	* Includes a Jframe chat and a scrappy web server build from scratch
 
+### functionNode
+* Util classes for the interpreter in package **function**
+
 ###  function
 * ExpressionFunction: 
 	* Is a interpreter of a simple language that evaluates mathematical expressions such as "sin(x^2  + y) + exp(-z^2)" 
 
-### Some random and util packages
-* You may explore this graveyeard
+### inputOutput
+* Image and Text IO utils.
 
+### test
+* Some graphical experiments
+
+### tokenizer
+* Tool to tokenize strings
 
 ### windowThreeDim
 * Implementation of a 3D engine from scratch in Java. 
