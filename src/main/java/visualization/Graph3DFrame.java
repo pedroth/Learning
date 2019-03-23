@@ -15,13 +15,12 @@ import java.awt.event.*;
 import java.util.*;
 import java.util.List;
 import java.util.Timer;
+import java.util.function.Consumer;
 
 public class Graph3DFrame extends JFrame implements MouseListener,
         MouseMotionListener, KeyListener {
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
+    private static final MyImage KAKASHI = new MyImage("https://92c3cb5a-a-62cb3a1a-s-sites.googlegroups.com/site/ibplanalto2010/Home/kakashi46-3459488_50_50%5B1%5D.jpg?attachauth=ANoY7cp6kFZ2u7lOyL3KJqDYkzI_jmNGeoLsCE29u25IlE23i8Bgqx-4UsNUTkE4Mh7vBQpKPe107E_-PLAOywT34dv8cW9_r9WV0uOZ8p26uBT4rusztcGEh9wkuZ2QI0f-loBiB4pmzo_3NKMrC0CPbRvHHiwa_vT2wVEjZiWh7fZ9XlUjC6vrCVvNOtnmgsnSd-WjjbZqO-q6jSPBFw1zyyaa8uzcAKExLodMjCR40cjjmDComqp1JMNpKJoE1iTDgXQDWFzU&attredirects=0");
     /**
      * size of the screen
      */
@@ -103,7 +102,7 @@ public class Graph3DFrame extends JFrame implements MouseListener,
         flatShader.setCullBack(false);
         shader = flatShader;
         graphics.setMethod(shader);
-        wd.setBackGroundColor(Color.white);
+        wd.setBackGroundColor(Color.BLACK);
 
         // Set default close operation for JFrame
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -122,9 +121,7 @@ public class Graph3DFrame extends JFrame implements MouseListener,
         velRaw = new TriVector();
 
         focalPoint = new TriVector();
-        /**
-         * Make JFrame invisible
-         */
+        // Make JFrame invisible
         setVisible(false);
         buildSphere(1);
 
@@ -138,36 +135,28 @@ public class Graph3DFrame extends JFrame implements MouseListener,
         axisAlreadyBuild = false;
     }
 
-    public static void test1(MyImage kakashi, Graph3DFrame frame) {
-        /**
-         * kakashi as scatter point
-         */
-        TriVector[] s = kakashi.getRGBImageVector();
+    private static void test1(Graph3DFrame frame) {
+        // KAKASHI as scatter point
+        TriVector[] s = KAKASHI.getRGBImageVector();
 
         frame.setScatterAsPxl(true);
         frame.addScatterData(s, Color.blue, 0.01);
     }
 
-    public static void test2(MyImage kakashi, Graph3DFrame frame) {
-        /**
-         * kakashi as rgb surface
-         */
-        TriVector[][] s = kakashi.getRGBImageMatrix();
+    private static void test2(Graph3DFrame frame) {
+        // KAKASHI as rgb surface
+        TriVector[][] s = KAKASHI.getRGBImageMatrix();
         frame.addSurface(s);
     }
 
-    public static void test3(MyImage kakashi, Graph3DFrame frame) {
-        /**
-         * kakashi gray scale matrix
-         */
-        Matrix v = new Matrix(kakashi.getGrayScale());
+    private static void test3(Graph3DFrame frame) {
+        // KAKASHI gray scale matrix
+        Matrix v = new Matrix(KAKASHI.getGrayScale());
         frame.addMatrix(v.getMatrix(), -1, 1, -1, 1);
     }
 
-    public static void test4(MyImage kakashi, Graph3DFrame frame) {
-        /**
-         * random points
-         */
+    private static void test4(Graph3DFrame frame) {
+        // random points
         int n = 200;
         Random r = new Random();
         TriVector[] v = new TriVector[n];
@@ -178,10 +167,8 @@ public class Graph3DFrame extends JFrame implements MouseListener,
         frame.addCurve(v, Color.red);
     }
 
-    public static void test5(MyImage kakashi, Graph3DFrame frame) {
-        /**
-         * tests
-         */
+    private static void test5(Graph3DFrame frame) {
+        // tests
         frame.setShader(new InterpolativeShader());
         Triangle tri = new Triangle(new TriVector(1, 0, 0), new TriVector(0, 1, 0), new TriVector(0, 0, 1));
         tri.setColorPoint(Color.red, 0);
@@ -192,13 +179,15 @@ public class Graph3DFrame extends JFrame implements MouseListener,
     }
 
     private static void test6(Graph3DFrame frame) {
-		ObjParser obj = new ObjParser("http://graphics.stanford.edu/~mdfisher/Data/Meshes/bunny.obj");
-//		ObjParser obj = new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/Kakashi.obj?attredirects=0&d=1");
-//		ObjParser obj = new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/Lara_Croft.obj?attredirects=0&d=1");
-//        ObjParser obj = new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/Sonic.obj?attredirects=0&d=1");
-//        ObjParser obj = new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/bunny.texture.obj?attredirects=0&d=1");
-
-        Composite c = obj.parse();
+        final List<ObjParser> objParsers = Arrays.asList(
+                new ObjParser("http://graphics.stanford.edu/~mdfisher/Data/Meshes/bunny.obj"),
+                new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/Kakashi.obj?attredirects=0&d=1"),
+                new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/Lara_Croft.obj?attredirects=0&d=1"),
+                new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/Sonic.obj?attredirects=0&d=1"),
+                new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/bunny.texture.obj?attredirects=0&d=1")
+        );
+        int index = 0;
+        Composite c = objParsers.get(index).parse();
         double scale = 1;
         double[][] m = {{scale, 0, 0}, {0, scale, 0}, {0, 0, scale}};
         c.transform(new Matrix(m), new TriVector());
@@ -225,7 +214,7 @@ public class Graph3DFrame extends JFrame implements MouseListener,
         TriVector normal = new TriVector(1, 1, 1);
         normal.normalize();
         for (int i = 0; i < p.length; i++) {
-            Matrix aux = Matrix.subMatrix((Matrix) p[i], TriVector.multiConsMatrix(TriVector.vInnerProduct(p[i], normal), normal));
+            Matrix aux = Matrix.subMatrix(p[i], TriVector.multiConsMatrix(TriVector.vInnerProduct(p[i], normal), normal));
             v[i] = new TriVector(aux.selMatrix(1, 1), aux.selMatrix(2, 1), aux.selMatrix(3, 1));
         }
         frame.addScatterData(v, Color.red, 0.01);
@@ -234,15 +223,15 @@ public class Graph3DFrame extends JFrame implements MouseListener,
         TriVector normal2 = TriVector.vectorProduct(normal, new TriVector(1, 0, 0));
         normal2.normalize();
         for (int i = 0; i < p.length; i++) {
-            Matrix aux = Matrix.subMatrix((Matrix) v[i], TriVector.multiConsMatrix(TriVector.vInnerProduct(v[i], normal2), normal2));
+            Matrix aux = Matrix.subMatrix(v[i], TriVector.multiConsMatrix(TriVector.vInnerProduct(v[i], normal2), normal2));
             r[i] = new TriVector(aux.selMatrix(1, 1), aux.selMatrix(2, 1), aux.selMatrix(3, 1));
         }
         frame.addScatterData(r, Color.green, 0.01);
     }
 
 
-    public static void test8(Graph3DFrame frame) {
-        TextIO textIO = new TextIO("src/visualization/resource/data.txt");
+    private static void test8(Graph3DFrame frame) {
+        TextIO textIO = new TextIO("src/main/java/visualization/resource/data.txt");
         String text = textIO.getText();
         String[] split = text.split("\n");
         List<String[]> points = new ArrayList<>();
@@ -257,26 +246,19 @@ public class Graph3DFrame extends JFrame implements MouseListener,
     }
 
     public static void main(String[] args) {
+        final List<Consumer<Graph3DFrame>> visualExperiments = Arrays.asList(
+                Graph3DFrame::test1,
+                Graph3DFrame::test2,
+                Graph3DFrame::test3,
+                Graph3DFrame::test4,
+                Graph3DFrame::test5,
+                Graph3DFrame::test6,
+                Graph3DFrame::test7,
+                Graph3DFrame::test8
+        );
+        int experiment = 7;
         Graph3DFrame frame = new Graph3DFrame("figure 1");
-
-        MyImage kakashi = new MyImage("https://92c3cb5a-a-62cb3a1a-s-sites.googlegroups.com/site/ibplanalto2010/Home/kakashi46-3459488_50_50%5B1%5D.jpg?attachauth=ANoY7cp6kFZ2u7lOyL3KJqDYkzI_jmNGeoLsCE29u25IlE23i8Bgqx-4UsNUTkE4Mh7vBQpKPe107E_-PLAOywT34dv8cW9_r9WV0uOZ8p26uBT4rusztcGEh9wkuZ2QI0f-loBiB4pmzo_3NKMrC0CPbRvHHiwa_vT2wVEjZiWh7fZ9XlUjC6vrCVvNOtnmgsnSd-WjjbZqO-q6jSPBFw1zyyaa8uzcAKExLodMjCR40cjjmDComqp1JMNpKJoE1iTDgXQDWFzU&attredirects=0");
-
-//		test1(kakashi,frame);
-//
-//		test2(kakashi,frame);
-//
-//		test3(kakashi,frame);
-//
-//		test4(kakashi,frame);
-//
-//        test5(kakashi, frame);
-//
-        test6(frame);
-//
-//		test7(frame);
-
-//        test8(frame);
-
+        visualExperiments.get(experiment).accept(frame);
         frame.plot();
     }
 
