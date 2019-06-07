@@ -9,6 +9,7 @@ import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,54 +18,43 @@ public class SimpleWebServer {
     private static int nextID = 0;
     private Map<Integer, Socket> clientById;
 
-    public SimpleWebServer() {
-        try {
-            System.out.println(Inet4Address.getLocalHost().getHostAddress() + ":" + port);
-            clientById = new HashMap<>(1);
-        } catch (UnknownHostException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+    private SimpleWebServer() throws UnknownHostException {
+        System.out.println(Inet4Address.getLocalHost().getHostAddress() + ":" + port);
+        clientById = new HashMap<>(1);
     }
 
-    public SimpleWebServer(int port) {
+    private SimpleWebServer(int port) throws UnknownHostException {
         this.port = port;
-        try {
-            System.out.println(Inet4Address.getLocalHost().getHostAddress() + ":" + port);
-            clientById = new HashMap<>(1);
-        } catch (UnknownHostException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        System.out.println(Inet4Address.getLocalHost().getHostAddress() + ":" + port);
+        clientById = new HashMap<>(1);
     }
 
     public static void main(String[] args) {
-        if (args.length > 0) {
-            final String regex = "[0-9]*";
-            final Pattern pattern = Pattern.compile(regex);
-            final Matcher matcher = pattern.matcher(args[0]);
-            SimpleWebServer simpleWebServer = new SimpleWebServer( matcher.find() ? Integer.valueOf(args[0]) : 8080);
-            simpleWebServer.go(simpleWebServer.new ComplexHttpHandler());
-        } else {
-            SimpleWebServer simpleWebServer = new SimpleWebServer();
-            simpleWebServer.go(simpleWebServer.new ComplexHttpHandler());
-        }
-    }
-
-    public void go(ClientHandler clientHandler) {
         try {
-            ServerSocket serverSocket = new ServerSocket(port);
-
-            while (true) {
-                Socket clientSocket = serverSocket.accept();
-                clientById.put(++nextID, clientSocket);
-                clientHandler.setClientSocket(clientSocket);
-                Thread t = new Thread(clientHandler);
-                t.start();
-                System.out.println("got connection: " + clientSocket.getInetAddress().toString());
+            if (args.length > 0) {
+                final String regex = "[0-9]*";
+                final Pattern pattern = Pattern.compile(regex);
+                final Matcher matcher = pattern.matcher(args[0]);
+                SimpleWebServer simpleWebServer = new SimpleWebServer(matcher.find() ? Integer.valueOf(args[0]) : 8080);
+                simpleWebServer.go(simpleWebServer.new ComplexHttpHandler());
+            } else {
+                SimpleWebServer simpleWebServer = new SimpleWebServer();
+                simpleWebServer.go(simpleWebServer.new ComplexHttpHandler());
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void go(ClientHandler clientHandler) throws IOException {
+        ServerSocket serverSocket = new ServerSocket(port);
+        while (true) {
+            Socket clientSocket = serverSocket.accept();
+            clientById.put(++nextID, clientSocket);
+            clientHandler.setClientSocket(clientSocket);
+            Thread t = new Thread(clientHandler);
+            t.start();
+            System.out.println("got connection: " + clientSocket.getInetAddress().toString());
         }
     }
 
@@ -72,19 +62,19 @@ public class SimpleWebServer {
         BufferedReader reader;
         Socket clientSocket;
 
-        public ClientHandler() {
+        ClientHandler() {
             // do nothing
         }
 
         public ClientHandler(Socket clientSocket) {
-            setClientSocket(clientSocket);
+            this.setClientSocket(clientSocket);
         }
 
         public Socket getClientSocket() {
             return clientSocket;
         }
 
-        public void setClientSocket(Socket clientSocket) {
+        void setClientSocket(Socket clientSocket) {
             this.clientSocket = clientSocket;
             try {
                 reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -106,7 +96,7 @@ public class SimpleWebServer {
             }
         }
 
-        public abstract void action(String message);
+        public abstract void action(String message) throws IOException;
     }
 
     public class SimpleHttpHandler extends ClientHandler {
@@ -135,7 +125,7 @@ public class SimpleWebServer {
 
     public class ComplexHttpHandler extends ClientHandler {
 
-        public ComplexHttpHandler() {
+        ComplexHttpHandler() {
             super();
         }
 
@@ -172,12 +162,11 @@ public class SimpleWebServer {
         }
 
         @Override
-        public void action(String message) {
-            boolean somethingWrongFlag = false;
+        public void action(String message) throws IOException {
+            BufferedOutputStream out = new BufferedOutputStream(clientSocket.getOutputStream());
             try {
                 String[] split = message.split(" ");
                 clientSocket.setSoTimeout(30000);
-                BufferedOutputStream out = new BufferedOutputStream(clientSocket.getOutputStream());
 
                 if (split.length > 1 && "GET".equals(split[0]) && !split[1].substring(1).isEmpty()) {
                     String address = split[1].substring(1);
@@ -185,22 +174,15 @@ public class SimpleWebServer {
 
                     String fileName = file.getName();
                     System.out.println("Out:\t" + fileName);
-
-                    String[] split1 = fileName.split("\\.");
-                    if ("png".equals(split1[1])) {
-                        sendHeader(out, 200, "image/png", file.length(), file.lastModified());
-                    } else {
-                        sendHeader(out, 200, "text/html", -1, System.currentTimeMillis());
-                    }
+                    sendHeader(out, 200, "", file.length(), System.currentTimeMillis());
                     sendFile(out, file);
-
                 } else {
                     sendErrorMessage(out, 404, "There is nothing here!!");
                 }
                 out.flush();
                 clientSocket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                sendErrorMessage(out, 404, e.getMessage());
             }
         }
     }
