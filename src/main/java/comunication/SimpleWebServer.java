@@ -121,7 +121,6 @@ public class SimpleWebServer {
         }
     }
 
-
     public class ComplexHttpHandler extends ClientHandler {
 
         ComplexHttpHandler() {
@@ -178,11 +177,11 @@ public class SimpleWebServer {
                 } else {
                     sendErrorMessage(out, 404, "There is nothing here!!");
                 }
-                out.flush();
-                clientSocket.close();
             } catch (Exception e) {
                 sendErrorMessage(out, 404, e.getMessage());
             }
+            out.flush();
+            clientSocket.close();
         }
     }
 
