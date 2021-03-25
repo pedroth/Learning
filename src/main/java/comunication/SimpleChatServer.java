@@ -1,19 +1,12 @@
 package comunication;
 
-import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.net.Inet4Address;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class SimpleChatServer {
     private static final int PORT = 5000;
@@ -104,68 +97,4 @@ public class SimpleChatServer {
             }
         }
     }
-
-    public class ClientHandlerWebSocket implements Runnable {
-        private int id = nextId++;
-        private BufferedReader reader;
-        private Socket clientSocket;
-
-        public ClientHandlerWebSocket(Socket clientSocket) {
-            this.clientSocket = clientSocket;
-            try {
-                reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                handshake();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        private void handshake() {
-            String data;
-            try {
-                data = new Scanner(clientSocket.getInputStream(), "UTF-8").useDelimiter("\\r\\n\\r\\n").next();
-                Matcher get = Pattern.compile("^GET").matcher(data);
-
-                if (get.find()) {
-                    Matcher match = Pattern.compile("Sec-WebSocket-Key: (.*)").matcher(data);
-                    match.find();
-                    byte[] response = ("HTTP/1.1 101 Switching Protocols\r\n"
-                            + "Connection: Upgrade\r\n"
-                            + "Upgrade: websocket\r\n"
-                            + "Sec-WebSocket-Accept: "
-                            + DatatypeConverter
-                            .printBase64Binary(
-                                    MessageDigest
-                                            .getInstance("SHA-1")
-                                            .digest((match.group(1) + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11")
-                                                    .getBytes("UTF-8")))
-                            + "\r\n\r\n")
-                            .getBytes("UTF-8");
-
-                    clientSocket.getOutputStream().write(response, 0, response.length);
-                }
-            } catch (IOException | NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            }
-        }
-
-        private Character decode(int message) {
-            return (char) (message);
-        }
-
-        @Override
-        public void run() {
-            List<Integer> message = new ArrayList<>();
-            int str;
-            try {
-                while ((str = clientSocket.getInputStream().read()) > -1) {
-                    System.out.println(id + ":\t" + decode(str));
-                }
-//                tellEveryOneWebSocket(message);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
 }

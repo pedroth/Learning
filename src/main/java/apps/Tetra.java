@@ -319,10 +319,10 @@ public class Tetra extends JFrame implements MouseListener,
             buildBunny();
         } else if (arg0.getKeyCode() == KeyEvent.VK_5) {
             graphics.removeAllElements();
-            buildKakashi();
+            buildRockerArm();
         } else if (arg0.getKeyCode() == KeyEvent.VK_6) {
             graphics.removeAllElements();
-            buildSonic();
+            buildSpot();
         } else if (arg0.getKeyCode() == KeyEvent.VK_7) {
             isSphereFlow = true;
         } else if (arg0.getKeyCode() == KeyEvent.VK_PLUS) {
@@ -458,8 +458,8 @@ public class Tetra extends JFrame implements MouseListener,
         return TriVector.sum(TriVector.multConst((x[upper] - x0) / (x[upper] - x[lower]), y[lower]), TriVector.multConst((x0 - x[lower]) / (x[upper] - x[lower]), y[upper]));
     }
 
-    private void buildSonic() {
-        ObjParser obj = new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/Sonic.obj?attredirects=0&d=1");
+    private void buildSpot() {
+        ObjParser obj = new ObjParser("https://raw.githubusercontent.com/alecjacobson/common-3d-test-models/master/data/spot.obj");
         final Composite composite = obj.parse();
         figure = Optional.of(composite);
         double scale = 1;
@@ -467,7 +467,7 @@ public class Tetra extends JFrame implements MouseListener,
         composite.transform(new Matrix(m), TriVector.multConst(-1, composite.centroid()));
         graphics.addtoList(composite);
         addFlatShader();
-        raw = 20;
+        raw = 3;
     }
 
     private void addFlatShader() {
@@ -477,8 +477,8 @@ public class Tetra extends JFrame implements MouseListener,
         graphics.setMethod(shader);
     }
 
-    private void buildKakashi() {
-        ObjParser obj = new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/Kakashi.obj?attredirects=0&d=1");
+    private void buildRockerArm() {
+        ObjParser obj = new ObjParser("https://raw.githubusercontent.com/alecjacobson/common-3d-test-models/master/data/rocker-arm.obj");
         final Composite composite = obj.parse();
         figure = Optional.of(composite);
         double scale = 1;
