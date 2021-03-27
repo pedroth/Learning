@@ -15,12 +15,15 @@ import java.awt.event.*;
 import java.util.*;
 import java.util.List;
 import java.util.Timer;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import java.util.stream.IntStream;
 
 public class Graph3DFrame extends JFrame implements MouseListener,
         MouseMotionListener, KeyListener {
     private static final long serialVersionUID = 1L;
-    private static final MyImage KAKASHI = new MyImage("https://92c3cb5a-a-62cb3a1a-s-sites.googlegroups.com/site/ibplanalto2010/Home/kakashi46-3459488_50_50%5B1%5D.jpg?attachauth=ANoY7cp6kFZ2u7lOyL3KJqDYkzI_jmNGeoLsCE29u25IlE23i8Bgqx-4UsNUTkE4Mh7vBQpKPe107E_-PLAOywT34dv8cW9_r9WV0uOZ8p26uBT4rusztcGEh9wkuZ2QI0f-loBiB4pmzo_3NKMrC0CPbRvHHiwa_vT2wVEjZiWh7fZ9XlUjC6vrCVvNOtnmgsnSd-WjjbZqO-q6jSPBFw1zyyaa8uzcAKExLodMjCR40cjjmDComqp1JMNpKJoE1iTDgXQDWFzU&attredirects=0");
+    private static final MyImage IMMACULATA = new MyImage("https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Miraculous_medal.jpg/140px-Miraculous_medal.jpg");
     /**
      * size of the screen
      */
@@ -136,22 +139,24 @@ public class Graph3DFrame extends JFrame implements MouseListener,
     }
 
     private static void test1(Graph3DFrame frame) {
-        // KAKASHI as scatter point
-        TriVector[] s = KAKASHI.getRGBImageVector();
+        // IMACULATA as scatter point
+        TriVector[] s = IMMACULATA.getRGBImageVector();
 
         frame.setScatterAsPxl(true);
         frame.addScatterData(s, Color.blue, 0.01);
+        frame.raw.setX(30.0);
     }
 
     private static void test2(Graph3DFrame frame) {
-        // KAKASHI as rgb surface
-        TriVector[][] s = KAKASHI.getRGBImageMatrix();
+        // IMACULATA as rgb surface
+        TriVector[][] s = IMMACULATA.getRGBImageMatrix();
         frame.addSurface(s);
+        frame.raw.setX(30.0);
     }
 
     private static void test3(Graph3DFrame frame) {
-        // KAKASHI gray scale matrix
-        Matrix v = new Matrix(KAKASHI.getGrayScale());
+        // IMACULATA gray scale matrix
+        Matrix v = new Matrix(IMMACULATA.getGrayScale());
         frame.addMatrix(v.getMatrix(), -1, 1, -1, 1);
     }
 
@@ -180,11 +185,7 @@ public class Graph3DFrame extends JFrame implements MouseListener,
 
     private static void test6(Graph3DFrame frame) {
         final List<ObjParser> objParsers = Arrays.asList(
-                new ObjParser("http://graphics.stanford.edu/~mdfisher/Data/Meshes/bunny.obj"),
-                new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/Kakashi.obj?attredirects=0&d=1"),
-                new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/Lara_Croft.obj?attredirects=0&d=1"),
-                new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/Sonic.obj?attredirects=0&d=1"),
-                new ObjParser("https://sites.google.com/site/ibplanalto2010/Home/bunny.texture.obj?attredirects=0&d=1")
+                new ObjParser("http://graphics.stanford.edu/~mdfisher/Data/Meshes/bunny.obj")
         );
         int index = 0;
         Composite c = objParsers.get(index).parse();
@@ -240,7 +241,7 @@ public class Graph3DFrame extends JFrame implements MouseListener,
         }
         TriVector[] points3D = new TriVector[points.get(0).length];
         for (int i = 0; i < points.get(0).length; i++) {
-            points3D[i] = new TriVector(Double.valueOf(points.get(0)[i]), Double.valueOf(points.get(1)[i]), Double.valueOf(points.get(2)[i]));
+            points3D[i] = new TriVector(Double.parseDouble(points.get(0)[i]), Double.parseDouble(points.get(1)[i]), Double.parseDouble(points.get(2)[i]));
         }
         frame.addScatterData(points3D, Color.BLUE, 0.001);
     }
@@ -256,9 +257,9 @@ public class Graph3DFrame extends JFrame implements MouseListener,
                 Graph3DFrame::test7,
                 Graph3DFrame::test8
         );
-        int experiment = 7;
-        Graph3DFrame frame = new Graph3DFrame("figure 1");
-        visualExperiments.get(experiment).accept(frame);
+        final int EXPERIMENT = args.length > 0 ? Integer.parseInt(args[0]) : 0;
+        Graph3DFrame frame = new Graph3DFrame(String.format("figure %d", EXPERIMENT));
+        visualExperiments.get(EXPERIMENT).accept(frame);
         frame.plot();
     }
 

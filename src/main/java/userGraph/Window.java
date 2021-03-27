@@ -26,12 +26,13 @@
 
 package userGraph;
 
+import javax.swing.*;
 import java.applet.Applet;
 import java.awt.*;
 
 public class Window {
     private Graphics gWindow;
-    private Applet appWindow;
+    private JFrame appWindow;
     private double x_min;
     private double x_max;
     private double y_min;
@@ -42,22 +43,11 @@ public class Window {
     private int yDisplacement;//y displacement from the left up corner of the applet;
 
 
-    public Window(Applet app, Graphics gra, Color c) {
+    public Window(JFrame app, Graphics gra, Color c) {
         gWindow = gra;
         appWindow = app; //in this applet there is the background color, width pxl's, height pxl's.
-        app.setBackground(c);
         percWidth = 1.0;
         percHeight = 1.0;
-        xDisplacement = 0;
-        yDisplacement = 0;
-    }
-
-    public Window(Applet app, Graphics gra, double percentAppletWidth, double percentAppletHeight, Color c) {
-        gWindow = gra;
-        appWindow = app; //in this applet there is the background color, width pxl's, height pxl's.
-        app.setBackground(c);
-        percWidth = percentAppletWidth;
-        percHeight = percentAppletHeight;
         xDisplacement = 0;
         yDisplacement = 0;
     }
@@ -99,11 +89,11 @@ public class Window {
         return y_max;
     }
 
-    public Applet getApplet() {
+    public JFrame getApplet() {
         return appWindow;
     }
 
-    public void setApplet(Applet app) {
+    public void setApplet(JFrame app) {
         appWindow = app;
     }
 

@@ -7,11 +7,24 @@ import java.util.Random;
 
 import userGraph.Window;
 
-public class Janela extends Applet {
+import javax.swing.*;
+
+public class Janela extends JFrame {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+
+	Janela(){
+		// Set JFrame title
+		super("Janela");
+		// Set default close operation for JFrame
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		// Set JFrame size
+		setSize(400, 400);
+		// Make JFrame visible
+		setVisible(true);
+	}
 
 	public void paint(Graphics g) {
 		Window wd;
@@ -42,9 +55,11 @@ public class Janela extends Applet {
 		} catch (Exception e) {
 			//
 		}
-		/*
-		 * setBackground(Color.white); // does not erase the screen
-		 * wd.setBkgColor(Color.white); //erase all the screen content
-		 */
+		wd.setBkgColor(c); //erase all the screen content
+
+	}
+
+	public static void main(String[] args) {
+		new Janela();
 	}
 }

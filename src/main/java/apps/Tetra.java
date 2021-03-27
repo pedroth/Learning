@@ -23,7 +23,7 @@ public class Tetra extends JFrame implements MouseListener,
      */
     private static final long serialVersionUID = 1L;
     private static final TextFrame HELP_FRAME = TextFrame.builder()
-            .addLine("< w > : Camera move foward / zoom in")
+            .addLine("< w > : Camera move forward / zoom in")
             .addLine("< s > : Camera move backward /zoom out")
             .addLine("< z > : Toggle wireframe / zbuffer")
             .addLine("< [1-6] > : various geometries")

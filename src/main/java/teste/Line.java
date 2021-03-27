@@ -1,15 +1,28 @@
 package teste;
 
+import javax.swing.*;
 import java.applet.Applet;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-public class Line extends Applet implements MouseListener {
+public class Line extends JFrame implements MouseListener {
 	private int _mouseX, _mouseY, _mouseClicks;
 	private boolean _drawLine;
 	private int[][] _line;
+
+	Line() {
+		// Set JFrame title
+		super("Line Test");
+		// Set default close operation for JFrame
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		// Set JFrame size
+		setSize(600, 600);
+		// Make JFrame visible
+		setVisible(true);
+		this.init();
+	}
 
 	public void drawPoint(int x, int y, Color c, Graphics g) {
 		g.setColor(c);
@@ -106,6 +119,10 @@ public class Line extends Applet implements MouseListener {
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		// TODO Auto-generated method stub
+	}
+
+	public static void main(String[] args) {
+		new Line();
 	}
 
 }

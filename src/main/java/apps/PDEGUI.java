@@ -25,22 +25,23 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
      */
     private static final long serialVersionUID = 1L;
     private static final TextFrame HELP_FRAME = TextFrame.builder()
-            .addLine("< w > : Camera move foward / zoom in")
+            .addLine("< w > : Camera move forward / zoom in")
             .addLine("< s > : Camera move backward /zoom out")
             .addLine("< z > : Toggle wireframe / zbuffer")
             .addLine("< n > : Toggle flat shading")
             .addLine("< [1-3] > : change color of surface")
             .addLine("< e > : random examples of functions")
-            .addLine("< 8 > : interpolative colors")
+            .addLine("< 8 > : interpolating colors")
             .addLine("< 9 > : level set shader")
             .addLine("< Available functions > : sin ,cos, exp, ln, tan, acos, asin, atan, min, adding more")
             .addLine("< operators > : +, - , *, ^ ")
             .addLine("< Available constants > : pi")
             .addLine("< a > : draw Axis")
             .addLine("< mouse > : rotate camera")
-            .addLine("< k > : toogle kakashi mode")
             .addLine("< Available function on animation part > :  dfx(x,y) (df / dx), dfy(x,y) (df / dy) , dt(x,y) (df / dt), d2fx(x,y)(d2f / dx2)")
             .addLine("d2fy(x,y) (d2f / dy2), f(x,y), d2fxy(x,y)")
+            .addLine("< f >: special shader")
+            .addLine("< i > : toggle immaculate mode")
             .addLine("Made by Pedroth")
             .buildWithTitle("Help");
 
@@ -155,7 +156,7 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
     /**
      * is kakashi image
      */
-    private boolean isKakashi;
+    private boolean isImacculata;
     private boolean axisAlreadyBuild;
 
     private Runnable euler = () -> {
@@ -171,10 +172,10 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
             buildAxis();
         }
         if (this.drawFunction) {
-            if (!this.isKakashi)
+            if (!this.isImacculata)
                 buildFunction();
             else {
-                buildKakashi();
+                buildImacculata();
             }
         }
         if (this.isZoomFit) {
@@ -293,7 +294,7 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
         this.isAnimating = false;
         this.time = 0;
         this.isfastShading = false;
-        this.isKakashi = false;
+        this.isImacculata = false;
         this.axisAlreadyBuild = false;
     }
 
@@ -457,9 +458,9 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
         }
     }
 
-    private void buildKakashi() {
-        MyImage kakashi = new MyImage("https://92c3cb5a-a-62cb3a1a-s-sites.googlegroups.com/site/ibplanalto2010/Home/kakashi46-3459488_50_50%5B1%5D.jpg?attachauth=ANoY7cp6kFZ2u7lOyL3KJqDYkzI_jmNGeoLsCE29u25IlE23i8Bgqx-4UsNUTkE4Mh7vBQpKPe107E_-PLAOywT34dv8cW9_r9WV0uOZ8p26uBT4rusztcGEh9wkuZ2QI0f-loBiB4pmzo_3NKMrC0CPbRvHHiwa_vT2wVEjZiWh7fZ9XlUjC6vrCVvNOtnmgsnSd-WjjbZqO-q6jSPBFw1zyyaa8uzcAKExLodMjCR40cjjmDComqp1JMNpKJoE1iTDgXQDWFzU&attredirects=0");
-        Matrix v = new Matrix(kakashi.getGrayScale());
+    private void buildImacculata() {
+        MyImage immaculata = new MyImage("https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Miraculous_medal.jpg/140px-Miraculous_medal.jpg");
+        Matrix v = new Matrix(immaculata.getGrayScale());
         TriVector[][] s = v.matrixToSurface(-1, 1, -1, 1);
         this.xmin = -1;
         this.xmax = 1;
@@ -652,9 +653,7 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
     }
 
     private void accAnimate(double dt) {
-        if (dt > 0.02) {
-            dt = this.isKakashi ? 0.0001 : 0.01;
-        }
+        dt = dt > 0.02 ? 0.01 : dt;
         ExpressionFunction accEquation = new ExpressionFunction(this.functionAcc.getText(), this.diffVars);
         accEquation.addFunction("dx", new Dfdx());
         accEquation.addFunction("dy", new Dfdy());
@@ -709,9 +708,7 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
     }
 
     private void velAnimate(double dt) {
-        if (dt > 0.02) {
-            dt = this.isKakashi ? 0.0001 : 0.01;
-        }
+        dt = dt > 0.02 ? 0.01 : dt;
         /*
          * PDE functions
          */
@@ -893,8 +890,8 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
             this.graphics.removeAllElements();
             this.drawFunction = true;
         });
-        keyActionMap.put(KeyEvent.VK_K, () -> {
-            isKakashi = !isKakashi;
+        keyActionMap.put(KeyEvent.VK_I, () -> {
+            isImacculata = !isImacculata;
             graphics.removeAllElements();
             drawFunction = true;
         });

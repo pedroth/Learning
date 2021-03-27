@@ -28,7 +28,6 @@ public class ObjParser {
     public static void main(String[] args) {
         ObjParser obj = new ObjParser("http://graphics.stanford.edu/~mdfisher/Data/Meshes/bunny.obj");
         Composite c = obj.parse();
-        System.out.println("hello");
     }
 
     public Composite parse() {

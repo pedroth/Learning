@@ -8,13 +8,17 @@ import window.ImageWindow;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.stream.IntStream;
 
 /**
  * @author pedro Cristovao
- *         <p>
- *         dataX, dataY, colorList and states must have the same size
+ * <p>
+ * dataX, dataY, colorList and states must have the same size
  */
 public class Graph2DFrame extends JFrame {
     protected ImageWindow wd;
@@ -81,16 +85,11 @@ public class Graph2DFrame extends JFrame {
     }
 
     public static void test1(Graph2DFrame frame) {
-        MyImage kakashi = new MyImage("https://92c3cb5a-a-62cb3a1a-s-sites.googlegroups.com/site/ibplanalto2010/Home/kakashi46-3459488_50_50%5B1%5D.jpg?attachauth=ANoY7cp6kFZ2u7lOyL3KJqDYkzI_jmNGeoLsCE29u25IlE23i8Bgqx-4UsNUTkE4Mh7vBQpKPe107E_-PLAOywT34dv8cW9_r9WV0uOZ8p26uBT4rusztcGEh9wkuZ2QI0f-loBiB4pmzo_3NKMrC0CPbRvHHiwa_vT2wVEjZiWh7fZ9XlUjC6vrCVvNOtnmgsnSd-WjjbZqO-q6jSPBFw1zyyaa8uzcAKExLodMjCR40cjjmDComqp1JMNpKJoE1iTDgXQDWFzU&attredirects=0");
-
-        // MyImage kakashi = new
-        // MyImage("http://static2.wikia.nocookie.net/__cb20130215214233/naruto/images/3/3b/KakashiMangeky%C5%8DSharinganAnime.jpg");
-        //
+        MyImage immaculata = new MyImage("https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Miraculous_medal.jpg/140px-Miraculous_medal.jpg");
         /**
          * gray scale matrix
          */
-        Matrix v = new Matrix(kakashi.getGrayScale());
-
+        Matrix v = new Matrix(immaculata.getGrayScale());
         /**
          * add matrix
          */
@@ -107,13 +106,8 @@ public class Graph2DFrame extends JFrame {
          */
         int n = 100;
         Matrix v = new Matrix(n, n);
-        // v.identity();
-        // v.fillRandomInt(0, 10);
-        for (int i = 1; i <= n; i++) {
-            for (int j = 1; j <= n; j++)
-                v.setMatrix(i, j, (i - n / 2) * (j - n / 2));
-        }
-
+        v.identity();
+        v.fillRandomInt(0, 10);
         frame.addMatrix(v.getMatrix(), -1, 1, -1, 1);
         frame.setGrayScale(false);
         frame.setSmooth(true);
@@ -127,8 +121,6 @@ public class Graph2DFrame extends JFrame {
          */
         int n = 100;
         Matrix v = new Matrix(n, n);
-        // v.identity();
-        // v.fillRandomInt(0, 10);
         for (int i = 1; i <= n; i++) {
             for (int j = 1; j <= n; j++)
                 v.setMatrix(i, j, (i - n / 2) * (j - n / 2));
@@ -191,16 +183,16 @@ public class Graph2DFrame extends JFrame {
     }
 
     private static void test5(Graph2DFrame frame) {
-        MyImage kakashi = new MyImage("https://sites.google.com/site/ibplanalto2010/Home/bla.jpg?attredirects=0&d=1");
+        MyImage immaculatta = new MyImage("https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Miraculous_medal.jpg/140px-Miraculous_medal.jpg");
         /**
          * hsv matrix
          */
-        TriVector[][] k = kakashi.getHSVImageMatrix();
+        TriVector[][] k = immaculatta.getHSVImageMatrix();
         Matrix v = new Matrix(k.length, k[0].length);
         for (int i = 1; i <= k.length; i++) {
             for (int j = 1; j <= k[0].length; j++) {
                 double x = k[i - 1][j - 1].getX();
-                x = x > 0.05 && x < 0.95 ? 0 : 1;
+                x = x > 0.05 && x < 0.2 ? 0 : 1;
                 v.setMatrix(i, j, x);
             }
         }
@@ -214,19 +206,16 @@ public class Graph2DFrame extends JFrame {
         frame.plot();
     }
 
-    private static void test6(Graph2DFrame frame) {
-
-    }
-
     public static void main(String args[]) {
-        Graph2DFrame frame = new Graph2DFrame("figure 1");
-//         test0(frame);
-//		 test1(frame);
-//         test2(frame);
-//         test3(frame);
-//         test4(frame);
-//        test5(frame);
-        test6(frame);
+        List<Consumer<Graph2DFrame>> lambdas = Arrays.asList(
+                Graph2DFrame::test0,
+                Graph2DFrame::test1,
+                Graph2DFrame::test2,
+                Graph2DFrame::test3,
+                Graph2DFrame::test4,
+                Graph2DFrame::test5
+        );
+        IntStream.range(0, lambdas.size()).forEach(i -> lambdas.get(i).accept(new Graph2DFrame(String.format("figure %d", i))));
     }
 
     public boolean isRepainting() {

@@ -15,8 +15,10 @@ import java.util.Set;
 
 import userGraph.Window;
 
+import javax.swing.*;
 
-public class WordDistribution extends Applet implements KeyListener, ActionListener{
+
+public class WordDistribution extends JFrame implements KeyListener, ActionListener{
 	/**
 	 * 
 	 */
@@ -27,6 +29,19 @@ public class WordDistribution extends Applet implements KeyListener, ActionListe
 	private Hashtable<Double, Integer> _table; 
 	private int _lsize;
 	private Enumeration<Double> _enumKey;
+
+	WordDistribution() {
+		// Set JFrame title
+		super("WordDistribution Test");
+		// Set default close operation for JFrame
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		// Set JFrame size
+		setSize(600, 600);
+		// Make JFrame visible
+		setVisible(true);
+		this.init();
+	}
+
 	public void init(){
 		setLayout(null);
 		_wd= new Window(this, this.getGraphics(), Color.white);
@@ -88,9 +103,6 @@ public class WordDistribution extends Applet implements KeyListener, ActionListe
 		}
 		_wd.setDrawColor(Color.black);
 		//-----------------------
-		
-		
-		
 	}
 	@Override
 	public void keyPressed(KeyEvent e) {
@@ -170,5 +182,9 @@ public class WordDistribution extends Applet implements KeyListener, ActionListe
 //			aux1 = aux1 + ((double)aux.charAt(i-1) - 'a')* Math.pow(7.0,slen-i);  
 //		}
 		return aux1;
+	}
+
+	public static void main(String[] args) {
+		new WordDistribution();
 	}
 }

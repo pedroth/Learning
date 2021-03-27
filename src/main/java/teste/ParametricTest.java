@@ -2,14 +2,26 @@ package teste;
 
 import userGraph.Window;
 
+import javax.swing.*;
 import java.applet.Applet;
 import java.awt.*;
 
 
-public class ParametricTest extends Applet {
+public class ParametricTest extends JFrame {
     private static final long serialVersionUID = 1L;
     static public double h1 = 1 * Math.pow(10, -9);
     static public double h2 = 1 * Math.pow(10, -4.5);
+
+    ParametricTest() {
+        // Set JFrame title
+        super("Parametric Test");
+        // Set default close operation for JFrame
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        // Set JFrame size
+        setSize(600, 600);
+        // Make JFrame visible
+        setVisible(true);
+    }
 
     public static double x(double t) {
         double R = 3;
@@ -49,13 +61,15 @@ public class ParametricTest extends Applet {
         int i;
         Color c = new Color((float) 1.0, (float) 1.0, (float) 1.0);
         wd = new Window(this, g, c);
+        wd.setBkgColor(c);
         wd.viewWindow(-5, 5, -5, 5);
         wd.setPercHeight(1);
         wd.setPercWidth(1);
         wd.setXYDisplacement(0, 0);
         /*
          * while(true){
-		 */
+         */
+        wd.setDrawColor(Color.black);
         for (i = 0; i < 48; i++) {
             t = (Math.PI / 24) * i;
             x1 = r * x(t);
@@ -88,9 +102,12 @@ public class ParametricTest extends Applet {
             wd.drawLine(x1, x2, x3, x4);
             try {
                 Thread.sleep(100);
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
+    }
 
+    public static void main(String[] args) {
+        new ParametricTest();
     }
 }

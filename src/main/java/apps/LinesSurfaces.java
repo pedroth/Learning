@@ -18,14 +18,14 @@ import java.util.Random;
 
 public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionListener, KeyListener, MouseWheelListener {
     private static final TextFrame HELP_FRAME = TextFrame.builder()
-            .addLine("< w > : Camera move foward / zoom in")
+            .addLine("< w > : Camera move forward / zoom in")
             .addLine("< s > : Camera move backward /zoom out")
             .addLine("< z > : Toggle wireframe / zbuffer")
             .addLine("< n > : Toggle flat shading")
             .addLine("< [1-3] > : change color of surface")
             .addLine("< [4 - 7] > : various surfaces examples")
             .addLine("< l > : rotating light mode")
-            .addLine("< 8 > : interpolative colors")
+            .addLine("< 8 > : interpolating colors")
             .addLine("< 9 > : level set shader")
             .addLine("< 0 > : Z-buffer shader")
             .addLine("< Available functions > : sin ,cos, exp, ln, tan, acos, asin, atan, min, adding more")

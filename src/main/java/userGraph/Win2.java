@@ -1,12 +1,13 @@
 package userGraph;
 
+import javax.swing.*;
 import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 
 
-public class Win2 extends Applet implements MouseMotionListener {
+public class Win2 extends JFrame implements MouseMotionListener {
     Window wd1;
     Window wd2;
     double[] p1;

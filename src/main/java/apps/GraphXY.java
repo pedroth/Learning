@@ -27,13 +27,13 @@ public class GraphXY extends JFrame implements MouseListener,
      */
     private static final long serialVersionUID = 1L;
     private static final TextFrame HELP_FRAME = TextFrame.builder()
-            .addLine("< w > : Camera move foward / zoom in")
+            .addLine("< w > : Camera move forward / zoom in")
             .addLine("< s > : Camera move backward /zoom out")
             .addLine("< z > : Toggle wireframe / zbuffer")
             .addLine("< n > : Toggle flat shading")
             .addLine("< [1-3] > : change color of surface")
             .addLine("< e > : random examples of functions")
-            .addLine("< 8 > : interpolative colors")
+            .addLine("< 8 > : interpolating colors")
             .addLine("< 9 > : level set shader")
             .addLine("< Available functions > : sin ,cos, exp, ln, tan, acos, asin, atan, min, adding more")
             .addLine("< operators > : +, - , *, ^")
