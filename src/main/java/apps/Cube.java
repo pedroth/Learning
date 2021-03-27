@@ -21,8 +21,9 @@ public class Cube extends JFrame implements MouseListener, MouseMotionListener,
     private static final long serialVersionUID = 1L;
     private static final TextFrame HELP_FRAME = TextFrame.builder()
             .addLine("< [1-6] > : various vector fields")
-            .addLine("< w > : Camera move foward / zoom in")
+            .addLine("< w > : Camera move forward / zoom in")
             .addLine("< s > : Camera move backward /zoom out")
+            .addLine("< r > : reset flow")
             .addLine("< l > : loop mode toggle")
             .addLine("< [+,-] > : increase / decrease loop box size")
             .addLine("< v > : toggle between velocity field and acceleration field")
