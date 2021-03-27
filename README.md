@@ -52,3 +52,6 @@ Some experiments made in Java while learning...
 
 ### [windowThreeDim](https://github.com/pedroth/Learning/tree/master/src/main/java/windowThreeDim)
 * Implementation of a 3D engine from scratch in Java. 
+
+### [visualization](https://github.com/pedroth/Learning/tree/master/src/main/java/visualization)
+* Some visualization utils
