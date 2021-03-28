@@ -43,7 +43,7 @@ public class Window {
     private int yDisplacement;//y displacement from the left up corner of the applet;
 
 
-    public Window(JFrame app, Graphics gra, Color c) {
+    public Window(JFrame app, Graphics gra) {
         gWindow = gra;
         appWindow = app; //in this applet there is the background color, width pxl's, height pxl's.
         percWidth = 1.0;

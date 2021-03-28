@@ -1,10 +1,9 @@
 package teste;
 
-import java.applet.Applet;
-import java.awt.Button;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.TextField;
+import userGraph.Window;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -12,10 +11,6 @@ import java.awt.event.KeyListener;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Set;
-
-import userGraph.Window;
-
-import javax.swing.*;
 
 
 public class WordDistribution extends JFrame implements KeyListener, ActionListener{
@@ -44,7 +39,7 @@ public class WordDistribution extends JFrame implements KeyListener, ActionListe
 
 	public void init(){
 		setLayout(null);
-		_wd= new Window(this, this.getGraphics(), Color.white);
+		_wd= new Window(this, this.getGraphics());
 		_userName = new TextField(10);
 		_userName.addKeyListener(this);
 		_button = new Button("gaussian");
@@ -65,11 +60,12 @@ public class WordDistribution extends JFrame implements KeyListener, ActionListe
 		String str;
 		Integer iaux;
 		Double kaux;
+		_wd.clearScreen(Color.white);
 		xmax = _wd.getXmax();
 		ymax = _wd.getYmax();
-		
 		//set text in right position
-		
+
+		_wd.setDrawColor(Color.black);
 		_userName.setBounds(_wd.changeCoordX(((_wd.getXmax()- _wd.getXmin())*0.43)), _wd.changeCoordY((_wd.getYmax()- _wd.getYmin())*0.80), 100, 20);
 		_button.setBounds(_wd.changeCoordX(((_wd.getXmax()- _wd.getXmin())*0.43))+100, _wd.changeCoordY((_wd.getYmax()- _wd.getYmin())*0.80), 60, 20);
 		
@@ -101,8 +97,6 @@ public class WordDistribution extends JFrame implements KeyListener, ActionListe
 			}
 			_wd.drawLine((double) kaux, 0, (double) kaux, (double) iaux);
 		}
-		_wd.setDrawColor(Color.black);
-		//-----------------------
 	}
 	@Override
 	public void keyPressed(KeyEvent e) {

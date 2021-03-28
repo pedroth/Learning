@@ -60,15 +60,12 @@ public class ParametricTest extends JFrame {
         double t, x1, x2, x3, x4, r = 1;
         int i;
         Color c = new Color((float) 1.0, (float) 1.0, (float) 1.0);
-        wd = new Window(this, g, c);
-        wd.setBkgColor(c);
+        wd = new Window(this, g);
+        wd.clearScreen(c);
         wd.viewWindow(-5, 5, -5, 5);
         wd.setPercHeight(1);
         wd.setPercWidth(1);
         wd.setXYDisplacement(0, 0);
-        /*
-         * while(true){
-         */
         wd.setDrawColor(Color.black);
         for (i = 0; i < 48; i++) {
             t = (Math.PI / 24) * i;
@@ -88,8 +85,8 @@ public class ParametricTest extends JFrame {
             x4 = x2 + dyDt(t);
             wd.drawLine(x1, x2, x3, x4);
             try {
-                Thread.sleep(100);
-            } catch (Exception e) {
+                Thread.sleep(50);
+            } catch (Exception ignored) {
             }
         }
         wd.setDrawColor(Color.red);
@@ -101,7 +98,7 @@ public class ParametricTest extends JFrame {
             x4 = x2 + d2yD2t(t);
             wd.drawLine(x1, x2, x3, x4);
             try {
-                Thread.sleep(100);
+                Thread.sleep(50);
             } catch (Exception ignored) {
             }
         }

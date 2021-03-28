@@ -34,9 +34,11 @@ public class Janela extends JFrame {
 		Random random = new Random();
 		Color c = new Color(random.nextInt(255), random.nextInt(255),
 				random.nextInt(255));
-		wd = new Window(this, g, c);
+		wd = new Window(this, g);
 		wd.viewWindow(-5, 5, -5, 5);
 		wd.setXYDisplacement(0, 0);
+		wd.clearScreen(c);
+		wd.setDrawColor(Color.black);
 		wd.drawLine(-5, 0, 5, 0);
 		wd.drawLine(0, -5, 0, 5);
 		for (i = 0; i <= 10; i++) {
@@ -55,8 +57,6 @@ public class Janela extends JFrame {
 		} catch (Exception e) {
 			//
 		}
-		wd.setBkgColor(c); //erase all the screen content
-
 	}
 
 	public static void main(String[] args) {

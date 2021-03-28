@@ -29,7 +29,7 @@ public class MouseExample extends JFrame implements MouseMotionListener, ActionL
 
     MouseExample() {
         // Set JFrame title
-        super("MOuse example");
+        super("Mouse example");
         // Set default close operation for JFrame
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         // Set JFrame size
@@ -46,7 +46,7 @@ public class MouseExample extends JFrame implements MouseMotionListener, ActionL
         y = 1.0;
         w = 0.5;
         h = 0.5;
-        wd = new Window(this, this.getGraphics(), Color.white);
+        wd = new Window(this, this.getGraphics());
         wd.setBkgColor(Color.white);
         wd.viewWindow(-10.0, 10.0, -10.0, 10.0);
         wd.setDrawColor(Color.red);
@@ -59,7 +59,6 @@ public class MouseExample extends JFrame implements MouseMotionListener, ActionL
         this.requestFocus();
         this.setFocusable(true);// turn on the keyboard;
         this.setSize(800, 1000);
-        //wd.setBkgColor(Color.blue);
     }
 
     public void paint(Graphics g) {
