@@ -2,6 +2,7 @@ package apps;
 
 import algebra.Matrix;
 import algebra.TriVector;
+import com.formdev.flatlaf.FlatDarkLaf;
 import functionNode.CombinationNode;
 import functionNode.LinearSystemError;
 import functionNode.PedroNode;
@@ -179,6 +180,7 @@ public class GraphXY extends JFrame implements MouseListener,
          * Set JFrame title.
          */
         super("Draw Graph XY - Press h for Help");
+        FlatDarkLaf.setup();
 
         this.setLayout(null);
 

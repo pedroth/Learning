@@ -2,6 +2,7 @@ package apps;
 
 import algebra.Matrix;
 import algebra.TriVector;
+import com.formdev.flatlaf.FlatDarkLaf;
 import functions.ExpressionFunction;
 import functions.SyntaxErrorException;
 import visualization.TextFrame;
@@ -210,7 +211,7 @@ public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionL
          * Set JFrame title.
          */
         super("Draw Lines {x(t),y(t),z(t)} and Surfaces {x(u,v),y(u,v),z(u,v)} - Press h for Help");
-
+        FlatDarkLaf.setup();
         this.setLayout(null);
 
         /*
@@ -330,6 +331,7 @@ public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionL
     private void comboBoxListen(ItemEvent e) {
         if (this.comboBoxL.getSelectedItem() != this.comboBoxS.getSelectedItem()) {
             this.comboBoxL.setSelectedIndex(this.comboBoxS.getSelectedIndex());
+            this.comboBoxS.setSelectedIndex(this.comboBoxL.getSelectedIndex());
         }
         this.graphics.removeAllElements();
         drawFunction = true;

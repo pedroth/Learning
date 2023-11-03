@@ -257,7 +257,7 @@ public class Graph3DFrame extends JFrame implements MouseListener,
                 Graph3DFrame::test7,
                 Graph3DFrame::test8
         );
-        final int EXPERIMENT = args.length > 0 ? Integer.parseInt(args[0]) : 0;
+        final int EXPERIMENT = args.length > 0 ? Integer.parseInt(args[0]) : 5;
         Graph3DFrame frame = new Graph3DFrame(String.format("figure %d", EXPERIMENT));
         visualExperiments.get(EXPERIMENT).accept(frame);
         frame.plot();
@@ -573,7 +573,7 @@ public class Graph3DFrame extends JFrame implements MouseListener,
             thrust.setZ(40 * 2 * Math.PI * (dy / hChanged));
         } else {
             raw.setX(raw.getX() + (dx / wChanged) + (dy / hChanged));
-            thrust.setX(30 * ((dx / wChanged) + (dy / hChanged)));
+            thrust.setX(90 * ((dx / wChanged) + (dy / hChanged)));
         }
         orbit();
 

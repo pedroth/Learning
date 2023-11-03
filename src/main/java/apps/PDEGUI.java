@@ -2,6 +2,7 @@ package apps;
 
 import algebra.Matrix;
 import algebra.TriVector;
+import com.formdev.flatlaf.FlatDarkLaf;
 import functionNode.CombinationNode;
 import functionNode.FunctionNode;
 import functions.ExpressionFunction;
@@ -193,6 +194,7 @@ public class PDEGUI extends JFrame implements MouseListener, MouseMotionListener
          * Set JFrame title.
          */
         super("PDE - Press h for Help");
+        FlatDarkLaf.setup();
 
         this.setLayout(null);
 
