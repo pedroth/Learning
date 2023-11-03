@@ -36,7 +36,7 @@ public class GraphXY extends JFrame implements MouseListener,
             .addLine("< 8 > : interpolating colors")
             .addLine("< 9 > : level set shader")
             .addLine("< Available functions > : sin ,cos, exp, ln, tan, acos, asin, atan, min, adding more")
-            .addLine("< operators > : +, - , *, ^")
+            .addLine("< operators > : +, - , *, /, ^")
             .addLine("< Available constants > : pi")
             .addLine("< a > : draw Axis")
             .addLine("< mouse > : rotate camera")
