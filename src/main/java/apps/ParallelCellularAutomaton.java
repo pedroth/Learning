@@ -43,7 +43,7 @@ public class ParallelCellularAutomaton extends JFrame implements MouseMotionList
     private ThreadManager threadManager;
     //List of automata rules according to S/B, survive/born rules.
     // https://web.archive.org/web/20210512105747/http://psoup.math.wisc.edu/mcell/rullex_life.html
-    private List<Pair<int[], int[]>> automatonRules = List.of(
+    private final List<Pair<int[], int[]>> automatonRules = List.of(
             Pair.of(new int[]{1, 2, 3, 4, 5}, new int[]{3}),
             Pair.of(new int[]{3, 4}, new int[]{3, 4}),
             Pair.of(new int[]{0, 2, 3, 6}, new int[]{1}),
