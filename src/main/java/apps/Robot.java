@@ -292,9 +292,9 @@ public class Robot extends JFrame implements MouseListener, MouseMotionListener,
         TriVector acm = new TriVector();
         for (int i = 0; i < dOF.length; i++) {
             acm.sum(TriVector.Transformation(rot, dOF[i].v.copy()));
-            if (dOF[i].axisOfRotation == "x") {
+            if (dOF[i].axisOfRotation.equals("x")) {
                 rot = Matrix.multiMatrix(rot, dOF[i].rotateXMatrix(theta[i]));
-            } else if (dOF[i].axisOfRotation == "y") {
+            } else if (dOF[i].axisOfRotation.equals("y")) {
                 rot = Matrix.multiMatrix(rot, dOF[i].rotateYMatrix(theta[i]));
             } else {
                 rot = Matrix.multiMatrix(rot, dOF[i].rotateZMatrix(theta[i]));

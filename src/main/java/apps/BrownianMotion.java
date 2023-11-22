@@ -11,17 +11,17 @@ import java.util.Random;
 
 /**
  * @author pedro
- *         <p>
- *         this is a simple demo for graphics in java.
- *         <p>
- *         this may not be the best way to do it.
- *         <p>
- *         You may encapsulate some of these function in a class.
+ * <p>
+ * this is a simple demo for graphics in java.
+ * <p>
+ * this may not be the best way to do it.
+ * <p>
+ * You may encapsulate some of these function in a class.
  */
 public class BrownianMotion extends JFrame implements KeyListener {
     private static final TextFrame HELP_FRAME = TextFrame.builder()
             .addLine("< q > : add particle")
-            .addLine( "< a > : remove particle ")
+            .addLine("< a > : remove particle ")
             .addLine("< w > : increase collision damping")
             .addLine("< s > : decrease collision damping")
             .addLine("< arrows > : add force to all particles")
@@ -33,14 +33,13 @@ public class BrownianMotion extends JFrame implements KeyListener {
      * diameter of circles
      */
     int r = 20;
-    double damping = 0.25;
-    double reflecDump = 0.25;
+    double damping = 0.1;
     /**
      * record the size of the window
      */
     private int widthChanged, heightChanged;
     /**
-     * basically is a image where you will draw things
+     * basically is an image where you will draw things
      */
     private BufferedImage canvas;
     /**
@@ -119,6 +118,8 @@ public class BrownianMotion extends JFrame implements KeyListener {
         for (int i = 0; i < numParticles; i++) {
             x[i] = r.nextDouble() * widthChanged;
             y[i] = r.nextDouble() * heightChanged;
+            vx[i] = widthChanged * (2 * r.nextDouble() - 1);
+            vy[i] = heightChanged * (2 * r.nextDouble() - 1);
         }
 
         historyX = new double[numHistory];
@@ -291,9 +292,8 @@ public class BrownianMotion extends JFrame implements KeyListener {
         nx = nx / d;
         ny = ny / d;
         double dot = nx * vx[i] + ny * vy[i];
-        double dot2 = -nx * vx[j] - ny * vy[j];
-        vx[i] = vx[i] - (2 - reflecDump) * dot * nx - damping * dot2 * nx;
-        vy[i] = vy[i] - (2 - reflecDump) * dot * ny - damping * dot2 * ny;
+        vx[i] = vx[i] - (2 - damping) * dot * nx;
+        vy[i] = vy[i] - (2 - damping) * dot * ny;
     }
 
     public double distance(int i, int j) {
@@ -327,15 +327,11 @@ public class BrownianMotion extends JFrame implements KeyListener {
             r -= 2;
         }
         if (e.getKeyCode() == KeyEvent.VK_W) {
-            reflecDump += 0.01;
             damping += 0.01;
-            reflecDump = Math.min(0.98, reflecDump);
-            damping = Math.min(0.98, damping);
+            damping = Math.min(1.0, damping);
         }
         if (e.getKeyCode() == KeyEvent.VK_S) {
-            reflecDump -= 0.01;
             damping -= 0.01;
-            reflecDump = Math.max(0.0, reflecDump);
             damping = Math.max(0.0, damping);
         }
         if (e.getKeyCode() == KeyEvent.VK_Q) {

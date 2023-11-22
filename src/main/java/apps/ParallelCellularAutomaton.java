@@ -9,8 +9,9 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
-import java.util.Arrays;
-import java.util.Random;
+import java.util.*;
+import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * Parallel Asynchronous cellular automaton
@@ -22,11 +23,14 @@ import java.util.Random;
  *
  * @author pedro
  */
+
 public class ParallelCellularAutomaton extends JFrame implements MouseMotionListener, KeyListener {
 
     private static final long serialVersionUID = 1L;
     private static final TextFrame HELP_FRAME = TextFrame.builder()
             .addLine("< mouse > : draw initial state")
+            .addLine("< 1 - 9 > : select type of automata")
+            .addLine("< 0 > : generate random automata")
             .addLine("<space> : starts animation")
             .addLine("<r> : reset")
             .addLine("Made by Pedroth")
@@ -37,6 +41,32 @@ public class ParallelCellularAutomaton extends JFrame implements MouseMotionList
     private Graphics gimg;
     private boolean timerStarted;
     private ThreadManager threadManager;
+    //List of automata rules according to S/B, survive/born rules.
+    // https://web.archive.org/web/20210512105747/http://psoup.math.wisc.edu/mcell/rullex_life.html
+    private List<Pair<int[], int[]>> automatonRules = List.of(
+            Pair.of(new int[]{1, 2, 3, 4, 5}, new int[]{3}),
+            Pair.of(new int[]{3, 4}, new int[]{3, 4}),
+            Pair.of(new int[]{0, 2, 3, 6}, new int[]{1}),
+            Pair.of(new int[]{1, 3, 5, 7, 8}, new int[]{3, 5, 7}),
+            Pair.of(new int[]{4, 5, 6, 7, 8}, new int[]{3}),
+            Pair.of(new int[]{2, 3, 5, 6, 7, 8}, new int[]{3, 7, 8}),
+            Pair.of(new int[]{1, 3, 5, 7}, new int[]{1, 3, 5, 7}),
+            Pair.of(new int[]{1}, new int[]{1}),
+            Pair.of(new int[]{0,1,2,3,4,5,6,7,8}, new int[]{3})
+
+    );
+
+    private int selectedType = 0;
+    private Pair<int[], int[]> randomRule = getRandomRule();
+
+    private Map<Integer, Runnable> keysMapping = Map.of(
+            KeyEvent.VK_H, () -> HELP_FRAME.setVisible(true),
+            KeyEvent.VK_R, () -> {
+                this.timerStarted = false;
+                myInit();
+            },
+            KeyEvent.VK_SPACE, () -> this.timerStarted = true
+    );
 
     public ParallelCellularAutomaton(boolean isApplet) {
         super("Cellular Automaton - Press h for Help");
@@ -67,7 +97,6 @@ public class ParallelCellularAutomaton extends JFrame implements MouseMotionList
     public void drawPoint(int x, int y, Color c) {
         int rgbColor = c.getRGB();
         int[] pixels = ((java.awt.image.DataBufferInt) buffer.getRaster().getDataBuffer()).getData();
-
         int w = wChanged;
         pixels[y * w + x] = rgbColor;
     }
@@ -127,13 +156,18 @@ public class ParallelCellularAutomaton extends JFrame implements MouseMotionList
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_H) {
-            HELP_FRAME.setVisible(true);
-        } else if (e.getKeyCode() == KeyEvent.VK_R) {
-            timerStarted = false;
-            myInit();
-        } else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-            timerStarted = true;
+        int keyCode = e.getKeyCode();
+        if (keysMapping.containsKey(keyCode)) {
+            keysMapping.get(keyCode).run();
+        } else if (keyCode >= KeyEvent.VK_1 && keyCode <= KeyEvent.VK_9) {
+            this.selectedType = (keyCode & 0xF) - 1;
+            this.timerStarted = false;
+            this.myInit();
+        } else {
+            this.selectedType = -1;
+            this.randomRule = getRandomRule();
+            this.timerStarted = false;
+            this.myInit();
         }
     }
 
@@ -148,50 +182,54 @@ public class ParallelCellularAutomaton extends JFrame implements MouseMotionList
 
     }
 
+    private static Pair<int[], int[]> getRandomRule() {
+        Random random = new Random();
+        ArrayList<Integer> surviveRule = new ArrayList<>();
+        ArrayList<Integer> bornRule = new ArrayList<>();
+        for (int i = 0; i < 9; i++) {
+            int surviveCoin = random.nextInt(2);
+            int bornCoin = random.nextInt(2);
+            if (surviveCoin == 1) {
+                surviveRule.add(i);
+            }
+            if (bornCoin == 1) {
+                bornRule.add(i);
+            }
+        }
+        Pair<int[], int[]> pair = Pair.of(
+                surviveRule.stream().mapToInt(Integer::intValue).toArray(),
+                bornRule.stream().mapToInt(Integer::intValue).toArray()
+        );
+        System.out.println("Random rule (S/B):" + pair);
+        return pair;
+    }
+
     class CellularAutomaton implements Runnable {
         private int discreteTime;
         private int begin, end;
         /**
-         * change rules where according with
+         * change rules where according to
          * http://psoup.math.wisc.edu/mcell/rullex_life.html
          */
         private int[] survive;
         private int[] born;
 
-        public CellularAutomaton(int begin, int end, int type) {
+        public CellularAutomaton(int begin, int end) {
             discreteTime = 0;
             this.begin = begin;
             this.end = end;
-            if (type == 0) {
-                int[] sAux = {1, 2, 3, 4, 5};
-                int[] bAux = {3};
-                survive = Arrays.copyOf(sAux, sAux.length);
-                born = Arrays.copyOf(bAux, bAux.length);
-            } else if (type == 1) {
-                int[] sAux = {3, 4};
-                int[] bAux = {3, 4};
-                survive = Arrays.copyOf(sAux, sAux.length);
-                born = Arrays.copyOf(bAux, bAux.length);
-            } else if (type == 2) {
-                int[] sAux = {0, 2, 3, 6};
-                int[] bAux = {1};
-                survive = Arrays.copyOf(sAux, sAux.length);
-                born = Arrays.copyOf(bAux, bAux.length);
-            } else if (type == 3) {
-                int[] sAux = {1, 3, 5, 7, 8};
-                int[] bAux = {3, 5, 7};
-                survive = Arrays.copyOf(sAux, sAux.length);
-                born = Arrays.copyOf(bAux, bAux.length);
-            } else if (type == 4) {
-                int[] sAux = {4, 5, 6, 7, 8};
-                int[] bAux = {3};
-                survive = Arrays.copyOf(sAux, sAux.length);
-                born = Arrays.copyOf(bAux, bAux.length);
+            if (selectedType >= 0 && selectedType < automatonRules.size()) {
+                Pair<int[], int[]> sbRule = automatonRules.get(selectedType);
+                int[] surviveRule = sbRule.getKey();
+                int[] bornRule = sbRule.getValue();
+                this.survive = Arrays.copyOf(surviveRule, surviveRule.length);
+                this.born = Arrays.copyOf(bornRule, bornRule.length);
             } else {
-                int[] sAux = {2, 3, 5, 6, 7, 8};
-                int[] bAux = {3, 7, 8};
-                survive = Arrays.copyOf(sAux, sAux.length);
-                born = Arrays.copyOf(bAux, bAux.length);
+                Pair<int[], int[]> sbRule = randomRule;
+                int[] surviveRule = sbRule.getKey();
+                int[] bornRule = sbRule.getValue();
+                this.survive = Arrays.copyOf(surviveRule, surviveRule.length);
+                this.born = Arrays.copyOf(bornRule, bornRule.length);
             }
         }
 
@@ -207,25 +245,12 @@ public class ParallelCellularAutomaton extends JFrame implements MouseMotionList
                     int l = Math.max(y + j, 0);
                     k = Math.min(k, wChanged - 1);
                     l = Math.min(l, hChanged - 1);
-                    if (space[k][l])
-                        acm++;
+                    if (space[k][l]) acm++;
                 }
             }
-            /**
-             * rules
-             */
-            /**
-             * born rule
-             */
             if (!isAlive && bornRule(acm))
                 return true;
-            /**
-             * survive rule
-             */
-            else if (isAlive && surviveRule(acm))
-                return true;
-            else
-                return false;
+            return isAlive && surviveRule(acm);
         }
 
         public boolean bornRule(int acm) {
@@ -246,8 +271,8 @@ public class ParallelCellularAutomaton extends JFrame implements MouseMotionList
         public void run() {
             for (int i = begin; i < end; i++) {
                 for (int j = 0; j < hChanged; j++) {
-                    boolean ans = cellularFunction(i, j, discreteTime);
-                    if (ans) {
+                    boolean isAlive = cellularFunction(i, j, discreteTime);
+                    if (isAlive) {
                         drawPoint(i, j, Color.green);
                     } else {
                         drawPoint(i, j, Color.black);
@@ -266,7 +291,6 @@ public class ParallelCellularAutomaton extends JFrame implements MouseMotionList
 
             discreteTime++;
         }
-
     }
 
     class ThreadManager {
@@ -278,10 +302,11 @@ public class ParallelCellularAutomaton extends JFrame implements MouseMotionList
             nCores = Runtime.getRuntime().availableProcessors();
             threads = new Thread[nCores];
             cells = new CellularAutomaton[nCores];
-            Random random = new Random();
-            int type = random.nextInt(6);
             for (int i = 0; i < nCores; i++) {
-                cells[i] = new CellularAutomaton(i * (wChanged / nCores), (i + 1) * (wChanged / nCores), type);
+                cells[i] = new CellularAutomaton(
+                        i * (wChanged / nCores),
+                        (i + 1) * (wChanged / nCores)
+                );
             }
         }
 
@@ -299,5 +324,35 @@ public class ParallelCellularAutomaton extends JFrame implements MouseMotionList
             }
             repaint();
         }
+    }
+}
+
+class Pair<K, V> {
+    private final K key;
+    private final V value;
+
+    private Pair(K key, V value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    public K getKey() {
+        return key;
+    }
+
+    public V getValue() {
+        return value;
+    }
+
+    @Override
+    public String toString() {
+        return "Pair{" +
+                "key=" + (key.getClass().isArray() ? Arrays.toString((int[]) key) : key.toString()) +
+                ", value=" + (value.getClass().isArray() ? Arrays.toString((int[]) value) : value.toString()) +
+                '}';
+    }
+
+    public static <A, B> Pair<A, B> of(A key, B value) {
+        return new Pair<>(key, value);
     }
 }
