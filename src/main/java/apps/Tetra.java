@@ -331,7 +331,7 @@ public class Tetra extends JFrame implements MouseListener,
             graphics.setAlpha(graphics.getAlpha() - Math.PI / 32);
         } else if (arg0.getKeyCode() == KeyEvent.VK_8) {
             final ZbufferShader method = new ZbufferShader();
-            method.setCullBack(true);
+            method.setCullBack(false);
             graphics.setMethod(method);
         } else if (arg0.getKeyCode() == KeyEvent.VK_Z) {
             zBufferOn = !zBufferOn;
@@ -472,7 +472,7 @@ public class Tetra extends JFrame implements MouseListener,
 
     private void addFlatShader() {
         FlatShader shader = new FlatShader();
-        shader.setCullBack(true);
+        shader.setCullBack(false);
         shader.addLightPoint(new TriVector(3, 3, 3));
         graphics.setMethod(shader);
     }

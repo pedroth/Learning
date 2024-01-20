@@ -848,11 +848,16 @@ public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionL
         double newStepU = (this.umax - this.umin) / (samples - 1);
         double newStepV = (this.vmax - this.vmin) / (samples - 1);
         TriVector[][] surf = new TriVector[samples][samples];
+        Double[][][] texCoord = new Double[samples][samples][2];
         for (int i = 0; i < samples; i++) {
             for (int j = 0; j < samples; j++) {
                 double u = this.umin + i * newStepU;
                 double v = this.vmin + j * newStepV;
                 Double[] uv = {u, v};
+                texCoord[i][j] = new Double[]{
+                        (u - this.umin) / (this.umax -  this.umin),
+                        (v - this.vmin) / (this.vmax -  this.vmin)
+                };
                 double x = this.xFunc.compute(uv);
                 double y = this.yFunc.compute(uv);
                 double z = this.zFunc.compute(uv);
@@ -866,11 +871,16 @@ public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionL
                 objFile.append("v ").append(surf[i][j].getX()).append(" ").append(surf[i][j].getY()).append(" ").append(surf[i][j].getZ()).append("\n");
             }
         }
+        for (int i = 0; i < samples; i++) {
+            for (int j = 0; j < samples; j++) {
+                objFile.append("vt ").append(texCoord[i][j][0]).append(" ").append(texCoord[i][j][1]).append("\n");
+            }
+        }
         for (int i = 0; i < samples - 1; i++) {
             for (int j = 0; j < samples - 1; j++) {
                 int index = j + samples * i + 1;
-                objFile.append("f ").append(index).append(" ").append(index + samples).append(" ").append(index + samples + 1).append("\n");
-                objFile.append("f ").append(index).append(" ").append(index + samples + 1).append(" ").append(index + 1).append("\n");
+                objFile.append("f ").append(index).append("/").append(index).append(" ").append(index + samples).append("/").append(index + samples).append(" ").append(index + samples + 1).append("/").append(index + samples + 1).append("\n");
+                objFile.append("f ").append(index).append("/").append(index).append(" ").append(index + samples + 1).append("/").append(index + samples + 1).append(" ").append(index + 1).append("/").append(index + 1).append("\n");
             }
         }
         new TextFrame("Surface obj file", objFile.toString()).setVisible(true);

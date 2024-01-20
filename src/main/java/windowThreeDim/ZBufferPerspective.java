@@ -302,10 +302,8 @@ public class ZBufferPerspective implements PaintMethod {
                     pixels[j * w + i] = getFragmentColor(element, i, j).getRGB();
                     zBuffer[i][j] = z;
                     inOut = true;
-                } else {
-                    if (inOut && !isPositive(dot)) {
-                        break;
-                    }
+                } else if (inOut && !isPositive(dot)) {
+                    break;
                 }
                 z += -ny;
                 for (int k = 0; k < nVertex; k++) {
