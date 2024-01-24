@@ -855,8 +855,8 @@ public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionL
                 double v = this.vmin + j * newStepV;
                 Double[] uv = {u, v};
                 texCoord[i][j] = new Double[]{
-                        (u - this.umin) / (this.umax -  this.umin),
-                        (v - this.vmin) / (this.vmax -  this.vmin)
+                        (u - this.umin) / (this.umax - this.umin),
+                        (v - this.vmin) / (this.vmax - this.vmin)
                 };
                 double x = this.xFunc.compute(uv);
                 double y = this.yFunc.compute(uv);
@@ -879,8 +879,22 @@ public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionL
         for (int i = 0; i < samples - 1; i++) {
             for (int j = 0; j < samples - 1; j++) {
                 int index = j + samples * i + 1;
-                objFile.append("f ").append(index).append("/").append(index).append(" ").append(index + samples).append("/").append(index + samples).append(" ").append(index + samples + 1).append("/").append(index + samples + 1).append("\n");
-                objFile.append("f ").append(index).append("/").append(index).append(" ").append(index + samples + 1).append("/").append(index + samples + 1).append(" ").append(index + 1).append("/").append(index + 1).append("\n");
+                objFile.append(
+                        String.format(
+                                "f %d/%d %d/%d %d/%d\n",
+                                index, index,
+                                index + samples, index + samples,
+                                index + samples + 1, index + samples + 1
+                        )
+                );
+                objFile.append(
+                        String.format(
+                                "f %d/%d %d/%d %d/%d\n",
+                                index, index,
+                                index + 1, index + 1,
+                                index + samples + 1, index + samples + 1
+                        )
+                );
             }
         }
         new TextFrame("Surface obj file", objFile.toString()).setVisible(true);
