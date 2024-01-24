@@ -891,8 +891,8 @@ public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionL
                         String.format(
                                 "f %d/%d %d/%d %d/%d\n",
                                 index, index,
-                                index + 1, index + 1,
-                                index + samples + 1, index + samples + 1
+                                index + samples + 1, index + samples + 1,
+                                index + 1, index + 1
                         )
                 );
             }
