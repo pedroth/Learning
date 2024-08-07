@@ -472,7 +472,7 @@ public class Tetra extends JFrame implements MouseListener,
 
     private void addFlatShader() {
         FlatShader shader = new FlatShader();
-        shader.setCullBack(false);
+        shader.setCullBack(true);
         shader.addLightPoint(new TriVector(3, 3, 3));
         graphics.setMethod(shader);
     }
