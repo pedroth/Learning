@@ -160,7 +160,7 @@ public class ParallelCellularAutomaton extends JFrame implements MouseMotionList
         if (keysMapping.containsKey(keyCode)) {
             keysMapping.get(keyCode).run();
         } else if (keyCode >= KeyEvent.VK_1 && keyCode <= KeyEvent.VK_9) {
-            this.selectedType = (keyCode & 0xF) - 1;
+            this.selectedType = keyCode - KeyEvent.VK_1;
             this.timerStarted = false;
             this.myInit();
         } else {
