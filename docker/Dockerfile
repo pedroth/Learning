@@ -13,6 +13,15 @@ RUN cd pedroEngine/ && \
     mvn install -DskipTests 
 
 FROM eclipse-temurin:11-jre
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libx11-6 \
+    libxext6 \
+    libxi6 \
+    libxrender1 \
+    libxtst6 \
+    libfreetype6 \
+    libfontconfig1 && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /apps
 COPY --from=build /apps/Learning/target /apps/Learning/
