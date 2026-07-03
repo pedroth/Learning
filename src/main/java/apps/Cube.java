@@ -336,7 +336,6 @@ public class Cube extends JFrame implements MouseListener, MouseMotionListener,
         private void computeParticlesPosition(double dt) {
             Element e;
             TriVector a = new TriVector();
-            Matrix aux;
             graphParticles.removeAllElements();
             computeGravityPoints(dt);
             for (int i = 0; i < numParticles; i++) {
@@ -345,23 +344,22 @@ public class Cube extends JFrame implements MouseListener, MouseMotionListener,
                     /**
                      * v[i] = a * dt + v[i];
                      */
-                    a.multiConstMatrix(dt);
-                    a.sum(velocities[i]);
-                    /**
-                     * dont need to make a.copy because setXYZ copies the
-                     * doubles inside matrix a
-                     */
-                    velocities[i].setXYZMat(a);
+                    a = TriVector.multConst(dt, a);
+                    a = TriVector.sum(a, velocities[i]);
+                    velocities[i].x = a.x;
+                    velocities[i].y = a.y;
+                    velocities[i].z = a.z;
                 } else {
                     velocities[i] = f(points[i]);
                 }
                 /**
                  * p[i] = v[i] * dt + p[i];
                  */
-                aux = TriVector.multiConsMatrix(dt, velocities[i]);
-                a.setXYZMat(aux);
-                a.sum(points[i]);
-                points[i].setXYZMat(a);
+                a = TriVector.multConst(dt, velocities[i]);
+                a = TriVector.sum(a, points[i]);
+                points[i].x = a.x;
+                points[i].y = a.y;
+                points[i].z = a.z;
 
                 if (loopOn)
                     loopCheck(points[i]);
@@ -373,39 +371,28 @@ public class Cube extends JFrame implements MouseListener, MouseMotionListener,
         }
 
         private void computeGravityPoints(double dt) {
-            double d;
             TriVector alfa;
-            Matrix aux;
-            alfa = new TriVector();
-            d = Math.sqrt((p.getX() - q.getX()) * (p.getX() - q.getX())
-                    + (p.getY() - q.getY()) * (p.getY() - q.getY())
-                    + (p.getZ() - q.getZ()) * (p.getZ() - q.getZ()));
+            double d = TriVector.sub(p, q).norm();
             /**
              * a = (1/|q-p|^2)(q - p)
              *
              * v = a * dt + v
              */
-            Matrix v = TriVector.subMatrix(q, p);
-            alfa.setXYZMat(v);
-            alfa.multiConstMatrix(dt / d * d);
-            vp.sum(alfa);
+            TriVector v = TriVector.sub(q, p);
+            alfa = TriVector.multConst(dt / (d * d), v);
+            vp = TriVector.sum(vp, alfa);
             /**
              * p = v * dt + p
              */
-            aux = TriVector.multiConsMatrix(dt, vp);
-            alfa.setXYZMat(aux);
-            p.sum(alfa);
+            p = TriVector.sum(p, TriVector.multConst(dt, vp));
 
             /**
              * same thing for q
              */
-            v.multiConstMatrix(-1);
-            alfa.setXYZMat(v);
-            alfa.multiConstMatrix(dt / d * d);
-            vq.sum(alfa);
-            aux = TriVector.multiConsMatrix(dt, vq);
-            alfa.setXYZMat(aux);
-            q.sum(alfa);
+            v = TriVector.multConst(-1, v);
+            alfa = TriVector.multConst(dt / (d * d), v);
+            vq = TriVector.sum(vq, alfa);
+            q = TriVector.sum(q, TriVector.multConst(dt, vq));
 
             // loopCheck(q);
             // loopCheck(p);
@@ -424,64 +411,40 @@ public class Cube extends JFrame implements MouseListener, MouseMotionListener,
 
         private TriVector f(TriVector x) {
             TriVector f = new TriVector();
-            double distanceP, distanceQ;
-            distanceP = distance((x.getX() - p.getX()),
-                    (x.getY() - p.getY()), (x.getZ() - p.getZ()));
-            distanceQ = distance((x.getX() - q.getX()),
-                    (x.getY() - q.getY()), (x.getZ() - q.getZ()));
+            double distanceP = TriVector.sub(x, p).norm();
+            double squaredDistanceP = distanceP * distanceP;
+            double distanceQ = TriVector.sub(x, q).norm();
+            double squaredDistanceQ = distanceQ * distanceQ;
             switch (stateField) {
                 case 6:
-                    f.setX(-(1 / (distanceP * distanceP)) * (x.getY() - p.getY())
-                            + (1 / (distanceQ * distanceQ)) * (x.getZ() - q.getZ()));
-
-                    f.setY(-(1 / (distanceP * distanceP)) * (x.getX() - p.getX()));
-
-                    f.setZ(-(1 / (distanceQ * distanceQ)) * (x.getX() - q.getX()));
+                    f.x = -(1 / squaredDistanceP) * (x.y - p.y) + (1 / squaredDistanceQ) * (x.z - q.z);
+                    f.y = -(1 / squaredDistanceP) * (x.x - p.x);
+                    f.z = -(1 / squaredDistanceQ) * (x.x - q.x);
                     break;
                 case 5:
-
-                    f.setX(-(1 / (distanceP)) * (x.getX() - p.getX())
-                            + (1 / (distanceQ)) * (x.getX() - q.getX()));
-
-                    f.setY(-(1 / (distanceP)) * (x.getY() - p.getY())
-                            + (1 / (distanceQ)) * (x.getY() - q.getY()));
-
-                    f.setZ(-(1 / (distanceP)) * (x.getZ() - p.getZ())
-                            + (1 / (distanceQ)) * (x.getZ() - q.getZ()));
+                    f.x = -(1 / (distanceP)) * (x.x - p.x) + (1 / (distanceQ)) * (x.x - q.x);
+                    f.y = -(1 / (distanceP)) * (x.y - p.y) + (1 / (distanceQ)) * (x.y - q.y);
+                    f.z = -(1 / (distanceP)) * (x.z - p.z) + (1 / (distanceQ)) * (x.z - q.z);
                     break;
                 case 4:
-                    f.setX(10 * (x.getY() - x.getX()));
-
-                    f.setY(x.getX() * (13 - x.getZ()) - x.getY());
-
-                    f.setZ(x.getX() * x.getY() - (8 / 3) * x.getZ());
+                    f.x = 10 * (x.y - x.x);
+                    f.y = x.x * (13 - x.z) - x.y;
+                    f.z = x.x * x.y - (8 / 3) * x.z;
                     break;
                 case 3:
-                    f.setX(-(x.getY() - p.getY()) + (x.getZ() - q.getZ())
-                            * (x.getX() - q.getX()));
-
-                    f.setY((x.getX() - p.getX()) + (x.getZ() - q.getZ())
-                            * (x.getY() - q.getY()));
-
-                    f.setZ(-Math.sqrt((x.getX() - q.getX()) * (x.getX() - q.getX())
-                            + (x.getY() - q.getY()) * (x.getY() - q.getY())));
+                    f.x = -(x.y - p.y) + (x.z - q.z) * (x.x - q.x);
+                    f.y = (x.x - p.x) + (x.z - q.z) * (x.y - q.y);
+                    f.z = -Math.sqrt((x.x - q.x) * (x.x - q.x) + (x.y - q.y) * (x.y - q.y));
                     break;
                 case 2:
-                    f.setX(p.getX() * (x.getY() - x.getX()));
-
-                    f.setY(x.getX() * (13 - x.getZ()) - x.getY());
-
-                    f.setZ(x.getX() * x.getY() - (q.getZ()) * x.getZ());
+                    f.x = p.x * (x.y - x.x);
+                    f.y = x.x * (13 - x.z) - x.y;
+                    f.z = x.x * x.y - (q.z) * x.z;
                     break;
                 case 1:
-                    f.setX(-(1 / (distanceP * distanceP)) * (x.getX() - p.getX())
-                            + (1 / (distanceQ * distanceQ)) * (x.getX() - q.getX()));
-
-                    f.setY(-(1 / (distanceP * distanceP)) * (x.getY() - p.getY())
-                            + (1 / (distanceQ * distanceQ)) * (x.getY() - q.getY()));
-
-                    f.setZ(-(1 / (distanceP * distanceP)) * (x.getZ() - p.getZ())
-                            + (1 / (distanceQ * distanceQ)) * (x.getZ() - q.getZ()));
+                    f.x = -(1 / (squaredDistanceP)) * (x.x - p.x) + (1 / (squaredDistanceQ)) * (x.x - q.x);
+                    f.y = -(1 / (squaredDistanceP)) * (x.y - p.y) + (1 / (squaredDistanceQ)) * (x.y - q.y);
+                    f.z = -(1 / (squaredDistanceP)) * (x.z - p.z) + (1 / (squaredDistanceQ)) * (x.z - q.z);
                     break;
             }
             return f;

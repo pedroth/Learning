@@ -535,7 +535,9 @@ public class Tetra extends JFrame implements MouseListener,
                     final double length = sub.getLength();
                     sub.normalize();
                     final TriVector sum = TriVector.sum(nPoint, TriVector.multConst(dt * (length - std), sub));
-                    nPoint.setXYZMat(sum);
+                    nPoint.x = sum.x;
+                    nPoint.y = sum.y;
+                    nPoint.z = sum.z;
                 }
             });
         }

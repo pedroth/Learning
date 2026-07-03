@@ -86,8 +86,8 @@ public class FlatShader extends ZBufferPerspective {
             final double irrandiance = powerDecay == 0.0 ? 1 : 1 / (power * power);
             dLight.normalize();
 
-            double dotDiff = irrandiance * Math.max(TriVector.vInnerProduct(normal, dLight), 0);
-            double dotSpecular = irrandiance * pow(Math.max(TriVector.vInnerProduct(normal, h), 0), shininess);
+            double dotDiff = irrandiance * Math.max(TriVector.dot(normal, dLight), 0);
+            double dotSpecular = irrandiance * pow(Math.max(TriVector.dot(normal, h), 0), shininess);
             acmDiff += dotDiff;
             acmSpec += dotSpecular;
             acmSpec = Math.min(acmSpec, 1);

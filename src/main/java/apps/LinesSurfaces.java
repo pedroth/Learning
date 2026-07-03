@@ -1061,8 +1061,8 @@ public class LinesSurfaces extends JFrame implements MouseListener, MouseMotionL
     private void updateLight(double dt) {
         if (this.isMotionLight) {
             TriVector v = new TriVector(-this.motionLight.getY(), this.motionLight.getX(), 0);
-            v.multiConstMatrix(dt);
-            this.motionLight.sum(v);
+            v = TriVector.multConst(dt, v);
+            this.motionLight = TriVector.sum(this.motionLight, v);
             this.shader.changeNthLight(0, this.motionLight);
         } else {
             TriVector aux = TriVector.sum(this.shader.getEyePos(), new TriVector(0, 0, 3));

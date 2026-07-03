@@ -21,18 +21,14 @@ public class Triangle extends Element {
      * @return : return normalized normal;
      */
     public static TriVector calcNormal(TriVector[] p) {
-        TriVector v1 = new TriVector();
-        TriVector v2 = new TriVector();
-        Matrix m = TriVector.subMatrix(p[1], p[0]);
-        Matrix m2 = TriVector.subMatrix(p[2], p[0]);
-        v1.setXYZMat(m);
-        v2.setXYZMat(m2);
-        v1 = TriVector.vectorProduct(v1, v2);
-        if (v1.getX() == 0.0 && v1.getY() == 0.0 && v1.getZ() == 0.0)
-            return v1;
+        TriVector v1 = TriVector.sub(p[1], p[0]);
+        TriVector v2 = TriVector.sub(p[2], p[0]);
+        TriVector normal = TriVector.vectorProduct(v1, v2);
+        if (normal.getX() == 0.0 && normal.getY() == 0.0 && normal.getZ() == 0.0)
+            return normal;
         else
-            v1.normalize();
-        return v1;
+            normal.normalize();
+        return normal;
     }
 
     @Override

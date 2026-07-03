@@ -303,7 +303,7 @@ public class Robot extends JFrame implements MouseListener, MouseMotionListener,
         k.Transformation(rot);
         acm.sum(k);
         acm = TriVector.sub(acm, x);
-        return TriVector.vInnerProduct(acm, acm);
+        return TriVector.dot(acm, acm);
     }
 
     public double computePartialDerivative(double[] theta, int i, TriVector x) {

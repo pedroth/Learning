@@ -215,8 +215,7 @@ public class Graph3DFrame extends JFrame implements MouseListener,
         TriVector normal = new TriVector(1, 1, 1);
         normal.normalize();
         for (int i = 0; i < p.length; i++) {
-            Matrix aux = Matrix.subMatrix(p[i], TriVector.multiConsMatrix(TriVector.vInnerProduct(p[i], normal), normal));
-            v[i] = new TriVector(aux.selMatrix(1, 1), aux.selMatrix(2, 1), aux.selMatrix(3, 1));
+            v[i] = TriVector.sub(p[i], TriVector.multConst(TriVector.dot(p[i], normal), normal));
         }
         frame.addScatterData(v, Color.red, 0.01);
 
@@ -224,8 +223,7 @@ public class Graph3DFrame extends JFrame implements MouseListener,
         TriVector normal2 = TriVector.vectorProduct(normal, new TriVector(1, 0, 0));
         normal2.normalize();
         for (int i = 0; i < p.length; i++) {
-            Matrix aux = Matrix.subMatrix(v[i], TriVector.multiConsMatrix(TriVector.vInnerProduct(v[i], normal2), normal2));
-            r[i] = new TriVector(aux.selMatrix(1, 1), aux.selMatrix(2, 1), aux.selMatrix(3, 1));
+            r[i] = TriVector.sub(v[i], TriVector.multConst(TriVector.dot(v[i], normal2), normal2));
         }
         frame.addScatterData(r, Color.green, 0.01);
     }

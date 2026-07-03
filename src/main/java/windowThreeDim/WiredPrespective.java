@@ -30,22 +30,20 @@ public class WiredPrespective implements PaintMethod {
      * @return projected point
      */
     public TriVector Projection(TriVector p) {
-        Matrix m = TriVector.subMatrix(p, eyePos);
-        TriVector res = new TriVector(0, 0, 0);
-        res.setXYZMat(m);
-        res.Transformation(inverseCameraBasis);
+        TriVector res = TriVector.sub(p, eyePos);
+        res = TriVector.Transformation(inverseCameraBasis, res);
 
-        if (res.getZ() < zd)
+        if (res.z < zd)
             isInsideFustrum = false;
         else
             isInsideFustrum = true;
 
 		/* x = (x * d) / z */
-        double x = (res.selMatrix(1, 1) * d) / res.selMatrix(3, 1);
+        double x = (res.x * d) / res.z;
         /* y = (y * d) / z */
-        double y = (res.selMatrix(2, 1) * d) / res.selMatrix(3, 1);
-        res.setMatrix(1, 1, x);
-        res.setMatrix(2, 1, y);
+        double y = (res.y * d) / res.z;
+        res.x = x;
+        res.y = y;
         return res;
     }
 

@@ -75,15 +75,7 @@ public class ZBufferPerspective implements PaintMethod {
      * @return Projected point
      */
     public TriVector project(TriVector p) {
-        TriVector res = new TriVector(0, 0, 0);
-        res.setXYZMat(p);
-        /* x = (x * d) / z */
-        double x = (res.selMatrix(1, 1) * d) / res.selMatrix(3, 1);
-        /* y = (y * d) / z */
-        double y = (res.selMatrix(2, 1) * d) / res.selMatrix(3, 1);
-        res.setMatrix(1, 1, x);
-        res.setMatrix(2, 1, y);
-        return res;
+        return new TriVector((p.x * d) / p.z, (p.y * d) / p.z, p.z);
     }
 
     public Matrix getCameraBasis() {

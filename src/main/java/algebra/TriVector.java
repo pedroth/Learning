@@ -1,119 +1,133 @@
 package algebra;
 
-public class TriVector extends Matrix {
+import java.lang.Math;
+
+
+public class TriVector {
+    public double x;
+    public double y;
+    public double z;
 
     public TriVector() {
-        super(3, 1);
-        new TriVector(0, 0, 0);
+        this.x = 0;
+        this.y = 0;
+        this.z = 0;
     }
 
     public TriVector(double x, double y, double z) {
-        super(3, 1);
-        super.setMatrix(1, 1, x);
-        super.setMatrix(2, 1, y);
-        super.setMatrix(3, 1, z);
-    }
-
-    public static TriVector vectorProduct(TriVector v1, TriVector v2) {
-        TriVector aux;
-        aux = new TriVector(v1.getY() * v2.getZ() - v1.getZ() * v2.getY(),
-                v1.getZ() * v2.getX() - v1.getX() * v2.getZ(), v1.getX()
-                * v2.getY() - v1.getY() * v2.getX());
-        return aux;
-    }
-
-    public static TriVector sum(TriVector u, TriVector v) {
-        return new TriVector(u.getX() + v.getX(), u.getY() + v.getY(), u.getZ() + v.getZ());
-    }
-
-    public static TriVector sub(TriVector u, TriVector v) {
-        return new TriVector(u.getX() - v.getX(), u.getY() - v.getY(), u.getZ() - v.getZ());
-    }
-
-    public static TriVector multConst(double x, TriVector v) {
-        return new TriVector(v.getX() * x, v.getY() * x, v.getZ() * x);
-    }
-
-    public static TriVector Transformation(Matrix m, TriVector v) {
-        TriVector ret = new TriVector();
-        Matrix aux;
-        aux = v;
-        aux = Matrix.multiMatrix(m, aux);
-        ret.setXYZMat(aux);
-        return ret;
+        this.x = x;
+        this.y = y;
+        this.z = z;
     }
 
     public double getX() {
-        return selMatrix(1, 1);
+        return this.x;
     }
 
     public void setX(double a) {
-        this.setMatrix(1, 1, a);
+        this.x = a;
     }
 
     public double getY() {
-        return selMatrix(2, 1);
+        return this.y;
     }
 
     public void setY(double a) {
-        this.setMatrix(2, 1, a);
+        this.y = a;
     }
 
     public double getZ() {
-        return selMatrix(3, 1);
+        return this.z;
     }
 
     public void setZ(double a) {
-        this.setMatrix(3, 1, a);
+        this.z = a;
     }
 
     public void normalize() {
-        double norm;
-        norm = Math.sqrt(this.getX() * this.getX() + this.getY() * this.getY()
-                + this.getZ() * this.getZ());
-        this.setX((1 / norm) * this.getX());
-        this.setY((1 / norm) * this.getY());
-        this.setZ((1 / norm) * this.getZ());
+        double norm = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+        this.x /= norm;
+        this.y /= norm;
+        this.z /= norm;
     }
 
     public void Transformation(Matrix m) {
-        Matrix aux;
-        aux = this;
-        aux = Matrix.multiMatrix(m, aux);
-        this.setXYZMat(aux);
+        double nx = m.selMatrix(1, 1) * this.x + m.selMatrix(1, 2) * this.y + m.selMatrix(1, 3) * this.z;
+        double ny = m.selMatrix(2, 1) * this.x + m.selMatrix(2, 2) * this.y + m.selMatrix(2, 3) * this.z;
+        double nz = m.selMatrix(3, 1) * this.x + m.selMatrix(3, 2) * this.y + m.selMatrix(3, 3) * this.z;
+        this.x = nx;
+        this.y = ny;
+        this.z = nz;
     }
 
     public void setXYZMat(Matrix m) {
-        this.setX(m.selMatrix(1, 1));
-        this.setY(m.selMatrix(2, 1));
-        this.setZ(m.selMatrix(3, 1));
+        this.x = m.selMatrix(1, 1);
+        this.y = m.selMatrix(2, 1);
+        this.z = m.selMatrix(3, 1);
     }
 
     public void sum(TriVector v1) {
-        Matrix a = v1;
-        Matrix b = this;
-        a = Matrix.sumMatrix(a, b);
-        this.setXYZMat(a);
+        this.x += v1.x;
+        this.y += v1.y;
+        this.z += v1.z;
     }
 
     public TriVector copy() {
         TriVector res = new TriVector();
-        Matrix aux = super.copy();
-        res.setXYZMat(aux);
+        res.x = this.x;
+        res.y = this.y;
+        res.z = this.z;
         return res;
     }
 
     public double getLength() {
-        return Math.sqrt(Math.pow(this.getX(), 2) + Math.pow(this.getY(), 2)
-                + Math.pow(this.getZ(), 2));
+        return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
     }
 
     public void multConst(double x) {
-        Matrix aux = TriVector.multiConsMatrix(x, this);
-        this.setXYZMat(aux);
+        this.x *= x;
+        this.y *= x;
+        this.z *= x;
     }
 
     public double norm() {
-        return Math.sqrt(Matrix.vInnerProduct(this, this));
+        return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+    }
+
+    public void fillRandom(double min, double max) {
+        this.x = Math.random() * (max - min) + min;
+        this.y = Math.random() * (max - min) + min;
+        this.z = Math.random() * (max - min) + min;
+    }
+
+    public static TriVector vectorProduct(TriVector v1, TriVector v2) {
+        return new TriVector(
+                v1.y * v2.z - v1.z * v2.y,
+                v1.z * v2.x - v1.x * v2.z,
+                v1.x * v2.y - v1.y * v2.x);
+    }
+
+    public static TriVector sum(TriVector u, TriVector v) {
+        return new TriVector(u.x + v.x, u.y + v.y, u.z + v.z);
+    }
+
+    public static TriVector sub(TriVector u, TriVector v) {
+        return new TriVector(u.x - v.x, u.y - v.y, u.z - v.z);
+    }
+
+    public static TriVector multConst(double x, TriVector v) {
+        return new TriVector(v.x * x, v.y * x, v.z * x);
+    }
+
+    public static double dot(TriVector u, TriVector v) {
+        return u.x * v.x + u.y * v.y + u.z * v.z;
+    }
+
+    public static TriVector Transformation(Matrix m, TriVector v) {
+        return new TriVector(
+                m.selMatrix(1, 1) * v.x + m.selMatrix(1, 2) * v.y + m.selMatrix(1, 3) * v.z,
+                m.selMatrix(2, 1) * v.x + m.selMatrix(2, 2) * v.y + m.selMatrix(2, 3) * v.z,
+                m.selMatrix(3, 1) * v.x + m.selMatrix(3, 2) * v.y + m.selMatrix(3, 3) * v.z
+        );
     }
 }
