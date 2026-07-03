@@ -85,7 +85,7 @@ public class Graph2DFrame extends JFrame {
     }
 
     public static void test1(Graph2DFrame frame) {
-        MyImage immaculata = new MyImage("https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Miraculous_medal.jpg/140px-Miraculous_medal.jpg");
+        MyImage immaculata = new MyImage("https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Miraculous_medal.jpg/500px-Miraculous_medal.jpg");
         /**
          * gray scale matrix
          */
@@ -183,7 +183,7 @@ public class Graph2DFrame extends JFrame {
     }
 
     private static void test5(Graph2DFrame frame) {
-        MyImage immaculatta = new MyImage("https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Miraculous_medal.jpg/140px-Miraculous_medal.jpg");
+        MyImage immaculatta = new MyImage("https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Miraculous_medal.jpg/500px-Miraculous_medal.jpg");
         /**
          * hsv matrix
          */

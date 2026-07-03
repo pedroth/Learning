@@ -23,7 +23,7 @@ import java.util.stream.IntStream;
 public class Graph3DFrame extends JFrame implements MouseListener,
         MouseMotionListener, KeyListener {
     private static final long serialVersionUID = 1L;
-    private static final MyImage IMMACULATA = new MyImage("https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Miraculous_medal.jpg/140px-Miraculous_medal.jpg");
+    private static final MyImage IMMACULATA = new MyImage("https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Miraculous_medal.jpg/120px-Miraculous_medal.jpg");
     /**
      * size of the screen
      */

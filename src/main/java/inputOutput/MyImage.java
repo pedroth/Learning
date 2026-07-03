@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 
 import javax.imageio.ImageIO;
@@ -62,9 +64,13 @@ public class MyImage {
 
 	public void loadImageFromWeb(String s) {
 		try {
-			img = ImageIO.read(new URL(s));
+			HttpURLConnection conn = (HttpURLConnection) new URL(s).openConnection();
+			conn.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; JavaImageLoader/1.0)");
+			conn.connect();
+			try (InputStream is = conn.getInputStream()) {
+				img = ImageIO.read(is);
+			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
