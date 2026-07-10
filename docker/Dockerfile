@@ -1,4 +1,5 @@
 FROM alpine/git AS clone
+ARG CACHEBUST=1
 WORKDIR /apps
 RUN git clone https://github.com/pedroth/Learning.git
 RUN git clone https://github.com/pedroth/pedroEngine.git

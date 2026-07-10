@@ -2,9 +2,9 @@
 set -eu
 
 IMAGE=pedroth/java-apps
-VERSION=${VERSION:-v1.0.6}
+VERSION=${VERSION:-v1.0.8}
 
 # Run this script from the docker folder.
-docker build -t "$IMAGE:latest" -t "$IMAGE:$VERSION" .
+docker build --build-arg CACHEBUST="$(date +%s)" -t "$IMAGE:latest" -t "$IMAGE:$VERSION" .
 docker push "$IMAGE:latest"
 docker push "$IMAGE:$VERSION"
