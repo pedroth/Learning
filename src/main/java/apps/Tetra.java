@@ -490,13 +490,13 @@ public class Tetra extends JFrame implements MouseListener,
     }
 
     private void buildBunny() {
-        ObjParser obj = new ObjParser("http://graphics.stanford.edu/~mdfisher/Data/Meshes/bunny.obj");
+        ObjParser obj = new ObjParser("https://raw.githubusercontent.com/alecjacobson/common-3d-test-models/refs/heads/master/data/stanford-bunny.obj");
         final Composite composite = obj.parse();
         figure = Optional.of(composite);
         composite.forEach(x -> x.setColor(Color.getHSBColor((float) Math.random(), 1.0f, 1.0f)));
         double scale = 10;
         double[][] m = {{scale, 0, 0}, {0, scale, 0}, {0, 0, scale}};
-        composite.transform(new Matrix(m), TriVector.multConst(-1, composite.centroid()));
+        composite.transform(new Matrix(m), TriVector.multConst(-scale, composite.centroid()));
         graphics.addtoList(composite);
         addFlatShader();
         raw = 3.0;
