@@ -65,3 +65,8 @@ Or
 
 - mvn clean install
 - java -cp target/learning.jar apps.Tetra
+
+## Update docker container
+
+- Make sure everything is committed and pushed to `master`
+- Update the version in `updateDockerVersion.sh` and run it
