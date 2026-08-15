@@ -55,3 +55,13 @@ Some experiments made in Java while learning...
 
 ### [visualization](https://github.com/pedroth/Learning/tree/master/src/main/java/visualization)
 * Some visualization utils
+
+
+## Running app example
+
+- mvn clean install exec:java -Dexec.mainClass=apps.Tetra
+
+Or
+
+- mvn clean install
+- java -cp target/learning.jar apps.Tetra

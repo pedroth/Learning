@@ -26,7 +26,7 @@ public class Tetra extends JFrame implements MouseListener,
             .addLine("< w > : Camera move forward / zoom in")
             .addLine("< s > : Camera move backward /zoom out")
             .addLine("< z > : Toggle wireframe / zbuffer")
-            .addLine("< [1-6] > : various geometries")
+            .addLine("< [0-6] > : various geometries")
             .addLine("< 7 > : sphere flow")
             .addLine("< 8 > : distance to camera shader")
             .addLine("< 9 > : random planet")
@@ -317,6 +317,9 @@ public class Tetra extends JFrame implements MouseListener,
         } else if (arg0.getKeyCode() == KeyEvent.VK_4) {
             graphics.removeAllElements();
             buildBunny();
+        } else if (arg0.getKeyCode() == KeyEvent.VK_0) {
+            graphics.removeAllElements();
+            buildLucy();
         } else if (arg0.getKeyCode() == KeyEvent.VK_5) {
             graphics.removeAllElements();
             buildRockerArm();
@@ -490,7 +493,7 @@ public class Tetra extends JFrame implements MouseListener,
     }
 
     private void buildBunny() {
-        ObjParser obj = new ObjParser("https://raw.githubusercontent.com/alecjacobson/common-3d-test-models/refs/heads/master/data/stanford-bunny.obj");
+        ObjParser obj = new ObjParser("https://pedroth.github.io/tela.js/assets/bunny_orig.obj");
         final Composite composite = obj.parse();
         figure = Optional.of(composite);
         composite.forEach(x -> x.setColor(Color.getHSBColor((float) Math.random(), 1.0f, 1.0f)));
@@ -500,6 +503,19 @@ public class Tetra extends JFrame implements MouseListener,
         graphics.addtoList(composite);
         addFlatShader();
         raw = 3.0;
+    }
+
+    private void buildLucy() {
+        ObjParser obj = new ObjParser("https://raw.githubusercontent.com/alecjacobson/common-3d-test-models/master/data/lucy.obj");
+        final Composite composite = obj.parse();
+        figure = Optional.of(composite);
+        composite.forEach(x -> x.setColor(Color.getHSBColor((float) Math.random(), 1.0f, 1.0f)));
+        double scale = 0.01;
+        double[][] m = {{scale, 0, 0}, {0, scale, 0}, {0, 0, scale}};
+        composite.transform(new Matrix(m), TriVector.multConst(-scale, composite.centroid()));
+        graphics.addtoList(composite);
+        addFlatShader();
+        raw = 7.0;
     }
 
     @Override
